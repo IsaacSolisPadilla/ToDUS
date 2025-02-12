@@ -1,4 +1,4 @@
-package com.todus.model;
+package com.todus.Task;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
