@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
+
 @Component
 public class JwtUtil {
     
@@ -27,12 +28,13 @@ public class JwtUtil {
     }
 
     public String generateToken(String email) {
-        return Jwts.builder()
+        String  newToken = Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
+        return newToken;
     }
 
     public boolean validateToken(String token) {
