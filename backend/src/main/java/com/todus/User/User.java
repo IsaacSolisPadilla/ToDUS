@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +14,8 @@ import jakarta.persistence.UniqueConstraint;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+
+import com.todus.Image.Image;
 
 @Entity
 @Setter
@@ -26,7 +30,7 @@ import javax.validation.constraints.NotBlank;
 public class User {
     
     @Id
-   @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "El nombre es obligatorio")
@@ -45,7 +49,11 @@ public class User {
     private String email;
 
     @NotBlank(message = "La contraseña es obligatoria")
-    private String password; //Sera almacenado encriptado
+    private String password;
+
+    @ManyToOne
+    @JoinColumn(name = "image_id", referencedColumnName = "id")
+    private Image image;
 
 
 }

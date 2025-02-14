@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platfor
 import GeneralTemplate from '../components/GeneralTemplate';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
-import { useNavigation } from '@react-navigation/native';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
