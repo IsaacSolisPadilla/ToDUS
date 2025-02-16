@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Image, Modal, ScrollView } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import GeneralTemplate from '../components/GeneralTemplate';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
@@ -32,6 +32,7 @@ const ProfileScreen = ({ navigation }) => {
       setEmail(userData.email);
       setSelectedImageId(userData.imageId);
       setSelectedImageUrl(userData.imageUrl);
+
     } catch (error) {
       console.error('Error al obtener datos del usuario', error);
       Alert.alert('Error', 'No se pudieron cargar los datos del perfil.');
@@ -48,7 +49,7 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
-  // Función para actualizar el perfil
+
   const handleProfileUpdate = async () => {
     try {
       const token = await AsyncStorage.getItem('token');

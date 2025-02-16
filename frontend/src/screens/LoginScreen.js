@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platfor
 import GeneralTemplate from '../components/GeneralTemplate';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -20,10 +21,11 @@ const LoginScreen = ({ navigation }) => {
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.message || 'No se pudo iniciar sesión');
-        
+        throw new Error(data.message || 'No se pudo iniciar sesión');  
       }
-      Alert.alert('Inicio de sesión exitoso', 'Bienvenido');
+      
+      await AsyncStorage.setItem('token', data.token);
+
       navigation.navigate('Profile');
     } catch (error) {
         console.error('Error al iniciar sesión:', error);
