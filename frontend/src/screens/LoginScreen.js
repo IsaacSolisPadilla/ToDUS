@@ -24,7 +24,7 @@ const LoginScreen = ({ navigation }) => {
         
       }
       Alert.alert('Inicio de sesión exitoso', 'Bienvenido');
-      //navigation.navigate('Home');
+      navigation.navigate('Profile');
     } catch (error) {
         console.error('Error al iniciar sesión:', error);
     }

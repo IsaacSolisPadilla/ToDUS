@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/images/list").permitAll()
                 .requestMatchers("src/main/resources/static/icons/**").permitAll()
                 .requestMatchers("/api/images/**").permitAll()
+                .requestMatchers("/api/user/profile").authenticated()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

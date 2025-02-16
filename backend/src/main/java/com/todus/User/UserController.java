@@ -1,40 +1,35 @@
 package com.todus.User;
 
-import org.springframework.web.bind.annotation.*;
-
-import com.todus.Image.Image;
-import com.todus.Image.ImageRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private ImageRepository imageRepository;
+    @GetMapping("/profile")
+    public ResponseEntity<?> getUserProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    @PostMapping("/set-image/{imageId}")
-    public ResponseEntity<String> setUserImage(
-        @AuthenticationPrincipal UserDetails userDetails, 
-        @PathVariable Long imageId
-    ) {
-        User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body("Usuario no autenticado");
+        }
 
-        Image image = imageRepository.findById(imageId)
-                .orElseThrow(() -> new RuntimeException("Imagen no encontrada"));
+        User user = (User) authentication.getPrincipal();
 
-        user.setImage(image);
-        userRepository.save(user);
-
-        return ResponseEntity.ok("Imagen asignada correctamente al usuario.");
+        return ResponseEntity.ok(new UserProfileDTO(
+            user.getName(),
+            user.getEmail(),
+            user.getImage() != null ? user.getImage().getId() : null,
+            user.getImage() != null ? user.getImage().getImageUrl() : null
+        ));
     }
-}
 
+    public record UserProfileDTO(String name, String email, Long imageId, String imageUrl) {}
+}
