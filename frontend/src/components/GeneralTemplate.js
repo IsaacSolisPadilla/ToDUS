@@ -41,9 +41,10 @@ const styles = StyleSheet.create({
     opacity: 0.3, // Aplica la opacidad solo a la vista que contiene la imagen
   },
   background: {
+    position: 'absolute',
     width: width * 0.8,
     height: height * 0.4,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
   },
   overlay: {
     position: 'absolute',

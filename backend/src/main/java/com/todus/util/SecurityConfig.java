@@ -29,6 +29,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/api/auth/change-password").authenticated()
                 .requestMatchers("/api/images/list").permitAll()
+                .requestMatchers("src/main/resources/static/icons/**").permitAll()
+                .requestMatchers("/api/images/**").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

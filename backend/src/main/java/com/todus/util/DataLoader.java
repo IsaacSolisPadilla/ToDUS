@@ -26,7 +26,7 @@ public class DataLoader implements CommandLineRunner {
                 .forEach(path -> {
                     String fileName = path.getFileName().toString();
                     Image image = new Image();
-                    image.setImageUrl("/icons/" + fileName); // Ruta accesible desde el servidor
+                    image.setImageUrl(fileName); // Ruta accesible desde el servidor
                     imageRepository.save(image);
                     System.out.println("Icono guardado: " + fileName);
                 });
