@@ -4,12 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.todus.Image.Image;
+import com.todus.Image.ImageRepository;
 import com.todus.util.JwtUtil;
 
 @Service
 public class AuthService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ImageRepository imageRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -28,8 +33,21 @@ public class AuthService {
         return jwtUtil.generateToken(user.getEmail());
     }
 
-    public User registerUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public User registerUser(RegisterDTO registerDTO) {
+        User user = new User();
+        user.setName(registerDTO.getName());
+        user.setSurname(registerDTO.getSurname());
+        user.setNickname(registerDTO.getNickname());
+        user.setEmail(registerDTO.getEmail());
+        user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+
+        // Buscar la imagen en la base de datos si se proporciona un imageId
+        if (registerDTO.getImageId() != null) {
+            Image image = imageRepository.findById(registerDTO.getImageId())
+                    .orElseThrow(() -> new RuntimeException("Imagen no encontrada"));
+            user.setImage(image);
+        }
+
         return userRepository.save(user);
     }
 
