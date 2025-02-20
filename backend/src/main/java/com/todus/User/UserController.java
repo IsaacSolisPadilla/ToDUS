@@ -4,8 +4,6 @@ package com.todus.User;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -49,7 +47,7 @@ public class UserController {
 
     @PutMapping("/update")
 @Transactional
-public ResponseEntity<?> updateUser(@Valid @RequestBody UserProfileDTO updateUserDTO) {
+public ResponseEntity<?> updateUser(@RequestBody UserProfileDTO updateUserDTO) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
     if (authentication == null || !authentication.isAuthenticated()) {
@@ -71,14 +69,16 @@ public ResponseEntity<?> updateUser(@Valid @RequestBody UserProfileDTO updateUse
         existingUser.setName(updateUserDTO.name());
     }
 
-    // Validar y actualizar email solo si cambió y tiene formato válido
-    if (!existingUser.getEmail().equals(updateUserDTO.email())) {
+    // Validar y actualizar email (verificar que no esté en uso)
+    if (updateUserDTO.email() != null && !updateUserDTO.email().isEmpty()) {
         Optional<User> emailUser = userRepository.findByEmail(updateUserDTO.email());
         if (emailUser.isPresent() && !emailUser.get().getId().equals(existingUser.getId())) {
-            return ResponseEntity.status(400).body("El email ya está en uso por otro usuario");
+            return ResponseEntity.status(401).body("El email ya está en uso por otro usuario");
         }
-        emailChanged = true;
-        existingUser.setEmail(updateUserDTO.email());
+        if (!existingUser.getEmail().equals(updateUserDTO.email())) {
+            emailChanged = true;
+            existingUser.setEmail(updateUserDTO.email());
+        }
     }
 
     // Validar y actualizar imagen si existe
@@ -101,5 +101,4 @@ public ResponseEntity<?> updateUser(@Valid @RequestBody UserProfileDTO updateUse
         "newToken", emailChanged 
     ));
 }
-
 }
