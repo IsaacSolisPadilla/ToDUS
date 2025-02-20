@@ -51,6 +51,12 @@ const ProfileScreen = ({ navigation }) => {
 
 
   const handleProfileUpdate = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      Alert.alert('Error', 'Por favor ingresa un correo electrónico válido.');
+      return;
+    }
     try {
       const token = await AsyncStorage.getItem('token');
       const updatedUser = { name, email, imageId: selectedImageId };

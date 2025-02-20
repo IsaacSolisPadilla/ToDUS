@@ -8,6 +8,8 @@ import com.todus.Image.ImageRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import java.nio.file.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class DataLoader implements CommandLineRunner {
@@ -19,21 +21,26 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (imageRepository.count() == 0) {
-            // Obtener la lista de iconos en la carpeta
-            Files.list(Paths.get(ICON_FOLDER))
+        // Obtener la lista de archivos en la carpeta de iconos
+        List<String> existingImages = imageRepository.findAll()
+                .stream()
+                .map(Image::getImageUrl)
+                .collect(Collectors.toList());
+
+        Files.list(Paths.get(ICON_FOLDER))
                 .filter(Files::isRegularFile)
                 .forEach(path -> {
                     String fileName = path.getFileName().toString();
-                    Image image = new Image();
-                    image.setImageUrl(fileName); // Ruta accesible desde el servidor
-                    imageRepository.save(image);
-                    System.out.println("Icono guardado: " + fileName);
+                    
+                    // Solo guardar si el archivo no existe en la base de datos
+                    if (!existingImages.contains(fileName)) {
+                        Image image = new Image();
+                        image.setImageUrl(fileName);
+                        imageRepository.save(image);
+                        System.out.println("Icono guardado: " + fileName);
+                    }
                 });
 
-            System.out.println("Todos los iconos han sido registrados en la base de datos.");
-        } else {
-            System.out.println("Los iconos ya existen en la base de datos.");
-        }
+        System.out.println("Verificación de iconos completada.");
     }
 }
