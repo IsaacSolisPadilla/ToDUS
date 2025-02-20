@@ -53,24 +53,24 @@ const ProfileScreen = ({ navigation }) => {
   const handleProfileUpdate = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const updatedUser = {
-        name,
-        imageId: selectedImageId
-      };
-
-      await axios.put('http://192.168.0.12:8080/api/user/update', updatedUser, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
+      const updatedUser = { name, email, imageId: selectedImageId };
+      const response = await axios.put('http://192.168.0.12:8080/api/user/update', updatedUser, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      Alert.alert('Perfil actualizado', 'Tus datos se han guardado correctamente.');
+      if (response.data.newToken) {
+        await AsyncStorage.removeItem('token');
+        Alert.alert('Perfil actualizado', 'Tu email ha cambiado, por favor inicia sesión nuevamente.');
+        navigation.replace('Login');
+      } else {
+        Alert.alert('Perfil actualizado', 'Tus datos han sido actualizados correctamente.');
+      }
+  
     } catch (error) {
       console.error('Error al actualizar el perfil:', error);
       Alert.alert('Error', 'No se pudo actualizar el perfil.');
     }
   };
+  
 
   return (
     <GeneralTemplate>
@@ -82,7 +82,7 @@ const ProfileScreen = ({ navigation }) => {
           <Text style={styles.title}>Perfil</Text>
           <View style={styles.formContainer}>
             <InputField placeholder="Nombre" value={name} onChangeText={setName} />
-            <InputField placeholder="Correo Electrónico" value={email} editable={false} />
+            <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail}/>
 
             {/* Círculo con la imagen seleccionada y botón de selección */}
             <View style={styles.imageSelectionContainer}>
