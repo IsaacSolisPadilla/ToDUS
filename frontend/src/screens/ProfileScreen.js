@@ -4,10 +4,14 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GeneralTemplate from '../components/GeneralTemplate';
 import InputField from '../components/InputField';
+import CustomModal from '../components/CustomModal';
 import Button from '../components/Button';
+import GeneralStyles from '../styles/GeneralStyles';
 
 const ProfileScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
+  const [surname, setSurname] = useState('');
+  const [nickname, setNickname] = useState('');
   const [name, setName] = useState('');
   const [selectedImageId, setSelectedImageId] = useState(null);
   const [selectedImageUrl, setSelectedImageUrl] = useState(null);
@@ -29,6 +33,8 @@ const ProfileScreen = ({ navigation }) => {
 
       const userData = response.data;
       setName(userData.name);
+      setSurname(userData.surname);
+      setNickname(userData.nickname);
       setEmail(userData.email);
       setSelectedImageId(userData.imageId);
       setSelectedImageUrl(userData.imageUrl);
@@ -59,36 +65,66 @@ const ProfileScreen = ({ navigation }) => {
     }
     try {
       const token = await AsyncStorage.getItem('token');
-      const updatedUser = { name, email, imageId: selectedImageId };
+      const updatedUser = { 
+        name, 
+        surname, 
+        nickname, 
+        email, 
+        imageId: selectedImageId };
+
       const response = await axios.put('http://192.168.0.12:8080/api/user/update', updatedUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       if (response.data.newToken) {
         await AsyncStorage.removeItem('token');
         Alert.alert('Perfil actualizado', 'Tu email ha cambiado, por favor inicia sesión nuevamente.');
         navigation.replace('Login');
+
+        
       } else {
         Alert.alert('Perfil actualizado', 'Tus datos han sido actualizados correctamente.');
       }
+
+      
   
     } catch (error) {
       console.error('Error al actualizar el perfil:', error);
-      Alert.alert('Error', 'No se pudo actualizar el perfil.');
-    }
+
+        // Verificar si el backend devuelve errores específicos en formato JSON
+        if (error.response && error.response.data) {
+          if (error.response.data.errors && Array.isArray(error.response.data.errors)) {
+            // Si hay múltiples errores, unirlos en un solo mensaje con saltos de línea
+            const errorMessage = error.response.data.errors.join('\n');
+            Alert.alert('Error', errorMessage);
+          } else if (typeof error.response.data === 'string') {
+            // Si el backend envía un mensaje de error como string
+            Alert.alert('Error', error.response.data);
+          } else {
+            // Mensaje genérico si no se reconoce la estructura de la respuesta
+            Alert.alert('Error', 'No se pudo actualizar el perfil.');
+          }
+        } else {
+          // Si no hay respuesta del backend (problema de conexión)
+          Alert.alert('Error', 'No se pudo conectar con el servidor.');
+        }
+      }
+    
   };
-  
 
   return (
     <GeneralTemplate>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
-        style={styles.keyboardAvoiding}
+        style={GeneralStyles.keyboardAvoiding}
       >
-        <View style={styles.innerContainer}>
-          <Text style={styles.title}>Perfil</Text>
-          <View style={styles.formContainer}>
+        <View style={GeneralStyles.innerContainer}>
+          <Text style={GeneralStyles.title}>Perfil</Text>
+          <View style={GeneralStyles.formContainer}>
             <InputField placeholder="Nombre" value={name} onChangeText={setName} />
-            <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail}/>
+            <InputField placeholder="Apellido" value={surname} onChangeText={setSurname} />
+            <InputField placeholder="Nombre de Usuario" value={nickname} onChangeText={setNickname} />
+            <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail} keyboardType="email-address"/>
 
             {/* Círculo con la imagen seleccionada y botón de selección */}
             <View style={styles.imageSelectionContainer}>
@@ -108,67 +144,38 @@ const ProfileScreen = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Modal para seleccionar imagen */}
-        <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Elige un icono</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScroll}>
-                {images.map((image) => (
-                  <TouchableOpacity
-                    key={image.id}
-                    onPress={() => {
-                      setSelectedImageId(image.id);
-                      setSelectedImageUrl(image.imageUrl);
-                      setModalVisible(false);
-                    }}
-                    style={[
-                      styles.imageOption,
-                      selectedImageId === image.id ? styles.selectedImage : {},
-                    ]}
-                  >
-                    <Image source={{ uri: `http://192.168.0.12:8080/api/images/${image.imageUrl}` }} style={styles.image} />
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-              <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                <Text style={styles.closeButtonText}>Cerrar</Text>
+        <CustomModal
+          visible={modalVisible}
+          title="Elige un icono"
+          onConfirm={() => setModalVisible(false)}
+          onCancel={() => setModalVisible(false)}
+          showCancel={false}
+          >
+          <View horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row' }}>
+            {images.map((image) => (
+              <TouchableOpacity
+                key={image.id}
+                onPress={() => {
+                  setSelectedImageId(image.id)
+                  setSelectedImageUrl(image.imageUrl)
+                }}
+                style={[
+                  styles.imageOption,
+                  selectedImageId === image.id ? styles.selectedImage : {},
+                ]}
+                >
+                <Image source={{ uri: `http://192.168.0.12:8080/api/images/${image.imageUrl}` }} 
+                style={styles.image} />
               </TouchableOpacity>
-            </View>
+            ))}
           </View>
-        </Modal>
+        </CustomModal>
       </KeyboardAvoidingView>
     </GeneralTemplate>
   );
 };
 
 const styles = StyleSheet.create({
-  keyboardAvoiding: {
-    flex: 1,
-    width: '100%',
-  },
-  innerContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
-  title: {
-    fontSize: 42,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 30,
-    marginTop: 100,
-  },
-  formContainer: {
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 50,
-    marginTop: 50,
-  },
-  link: {
-    color: 'white',
-    marginTop: 10,
-  },
   imageSelectionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -198,28 +205,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    width: '80%',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  imageScroll: {
-    flexDirection: 'row',
-    marginVertical: 10,
-  },
   imageOption: {
     marginHorizontal: 5,
     padding: 5,
@@ -234,17 +219,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 10,
-  },
-  closeButton: {
-    marginTop: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    backgroundColor: 'red',
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
   },
 });
 

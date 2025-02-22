@@ -8,6 +8,12 @@ public record UserProfileDTO(
     @NotBlank(message = "El nombre no puede estar vacío")
     String name,
 
+    @NotBlank
+    String surname,
+
+    @NotBlank
+    String nickname,
+    
     @NotBlank(message = "El email no puede estar vacío")
     @Email(message = "El email debe tener un formato válido")
     String email,

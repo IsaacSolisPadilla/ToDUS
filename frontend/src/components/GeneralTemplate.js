@@ -13,9 +13,7 @@ const GeneralTemplate = ({ children }) => {
       <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Home')}>
         <Feather name="home" size={35} color="white" />
       </TouchableOpacity>
-      <View style={styles.backgroundContainer}>
         <ImageBackground source={require('../../assets/background.png')} style={styles.background} />
-      </View>
       <View style={styles.overlay}>{children}</View>
     </View>
   );
@@ -34,24 +32,22 @@ const styles = StyleSheet.create({
     right: 20,
     zIndex: 10,
   },
-  backgroundContainer: {
-    ...StyleSheet.absoluteFillObject,
+  background: {
+    marginTop: 240,
+    width: width,
+    height: height * 0.5,
+    resizeMode: 'cover',
     justifyContent: 'center',
     alignItems: 'center',
-    opacity: 0.3, // Aplica la opacidad solo a la vista que contiene la imagen
-  },
-  background: {
-    position: 'absolute',
-    width: width * 0.8,
-    height: height * 0.4,
-    resizeMode: 'cover',
-  },
-  overlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
+    opacity: 0.3,
+  },
+  overlay: {
+    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
   },

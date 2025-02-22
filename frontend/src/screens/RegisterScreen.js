@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Image, Modal, ScrollView } from 'react-native';
 import GeneralTemplate from '../components/GeneralTemplate';
 import InputField from '../components/InputField';
+import CustomModal from '../components/CustomModal';
+import useValidation from '../hooks/useValidation';
 import Button from '../components/Button';
 import axios from 'axios';
+import GeneralStyles from '../styles/GeneralStyles';
 
 const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -44,6 +47,18 @@ const RegisterScreen = ({ navigation }) => {
 
   const handleRegister = async () => {
     try {
+      if (password !== confirmPassword) {
+        throw new Error('Las contraseñas no coinciden');
+      }
+  
+      if (!selectedImageId) {
+        throw new Error('Debes seleccionar una imagen');
+      }
+  
+      if (!name || !surname || !nickname || !email || !password || !confirmPassword) {
+        throw new Error('Debes completar todos los campos');
+      }
+  
       const response = await fetch('http://192.168.0.12:8080/api/auth/register', {
         method: 'POST',
         headers: {
@@ -55,42 +70,44 @@ const RegisterScreen = ({ navigation }) => {
       const data = await response.json();
   
       if (!response.ok) {
+        // Si el backend devuelve una lista de errores, mostramos el primero o todos
+        if (data.errors && Array.isArray(data.errors)) {
+          throw new Error(data.errors.join('\n')); // Muestra todos los errores separados por saltos de línea
+        }
         throw new Error(data.message || 'No se pudo completar el registro');
-      }
-      if (password !== confirmPassword) {
-        throw new Error('Las contraseñas no coinciden');
-      }
-
-      if(!selectedImageId) {
-        throw new Error('Debes seleccionar una imagen');
-      }
-      if(!name || !surname || !nickname || !email || !password || !confirmPassword) {
-        throw new Error('Debes completar todos los campos');
       }
   
       Alert.alert('Registro exitoso', 'Tu cuenta ha sido creada con éxito. Inicia sesión para continuar.');
-      navigation.navigate('Login'); // Redirigir a la pantalla de inicio de sesión
+      navigation.navigate('Login');
     } catch (error) {
       console.error('Error en el registro:', error);
       Alert.alert('Error', error.message || 'No se pudo completar el registro');
     }
   };
 
+  const { emailError, passwordError, confirmPasswordError } = useValidation(email, password, confirmPassword);
+
   return (
     <GeneralTemplate>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
-        style={styles.keyboardAvoiding}
+        style={GeneralStyles.keyboardAvoiding}
       >
-        <View style={styles.innerContainer}>
-          <Text style={styles.title}>Registrate</Text>
-          <View style={styles.formContainer}>
+        <View style={GeneralStyles.innerContainer}>
+          <Text style={GeneralStyles.title}>Registrate</Text>
+          <View style={GeneralStyles.formContainer}>
             <InputField placeholder="Nombre" value={name} onChangeText={setName} />
             <InputField placeholder="Apellido" value={surname} onChangeText={setSurname} />
             <InputField placeholder="Nombre de Usuario" value={nickname} onChangeText={setNickname} />
-            <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail} />
+
+            <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail}  keyboardType="email-address"/>
+            {emailError ? <Text style={GeneralStyles.errorText}>{emailError}</Text> : null}
+
             <InputField placeholder="Contraseña" value={password} onChangeText={setPassword} secureTextEntry />
+            {passwordError ? <Text style={GeneralStyles.errorText}>{passwordError}</Text> : null}
+
             <InputField placeholder="Confirmar Contraseña" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
+            {confirmPasswordError ? <Text style={GeneralStyles.errorText}>{confirmPasswordError}</Text> : null}
 
             {/* Círculo con la imagen seleccionada y botón de selección */}
             <View style={styles.imageSelectionContainer}>
@@ -108,73 +125,41 @@ const RegisterScreen = ({ navigation }) => {
 
             <Button title="Ingresar" onPress={handleRegister} />
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.link}>Tienes cuenta, Iniciar Sesión</Text>
+              <Text style={GeneralStyles.link}>Tienes cuenta, Iniciar Sesión</Text>
             </TouchableOpacity>
           </View>
         </View>
-
-        {/* Modal para seleccionar imagen */}
-        <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Elige un icono</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScroll}>
-                {images.map((image) => (
-                  <TouchableOpacity
-                    key={image.id}
-                    onPress={() => {
-                      setSelectedImageId(image.id);
-                      setSelectedImageUrl(image.imageUrl);
-                      setModalVisible(false);
-                    }}
-                    style={[
-                      styles.imageOption,
-                      selectedImageId === image.id ? styles.selectedImage : {},
-                    ]}
-                  >
-                    <Image source={{ uri: `http://192.168.0.12:8080/api/images/${image.imageUrl}` }} style={styles.image} />
-                    console.log(image.imageUrl)
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-              <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                <Text style={styles.closeButtonText}>Cerrar</Text>
+          {/* Usamos el modal reutilizable */}
+        <CustomModal
+          visible={modalVisible}
+          title="Elige un icono"
+          onConfirm={() => setModalVisible(false)}
+          onCancel={() => setModalVisible(false)}
+          >
+          <View horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row' }}>
+            {images.map((image) => (
+              <TouchableOpacity
+                key={image.id}
+                onPress={() => {
+                  setSelectedImageId(image.id)
+                  setSelectedImageUrl(image.imageUrl)
+                }}
+                style={[
+                  styles.imageOption,
+                  selectedImageId === image.id ? styles.selectedImage : {},
+                ]}
+                >
+                <Image source={{ uri: `http://192.168.0.12:8080/api/images/${image.imageUrl}` }} style={styles.image} />
               </TouchableOpacity>
-            </View>
+            ))}
           </View>
-        </Modal>
+        </CustomModal>
       </KeyboardAvoidingView>
     </GeneralTemplate>
   );
 };
 
 const styles = StyleSheet.create({
-  keyboardAvoiding: {
-    flex: 1,
-    width: '100%',
-  },
-  innerContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
-  title: {
-    fontSize: 42,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 30,
-    marginTop: 100,
-  },
-  formContainer: {
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 50,
-    marginTop: 50,
-  },
-  link: {
-    color: 'white',
-    marginTop: 10,
-  },
   imageSelectionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -204,28 +189,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    width: '80%',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  imageScroll: {
-    flexDirection: 'row',
-    marginVertical: 10,
-  },
   imageOption: {
     marginHorizontal: 5,
     padding: 5,
@@ -240,17 +203,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 10,
-  },
-  closeButton: {
-    marginTop: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    backgroundColor: 'red',
-    borderRadius: 5,
-  },
-  closeButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
   },
 });
 
