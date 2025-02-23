@@ -58,6 +58,10 @@ const RegisterScreen = ({ navigation }) => {
       if (!name || !surname || !nickname || !email || !password || !confirmPassword) {
         throw new Error('Debes completar todos los campos');
       }
+
+      if(emailError || passwordError || confirmPasswordError){
+        throw new Error('Corrige los errores antes de continuar.');
+      }
   
       const response = await fetch('http://192.168.0.12:8080/api/auth/register', {
         method: 'POST',
@@ -85,6 +89,8 @@ const RegisterScreen = ({ navigation }) => {
     }
   };
 
+  const { emailError, passwordError, confirmPasswordError } = useValidation(password, confirmPassword, email);
+  
   return (
     <GeneralTemplate>
       <KeyboardAvoidingView
@@ -112,10 +118,13 @@ const RegisterScreen = ({ navigation }) => {
             <InputField placeholder="Nombre de Usuario" value={nickname} onChangeText={setNickname} />
 
             <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail}  keyboardType="email-address"/>
+            {emailError ? <Text style={GeneralStyles.errorText}>{emailError}</Text> : null}
 
             <InputField placeholder="Contraseña" value={password} onChangeText={setPassword} secureTextEntry />
+            {passwordError ? <Text style={GeneralStyles.errorText}>{passwordError}</Text> : null}
 
             <InputField placeholder="Confirmar Contraseña" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
+            {confirmPasswordError ? <Text style={GeneralStyles.errorText}>{confirmPasswordError}</Text> : null}
 
             <Button title="Ingresar" onPress={handleRegister} />
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
