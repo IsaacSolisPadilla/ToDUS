@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,6 +37,11 @@ public class AuthController {
             if (token == null || token.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Usuario o contraseña incorrectos"));
+            }
+
+            if(user.getEmail().isEmpty()){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Rellene los campos"));
             }
     
             return ResponseEntity.ok(Map.of("token", token));
@@ -107,10 +113,13 @@ public class AuthController {
 
 
     @PostMapping("/change-password")
-    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDTO request) {
-        authService.changePassword(request);
-        return ResponseEntity.ok("Contraseña cambiada correctamente");
+    public ResponseEntity<?> changePassword(@RequestHeader("Authorization") String token, @RequestBody ChangePasswordDTO request) {
+        try {
+            return ResponseEntity.ok(authService.changePassword(token, request));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "Error interno en el servidor"));
+        }
     }
-    
-    
 }

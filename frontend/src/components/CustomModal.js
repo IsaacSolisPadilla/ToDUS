@@ -71,13 +71,13 @@ const styles = {
     marginRight: 10,
   },
   closeButton: {
-    backgroundColor: '#B055FF', // Color de Cancelar
+    backgroundColor: '#C380FF', // Color de Cancelar
     paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 5,
   },
   buttonText: {
-    color: 'white',
+    color: '0C2527',
     fontWeight: 'bold',
   },
 };

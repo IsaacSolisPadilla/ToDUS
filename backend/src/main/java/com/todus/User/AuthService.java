@@ -1,7 +1,10 @@
 package com.todus.User;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.todus.Image.Image;
@@ -21,6 +24,9 @@ public class AuthService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public String login(String email, String password) {
         User user = userRepository.findByEmail(email)
@@ -51,11 +57,19 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    public void changePassword(ChangePasswordDTO request) {
-        User user = userRepository.findByEmail(request.getEmail())
+    public User getAuthenticatedUser(String token) {
+        String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
 
-        //Verificar si la contraseña actual es correcta
+    /**
+     * Cambia la contraseña de un usuario autenticado.
+     */
+    public Map<String, String> changePassword(String token, ChangePasswordDTO request) {
+        User user = getAuthenticatedUser(token);
+
+        // Verificar si la contraseña actual es correcta
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new RuntimeException("La contraseña actual es incorrecta");
         }
@@ -68,5 +82,7 @@ public class AuthService {
         // Cifrar la nueva contraseña y guardarla
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+
+        return Map.of("message", "Contraseña cambiada correctamente");
     }
 }

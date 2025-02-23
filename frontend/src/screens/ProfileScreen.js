@@ -7,6 +7,7 @@ import InputField from '../components/InputField';
 import CustomModal from '../components/CustomModal';
 import Button from '../components/Button';
 import GeneralStyles from '../styles/GeneralStyles';
+import useValidation from '../hooks/useValidation';
 
 const ProfileScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -63,6 +64,11 @@ const ProfileScreen = ({ navigation }) => {
       Alert.alert('Error', 'Por favor ingresa un correo electrónico válido.');
       return;
     }
+
+    if(emailError) {
+      Alert.alert('Error', 'Corrige los errores antes de continuar.');
+      return;
+    }
     try {
       const token = await AsyncStorage.getItem('token');
       const updatedUser = { 
@@ -112,6 +118,7 @@ const ProfileScreen = ({ navigation }) => {
     
   };
 
+  const {emailError} = useValidation("", "", email);
   return (
     <GeneralTemplate>
       <KeyboardAvoidingView
@@ -120,14 +127,8 @@ const ProfileScreen = ({ navigation }) => {
       >
         <View style={GeneralStyles.innerContainer}>
           <Text style={GeneralStyles.title}>Perfil</Text>
-          <View style={GeneralStyles.formContainer}>
-            <InputField placeholder="Nombre" value={name} onChangeText={setName} />
-            <InputField placeholder="Apellido" value={surname} onChangeText={setSurname} />
-            <InputField placeholder="Nombre de Usuario" value={nickname} onChangeText={setNickname} />
-            <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail} keyboardType="email-address"/>
-
-            {/* Círculo con la imagen seleccionada y botón de selección */}
-            <View style={styles.imageSelectionContainer}>
+          {/* Círculo con la imagen seleccionada y botón de selección */}
+          <View style={styles.imageSelectionContainer}>
               <View style={styles.imageCircle}>
                 {selectedImageUrl ? (
                   <Image source={{ uri: `http://192.168.0.12:8080/api/images/${selectedImageUrl}` }} style={styles.imageCircle} />
@@ -138,9 +139,17 @@ const ProfileScreen = ({ navigation }) => {
               <TouchableOpacity style={styles.selectImageButton} onPress={() => setModalVisible(true)}>
                 <Text style={styles.selectImageText}>Seleccionar Imagen</Text>
               </TouchableOpacity>
-            </View>
+          </View>
+
+          <View style={GeneralStyles.formContainer}>
+            <InputField placeholder="Nombre" value={name} onChangeText={setName} />
+            <InputField placeholder="Apellido" value={surname} onChangeText={setSurname} />
+            <InputField placeholder="Nombre de Usuario" value={nickname} onChangeText={setNickname} />
+            <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail} keyboardType="email-address"/>
+            {emailError ? <Text style={GeneralStyles.errorText}>{emailError}</Text> : null}
 
             <Button title="Guardar Cambios" onPress={handleProfileUpdate} />
+            <Button title="Cambiar Contraseña" onPress={() => navigation.navigate('ChangePassword')} />
           </View>
         </View>
 
@@ -179,7 +188,7 @@ const styles = StyleSheet.create({
   imageSelectionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 10,
   },
   imageCircle: {
     width: 60,
@@ -198,11 +207,11 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: '#007bff',
+    backgroundColor: '#16CDD6',
     borderRadius: 5,
   },
   selectImageText: {
-    color: 'white',
+    color: '0C2527',
     fontWeight: 'bold',
   },
   imageOption: {

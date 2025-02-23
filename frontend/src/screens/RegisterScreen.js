@@ -85,8 +85,6 @@ const RegisterScreen = ({ navigation }) => {
     }
   };
 
-  const { emailError, passwordError, confirmPasswordError } = useValidation(email, password, confirmPassword);
-
   return (
     <GeneralTemplate>
       <KeyboardAvoidingView
@@ -95,22 +93,8 @@ const RegisterScreen = ({ navigation }) => {
       >
         <View style={GeneralStyles.innerContainer}>
           <Text style={GeneralStyles.title}>Registrate</Text>
-          <View style={GeneralStyles.formContainer}>
-            <InputField placeholder="Nombre" value={name} onChangeText={setName} />
-            <InputField placeholder="Apellido" value={surname} onChangeText={setSurname} />
-            <InputField placeholder="Nombre de Usuario" value={nickname} onChangeText={setNickname} />
-
-            <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail}  keyboardType="email-address"/>
-            {emailError ? <Text style={GeneralStyles.errorText}>{emailError}</Text> : null}
-
-            <InputField placeholder="Contraseña" value={password} onChangeText={setPassword} secureTextEntry />
-            {passwordError ? <Text style={GeneralStyles.errorText}>{passwordError}</Text> : null}
-
-            <InputField placeholder="Confirmar Contraseña" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
-            {confirmPasswordError ? <Text style={GeneralStyles.errorText}>{confirmPasswordError}</Text> : null}
-
-            {/* Círculo con la imagen seleccionada y botón de selección */}
-            <View style={styles.imageSelectionContainer}>
+          {/* Círculo con la imagen seleccionada y botón de selección */}
+          <View style={styles.imageSelectionContainer}>
               <View style={styles.imageCircle}>
                 {selectedImageUrl ? (
                   <Image source={{ uri: `http://192.168.0.12:8080/api/images/${selectedImageUrl}` }} style={styles.imageCircle} />
@@ -122,6 +106,16 @@ const RegisterScreen = ({ navigation }) => {
                 <Text style={styles.selectImageText}>Seleccionar Imagen</Text>
               </TouchableOpacity>
             </View>
+          <View style={GeneralStyles.formContainer}>
+            <InputField placeholder="Nombre" value={name} onChangeText={setName} />
+            <InputField placeholder="Apellido" value={surname} onChangeText={setSurname} />
+            <InputField placeholder="Nombre de Usuario" value={nickname} onChangeText={setNickname} />
+
+            <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail}  keyboardType="email-address"/>
+
+            <InputField placeholder="Contraseña" value={password} onChangeText={setPassword} secureTextEntry />
+
+            <InputField placeholder="Confirmar Contraseña" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
 
             <Button title="Ingresar" onPress={handleRegister} />
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -135,6 +129,7 @@ const RegisterScreen = ({ navigation }) => {
           title="Elige un icono"
           onConfirm={() => setModalVisible(false)}
           onCancel={() => setModalVisible(false)}
+          showCancel={false}
           >
           <View horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row' }}>
             {images.map((image) => (

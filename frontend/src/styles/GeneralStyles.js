@@ -26,7 +26,7 @@ const GeneralStyles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     marginBottom: 50,
-    marginTop: 50,
+    marginTop: 30,
   },
   errorText: {
     color: 'red',

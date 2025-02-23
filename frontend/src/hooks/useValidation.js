@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 
-const useValidation = (email, password, confirmPassword) => {
+const useValidation = (password = "", confirmPassword = "", email = null) => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
-  // Validación de email en tiempo real
+  // Validación de email
   useEffect(() => {
-    if (email.length > 0) {
+    if (email !== null && email.length > 0) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       setEmailError(emailRegex.test(email) ? '' : 'Correo inválido');
     } else {
@@ -15,18 +15,15 @@ const useValidation = (email, password, confirmPassword) => {
     }
   }, [email]);
 
-  // Validación de contraseña en tiempo real
+  // Validación de contraseña
   useEffect(() => {
     if (password.length > 0) {
-      if (password.length < 6) {
-        setPasswordError('Mínimo 6 caracteres');
-      } else if (!/[A-Z]/.test(password)) {
-        setPasswordError('Debe incluir al menos una mayúscula');
-      } else if (!/\d/.test(password)) {
-        setPasswordError('Debe incluir al menos un número');
-      } else {
-        setPasswordError('');
-      }
+      let errorMessage = '';
+      if (password.length < 6) errorMessage = 'Mínimo 6 caracteres';
+      else if (!/[A-Z]/.test(password)) errorMessage = 'Debe incluir al menos una mayúscula';
+      else if (!/\d/.test(password)) errorMessage = 'Debe incluir al menos un número';
+      
+      setPasswordError(errorMessage);
     } else {
       setPasswordError('');
     }
