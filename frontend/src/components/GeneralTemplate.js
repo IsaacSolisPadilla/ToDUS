@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Text, View, ImageBackground, StyleSheet, Dimensions, TouchableOpacity, Animated, Image, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomModal from '../components/CustomModal';
 import axios from 'axios'; // Para obtener la imagen del usuario
@@ -76,17 +77,18 @@ const GeneralTemplate = ({ children }) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar style="light" backgroundColor="transparent" translucent />
       {/* Navbar animada */}
       <Animated.View style={[styles.navbar, { width: navWidth }]}>
         <TouchableOpacity style={styles.navItem} onPress={toggleNavbar}>
-          <Feather name="menu" size={30} color="white" />
+          <Feather name="menu" size={30} color="#CDF8FA" />
           <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
             <Text style={styles.navText}>Menú</Text>
           </Animated.View>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
-          <Feather name="home" size={30} color="white" />
+          <Feather name="home" size={30} color="#CDF8FA" />
           <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
             <Text style={styles.navText}>Inicio</Text>
           </Animated.View>
@@ -97,7 +99,7 @@ const GeneralTemplate = ({ children }) => {
             {userImage ? (
               <Image source={{ uri: userImage }} style={styles.profileImage} />
             ) : (
-              <Feather name="user" size={30} color="white" />
+              <Feather name="user" size={30} color="#CDF8FA" />
             )}
             <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
               <Text style={styles.navText}>Perfil</Text>
@@ -115,7 +117,7 @@ const GeneralTemplate = ({ children }) => {
         {/* Botones en la parte inferior */}
         <View style={styles.bottomNav}>
           <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('About')}>
-            <Feather name="info" size={25} color="white" />
+            <Feather name="info" size={25} color="#CDF8FA" />
             <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
               <Text style={styles.navText}>About</Text>
             </Animated.View>
@@ -123,7 +125,7 @@ const GeneralTemplate = ({ children }) => {
 
           {isLoggedIn && (
             <TouchableOpacity style={styles.navItem} onPress={handleLogout}>
-              <Feather name="log-out" size={25} color="white" />
+              <Feather name="log-out" size={25} color="#CDF8FA" />
               <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
                 <Text style={styles.navText}>Logout</Text>
               </Animated.View>
@@ -134,7 +136,7 @@ const GeneralTemplate = ({ children }) => {
 
       {/* Botón de inicio en la parte superior derecha */}
       <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Home')}>
-        <Feather name="home" size={35} color="white" />
+        <Feather name="home" size={35} color="#CDF8FA" />
       </TouchableOpacity>
 
       {/* Fondo y contenido */}
@@ -172,7 +174,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    height: height,
+    height: '100%',
     backgroundColor: 'rgba(12, 37, 39, 1)',
     paddingTop: 60,
     alignItems: 'flex-start',

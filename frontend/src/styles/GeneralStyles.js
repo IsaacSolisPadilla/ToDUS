@@ -4,12 +4,12 @@ const GeneralStyles = StyleSheet.create({
   title: {
     fontSize: 42,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#CDF8FA',
     marginBottom: 30,
     marginTop: 100,
   },
   link: {
-    color: 'white',
+    color: '#CDF8FA',
     fontSize: 16,
     marginTop: 10,
   },
