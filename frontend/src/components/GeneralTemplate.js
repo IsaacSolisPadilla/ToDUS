@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 20,
-    width: 100,
+    width: 150,
     paddingLeft: 8,
   },
   textContainer: {

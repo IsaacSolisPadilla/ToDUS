@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, Alert, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
-import { Feather } from '@expo/vector-icons'; // Importamos el icono de ojo
+import { Feather } from '@expo/vector-icons'; 
 import GeneralTemplate from '../components/GeneralTemplate';
 import InputField from '../components/InputField';
 import CustomModal from '../components/CustomModal';
@@ -43,6 +43,33 @@ const ChangePasswordScreen = ({ navigation }) => {
     }
 
     setModalVisible(true);
+  };
+
+  // Confirmar y guardar la nueva contraseña
+  const confirmChange = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        Alert.alert('Error', 'No estás autenticado. Inicia sesión de nuevo.');
+        return;
+      }
+
+      const response = await axios.post(
+        'http://192.168.0.12:8080/api/auth/change-password',
+        { oldPassword, newPassword, confirmNewPassword },
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+      );
+
+      Alert.alert('Éxito', 'Contraseña cambiada correctamente', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]);
+
+      setModalVisible(false);
+    } catch (error) {
+      console.error('Error al cambiar la contraseña:', error);
+      const errorMessage = error.response?.data?.error || 'No se pudo cambiar la contraseña';
+      Alert.alert('Error', errorMessage);
+    }
   };
 
   return (
@@ -98,7 +125,12 @@ const ChangePasswordScreen = ({ navigation }) => {
           </View>
         </View>
 
-        <CustomModal visible={modalVisible} title="¿Estás seguro?" onConfirm={() => {}} onCancel={() => setModalVisible(false)}>
+        <CustomModal
+          visible={modalVisible}
+          title="¿Estás seguro?"
+          onConfirm={confirmChange}
+          onCancel={() => setModalVisible(false)}
+        >
           <Text>¿Estás seguro de que quieres cambiar tu contraseña?</Text>
         </CustomModal>
       </KeyboardAvoidingView>

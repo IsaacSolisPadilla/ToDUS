@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Image, Modal, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Image, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import GeneralTemplate from '../components/GeneralTemplate';
 import InputField from '../components/InputField';
 import CustomModal from '../components/CustomModal';
@@ -7,6 +7,7 @@ import useValidation from '../hooks/useValidation';
 import Button from '../components/Button';
 import axios from 'axios';
 import GeneralStyles from '../styles/GeneralStyles';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -19,7 +20,7 @@ const RegisterScreen = ({ navigation }) => {
   const [selectedImageUrl, setSelectedImageUrl] = useState(null);
   const [images, setImages] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [error, setError] = useState('');
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
 
   // Obtener la lista de imágenes desde el backend
   useEffect(() => {
@@ -33,6 +34,20 @@ const RegisterScreen = ({ navigation }) => {
     };
 
     fetchImages();
+  }, []);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setIsKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setIsKeyboardVisible(false);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
   }, []);
 
   const userData = {
@@ -93,72 +108,80 @@ const RegisterScreen = ({ navigation }) => {
   
   return (
     <GeneralTemplate>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
-        style={GeneralStyles.keyboardAvoiding}
-      >
-        <View style={GeneralStyles.innerContainer}>
-          <Text style={GeneralStyles.title}>Registrate</Text>
-          {/* Círculo con la imagen seleccionada y botón de selección */}
-          <View style={styles.imageSelectionContainer}>
-              <View style={styles.imageCircle}>
-                {selectedImageUrl ? (
-                  <Image source={{ uri: `http://192.168.0.12:8080/api/images/${selectedImageUrl}` }} style={styles.imageCircle} />
-                ) : (
-                  <Text style={styles.imagePlaceholder}>?</Text>
-                )}
+      <TouchableWithoutFeedback onPress={() => { if (!isKeyboardVisible) Keyboard.dismiss(); }}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+          style={GeneralStyles.keyboardAvoiding}
+        >
+          <ScrollView 
+            contentContainerStyle={{ flexGrow: 1 }} 
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled" // Permite tocar inputs sin cerrar teclado
+          >            
+          <View style={GeneralStyles.innerContainer}>
+              <Text style={GeneralStyles.title}>Registrate</Text>
+              {/* Círculo con la imagen seleccionada y botón de selección */}
+              <View style={styles.imageSelectionContainer}>
+                <View style={styles.imageCircle}>
+                  {selectedImageUrl ? (
+                    <Image source={{ uri: `http://192.168.0.12:8080/api/images/${selectedImageUrl}` }} style={styles.imageCircle} />
+                  ) : (
+                    <Text style={styles.imagePlaceholder}>?</Text>
+                  )}
+                </View>
+                <TouchableOpacity style={styles.selectImageButton} onPress={() => setModalVisible(true)}>
+                  <Text style={styles.selectImageText}>Seleccionar Imagen</Text>
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity style={styles.selectImageButton} onPress={() => setModalVisible(true)}>
-                <Text style={styles.selectImageText}>Seleccionar Imagen</Text>
-              </TouchableOpacity>
+              <View style={GeneralStyles.formContainer}>
+                <InputField placeholder="Nombre" value={name} onChangeText={setName} />
+                <InputField placeholder="Apellido" value={surname} onChangeText={setSurname} />
+                <InputField placeholder="Nombre de Usuario" value={nickname} onChangeText={setNickname} />
+
+                <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail} keyboardType="email-address" />
+                {emailError ? <Text style={GeneralStyles.errorText}>{emailError}</Text> : null}
+
+                <InputField placeholder="Contraseña" value={password} onChangeText={setPassword} secureTextEntry />
+                {passwordError ? <Text style={GeneralStyles.errorText}>{passwordError}</Text> : null}
+
+                <InputField placeholder="Confirmar Contraseña" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
+                {confirmPasswordError ? <Text style={GeneralStyles.errorText}>{confirmPasswordError}</Text> : null}
+
+                <Button title="Ingresar" onPress={handleRegister} />
+                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                  <Text style={GeneralStyles.link}>Tienes cuenta, Iniciar Sesión</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          <View style={GeneralStyles.formContainer}>
-            <InputField placeholder="Nombre" value={name} onChangeText={setName} />
-            <InputField placeholder="Apellido" value={surname} onChangeText={setSurname} />
-            <InputField placeholder="Nombre de Usuario" value={nickname} onChangeText={setNickname} />
-
-            <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail}  keyboardType="email-address"/>
-            {emailError ? <Text style={GeneralStyles.errorText}>{emailError}</Text> : null}
-
-            <InputField placeholder="Contraseña" value={password} onChangeText={setPassword} secureTextEntry />
-            {passwordError ? <Text style={GeneralStyles.errorText}>{passwordError}</Text> : null}
-
-            <InputField placeholder="Confirmar Contraseña" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
-            {confirmPasswordError ? <Text style={GeneralStyles.errorText}>{confirmPasswordError}</Text> : null}
-
-            <Button title="Ingresar" onPress={handleRegister} />
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={GeneralStyles.link}>Tienes cuenta, Iniciar Sesión</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-          {/* Usamos el modal reutilizable */}
-        <CustomModal
-          visible={modalVisible}
-          title="Elige un icono"
-          onConfirm={() => setModalVisible(false)}
-          onCancel={() => setModalVisible(false)}
-          showCancel={false}
-          >
-          <View horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row' }}>
-            {images.map((image) => (
-              <TouchableOpacity
-                key={image.id}
-                onPress={() => {
-                  setSelectedImageId(image.id)
-                  setSelectedImageUrl(image.imageUrl)
-                }}
-                style={[
-                  styles.imageOption,
-                  selectedImageId === image.id ? styles.selectedImage : {},
-                ]}
-                >
-                <Image source={{ uri: `http://192.168.0.12:8080/api/images/${image.imageUrl}` }} style={styles.image} />
-              </TouchableOpacity>
-            ))}
-          </View>
-        </CustomModal>
-      </KeyboardAvoidingView>
+            {/* Usamos el modal reutilizable */}
+            <CustomModal
+              visible={modalVisible}
+              title="Elige un icono"
+              onConfirm={() => setModalVisible(false)}
+              onCancel={() => setModalVisible(false)}
+              showCancel={false}
+            >
+              <View horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row' }}>
+                {images.map((image) => (
+                  <TouchableOpacity
+                    key={image.id}
+                    onPress={() => {
+                      setSelectedImageId(image.id)
+                      setSelectedImageUrl(image.imageUrl)
+                    }}
+                    style={[
+                      styles.imageOption,
+                      selectedImageId === image.id ? styles.selectedImage : {},
+                    ]}
+                  >
+                    <Image source={{ uri: `http://192.168.0.12:8080/api/images/${image.imageUrl}` }} style={styles.image} />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </CustomModal>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
     </GeneralTemplate>
   );
 };
