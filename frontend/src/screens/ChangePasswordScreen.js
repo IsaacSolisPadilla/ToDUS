@@ -55,7 +55,7 @@ const ChangePasswordScreen = ({ navigation }) => {
       }
 
       const response = await axios.post(
-        'http://192.168.0.12:8080/api/auth/change-password',
+        'http://192.168.0.20:8080/api/auth/change-password',
         { oldPassword, newPassword, confirmNewPassword },
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
       );

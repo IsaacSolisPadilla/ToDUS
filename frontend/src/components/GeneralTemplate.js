@@ -29,12 +29,12 @@ const GeneralTemplate = ({ children }) => {
 
       if (token) {
         // Obtener información del usuario incluyendo la imagen
-        const response = await axios.get('http://192.168.0.12:8080/api/user/profile', {
+        const response = await axios.get('http://192.168.0.20:8080/api/user/profile', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         const imageUrl = response.data.imageUrl;
-        setUserImage(imageUrl ? `http://192.168.0.12:8080/api/images/${imageUrl}` : null);
+        setUserImage(imageUrl ? `http://192.168.0.20:8080/api/images/${imageUrl}` : null);
       }
     } catch (error) {
       console.error('Error obteniendo datos del usuario:', error);
@@ -115,7 +115,7 @@ const GeneralTemplate = ({ children }) => {
         )}
 
         {/* Botones en la parte inferior */}
-        <View style={styles.bottomNav}>
+        <View style={[styles.bottomNav, { bottom: isLoggedIn ? 40 : 20 }]}>
           <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('About')}>
             <Feather name="info" size={25} color="#CDF8FA" />
             <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
@@ -124,7 +124,7 @@ const GeneralTemplate = ({ children }) => {
           </TouchableOpacity>
 
           {isLoggedIn && (
-            <TouchableOpacity style={styles.navItem} onPress={handleLogout}>
+            <TouchableOpacity style={[styles.navItem, isLoggedIn ? { marginBottom: 20 } : {}]} onPress={handleLogout}>
               <Feather name="log-out" size={25} color="#CDF8FA" />
               <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
                 <Text style={styles.navText}>Logout</Text>
@@ -132,6 +132,7 @@ const GeneralTemplate = ({ children }) => {
             </TouchableOpacity>
           )}
         </View>
+
       </Animated.View>
 
       {/* Botón de inicio en la parte superior derecha */}
@@ -188,8 +189,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 20,
-    width: 150,
+    width: '80%',
     paddingLeft: 8,
+    height: 30,
   },
   textContainer: {
     marginLeft: 15,
@@ -231,7 +233,7 @@ const styles = StyleSheet.create({
   },
   bottomNav: {
     position: 'absolute',
-    bottom: 40,
+    left: 5,
     alignItems: 'flex-start',
     paddingLeft: 5,
   },

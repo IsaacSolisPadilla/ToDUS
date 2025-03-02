@@ -28,7 +28,7 @@ const ProfileScreen = ({ navigation }) => {
   const fetchUserData = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get('http://192.168.0.12:8080/api/user/profile', {
+      const response = await axios.get('http://192.168.0.20:8080/api/user/profile', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -49,7 +49,7 @@ const ProfileScreen = ({ navigation }) => {
   // Obtener lista de imágenes disponibles
   const fetchImages = async () => {
     try {
-      const response = await axios.get('http://192.168.0.12:8080/api/images/list');
+      const response = await axios.get('http://192.168.0.20:8080/api/images/list');
       setImages(response.data);
     } catch (error) {
       console.error('Error al obtener imágenes', error);
@@ -78,7 +78,7 @@ const ProfileScreen = ({ navigation }) => {
         email, 
         imageId: selectedImageId };
 
-      const response = await axios.put('http://192.168.0.12:8080/api/user/update', updatedUser, {
+      const response = await axios.put('http://192.168.0.20:8080/api/user/update', updatedUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -131,7 +131,7 @@ const ProfileScreen = ({ navigation }) => {
           <View style={styles.imageSelectionContainer}>
               <View style={styles.imageCircle}>
                 {selectedImageUrl ? (
-                  <Image source={{ uri: `http://192.168.0.12:8080/api/images/${selectedImageUrl}` }} style={styles.imageCircle} />
+                  <Image source={{ uri: `http://192.168.0.20:8080/api/images/${selectedImageUrl}` }} style={styles.imageCircle} />
                 ) : (
                   <Text style={styles.imagePlaceholder}>?</Text>
                 )}
@@ -173,7 +173,7 @@ const ProfileScreen = ({ navigation }) => {
                   selectedImageId === image.id ? styles.selectedImage : {},
                 ]}
                 >
-                <Image source={{ uri: `http://192.168.0.12:8080/api/images/${image.imageUrl}` }} 
+                <Image source={{ uri: `http://192.168.0.20:8080/api/images/${image.imageUrl}` }} 
                 style={styles.image} />
               </TouchableOpacity>
             ))}

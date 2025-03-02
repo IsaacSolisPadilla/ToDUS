@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-TodusApplication<todus>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.todus.TodusApplication",
+            "projectName": "todus",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
