@@ -7,7 +7,6 @@ import useValidation from '../hooks/useValidation';
 import Button from '../components/Button';
 import axios from 'axios';
 import GeneralStyles from '../styles/GeneralStyles';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -26,7 +25,7 @@ const RegisterScreen = ({ navigation }) => {
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const response = await axios.get('http://192.168.0.20:8080/api/images/list');
+        const response = await axios.get('http://192.168.0.12:8080/api/images/list');
         setImages(response.data);
       } catch (error) {
         console.error('Error al obtener imágenes', error);
@@ -78,7 +77,7 @@ const RegisterScreen = ({ navigation }) => {
         throw new Error('Corrige los errores antes de continuar.');
       }
   
-      const response = await fetch('http://192.168.0.20:8080/api/auth/register', {
+      const response = await fetch('http://192.168.0.12:8080/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -124,7 +123,7 @@ const RegisterScreen = ({ navigation }) => {
               <View style={styles.imageSelectionContainer}>
                 <View style={styles.imageCircle}>
                   {selectedImageUrl ? (
-                    <Image source={{ uri: `http://192.168.0.20:8080/api/images/${selectedImageUrl}` }} style={styles.imageCircle} />
+                    <Image source={{ uri: `http://192.168.0.12:8080/api/images/${selectedImageUrl}` }} style={styles.imageCircle} />
                   ) : (
                     <Text style={styles.imagePlaceholder}>?</Text>
                   )}
@@ -176,7 +175,7 @@ const RegisterScreen = ({ navigation }) => {
                       ]}
                     >
                       <Image
-                        source={{ uri: `http://192.168.0.20:8080/api/images/${image.imageUrl}` }}
+                        source={{ uri: `http://192.168.0.12:8080/api/images/${image.imageUrl}` }}
                         style={styles.image}
                       />
                     </TouchableOpacity>
