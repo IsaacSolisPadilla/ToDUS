@@ -15,7 +15,7 @@ import jakarta.persistence.UniqueConstraint;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
-import com.todus.Image.Image;
+import com.todus.image.Image;
 
 @Entity
 @Setter

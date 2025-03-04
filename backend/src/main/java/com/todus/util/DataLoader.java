@@ -3,9 +3,8 @@ package com.todus.util;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.todus.Image.Image;
-import com.todus.Image.ImageRepository;
-
+import com.todus.image.Image;
+import com.todus.image.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.nio.file.*;
 import java.util.List;

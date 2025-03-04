@@ -13,8 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import com.todus.Image.Image;
-import com.todus.Image.ImageRepository;
+import com.todus.image.Image;
+import com.todus.image.ImageRepository;
 
 import jakarta.transaction.Transactional;
 

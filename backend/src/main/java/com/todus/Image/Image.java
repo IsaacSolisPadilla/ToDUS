@@ -1,4 +1,4 @@
-package com.todus.Image;
+package com.todus.image;
 
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.todus.Image.Image;
-import com.todus.Image.ImageRepository;
+import com.todus.image.Image;
+import com.todus.image.ImageRepository;
 import com.todus.util.JwtUtil;
 
 @Service
