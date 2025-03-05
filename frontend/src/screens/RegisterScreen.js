@@ -25,7 +25,7 @@ const RegisterScreen = ({ navigation }) => {
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const response = await axios.get('http://192.168.0.12:8080/api/images/list');
+        const response = await axios.get('http://192.168.0.12:8080/api/images/list/USER');
         setImages(response.data);
       } catch (error) {
         console.error('Error al obtener imágenes', error);

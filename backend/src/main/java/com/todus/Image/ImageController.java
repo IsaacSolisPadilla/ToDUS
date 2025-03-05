@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.nio.file.Files;
+import com.todus.enums.ImageType;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -24,6 +26,7 @@ import java.util.List;
 public class ImageController {
 
     private static final String ICON_FOLDER = "src/main/resources/static/icons/";
+    private static final String CATEGORY_FOLDER = "src/main/resources/static/category/";
 
     @Autowired
     private ImageRepository imageRepository;
@@ -33,20 +36,42 @@ public class ImageController {
         return imageRepository.findAll();
     }
 
+    @GetMapping("/list/{type}")
+    public List<Image> listImagesByType(@PathVariable ImageType type) {
+        return imageRepository.findByImageType(type);
+    }
+
     @GetMapping("/{filename}")
     public ResponseEntity<Resource> getIcon(@PathVariable String filename) {
         try {
-            Path filePath = Paths.get(ICON_FOLDER).resolve(filename).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
+            Path iconPath = Paths.get(ICON_FOLDER).resolve(filename).normalize();
+            Path categoryPath = Paths.get(CATEGORY_FOLDER).resolve(filename).normalize();
 
-            if (resource.exists() || resource.isReadable()) {
-                return ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_PNG)
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
-                        .body(resource);
+            Resource resource;
+            ImageType imageType;
+
+            if (Files.exists(iconPath)) {
+                resource = new UrlResource(iconPath.toUri());
+                imageType = ImageType.USER;
+            } else if (Files.exists(categoryPath)) {
+                resource = new UrlResource(categoryPath.toUri());
+                imageType = ImageType.CATEGORY;
             } else {
                 return ResponseEntity.notFound().build();
             }
+
+            if (imageRepository.findByImageUrl(filename).isEmpty()) {
+                Image image = new Image();
+                image.setImageUrl(filename);
+                image.setImageType(imageType);
+                imageRepository.save(image);
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_PNG)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                    .body(resource);
+
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

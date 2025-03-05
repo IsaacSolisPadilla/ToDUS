@@ -3,6 +3,7 @@ package com.todus.image;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import com.todus.enums.ImageType;
 
 @Entity
 @Getter
@@ -16,4 +17,8 @@ public class Image {
 
     @Column(unique = true, nullable = false)
     private String imageUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ImageType imageType;
 }
