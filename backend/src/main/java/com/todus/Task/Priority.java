@@ -21,7 +21,4 @@ public class Priority {
     @Enumerated(EnumType.STRING)
     private Color color;
 
-    @OneToMany(mappedBy = "priority")
-    private List<Task> tasks;
-
 }

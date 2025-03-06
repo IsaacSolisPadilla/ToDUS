@@ -7,4 +7,5 @@ import com.todus.task.Priority;
 
 public interface PriorityRepository extends JpaRepository<Priority, Long> {
     Optional<Priority> findById(Long id);
+    List<Priority> findAll();
 }

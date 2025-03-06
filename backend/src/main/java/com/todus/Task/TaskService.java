@@ -9,6 +9,7 @@ import com.todus.category.CategoryRepository;
 import com.todus.task.PriorityRepository;
 import com.todus.User.UserRepository;
 import com.todus.util.JwtUtil;
+import com.todus.enums.Status;
 
 import java.util.Optional;
 import java.util.Map;
@@ -64,6 +65,7 @@ public class TaskService {
         task.setUser(user);
         task.setCategory(category);
         task.setPriority(priority);
+        task.setStatus(Status.PENDENT);
 
         taskRepository.save(task);
         return Map.of("message", "Tarea creada con éxito");

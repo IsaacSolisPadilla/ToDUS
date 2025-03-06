@@ -33,7 +33,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/images/**").permitAll()
                 .requestMatchers("/api/user/profile").authenticated()
                 .requestMatchers("/api/user/update").authenticated()
-                .requestMatchers("/api/tasks/create").permitAll()
+                .requestMatchers("/api/tasks/create").authenticated()
+                .requestMatchers("/api/categories/create").authenticated()
+                .requestMatchers("/api/priorities/all").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

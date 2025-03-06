@@ -30,7 +30,7 @@ public class Category {
     private OrderTask orderTasks;
 
     @ManyToOne
-    @JoinColumn(name = "image_id", referencedColumnName = "id")
+    @JoinColumn(name = "image_id", referencedColumnName = "id", nullable = false)
     private Image image;
 
     @ManyToOne
