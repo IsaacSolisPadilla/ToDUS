@@ -8,8 +8,10 @@ import com.todus.User.User;
 import com.todus.category.CategoryRepository;
 import com.todus.task.PriorityRepository;
 import com.todus.User.UserRepository;
+import com.todus.util.JwtUtil;
 
 import java.util.Optional;
+import java.util.Map;
 
 @Service
 public class TaskService {
@@ -26,15 +28,23 @@ public class TaskService {
     @Autowired
     private UserRepository userRepository;
 
-    public String createTask(TaskDTO taskRequest) throws Exception {
-        User user = null; // Permitir que una tarea no tenga usuario asociado
+    @Autowired
+    private JwtUtil jwtUtil;
 
-        if (taskRequest.getUserId() != null) {
-            Optional<User> userOpt = userRepository.findById(taskRequest.getUserId());
-            if (userOpt.isPresent()) {
-                user = userOpt.get();
-            }
-        }
+    /**
+     * Obtiene el usuario autenticado a partir del token JWT.
+     */
+    public User getAuthenticatedUser(String token) {
+        String email = jwtUtil.extractEmail(token.replace("Bearer ", ""));
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
+    /**
+     * Crea una nueva tarea para el usuario autenticado.
+     */
+    public Map<String, String> createTask(String token, TaskDTO taskRequest) {
+        User user = getAuthenticatedUser(token);
 
         // Buscar la categoría si se especificó
         Category category = null;
@@ -43,22 +53,19 @@ public class TaskService {
         }
 
         // Buscar la prioridad (obligatoria)
-        Optional<Priority> priorityOpt = priorityRepository.findById(taskRequest.getPriorityId());
-        if (priorityOpt.isEmpty()) {
-            throw new Exception("Prioridad no encontrada");
-        }
-        Priority priority = priorityOpt.get();
+        Priority priority = priorityRepository.findById(taskRequest.getPriorityId())
+                .orElseThrow(() -> new RuntimeException("Prioridad no encontrada"));
 
         // Crear la tarea
         Task task = new Task();
         task.setName(taskRequest.getName());
         task.setDescription(taskRequest.getDescription());
         task.setDueDate(taskRequest.getDueDate());
-        task.setUser(user); // Puede ser NULL si no hay usuario autenticado
+        task.setUser(user);
         task.setCategory(category);
         task.setPriority(priority);
 
         taskRepository.save(task);
-        return "Tarea creada con éxito";
+        return Map.of("message", "Tarea creada con éxito");
     }
 }
