@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, Alert, KeyboardAvoidingView, Platform, TouchableOpacity, FlatList, TextInput, Dimensions } from 'react-native';
-import RNPickerSelect from 'react-native-picker-select';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { Swipeable } from 'react-native-gesture-handler';
 import GeneralTemplate from '../components/GeneralTemplate';
@@ -16,6 +15,7 @@ const TasksScreen = ({ navigation }) => {
   const [tasks, setTasks] = useState([]);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
+  const [showPriorityOptions, setShowPriorityOptions] = useState(false);
   const screenWidth = Dimensions.get('window').width;
 
   const fetchPriorities = async () => {
@@ -137,16 +137,30 @@ const TasksScreen = ({ navigation }) => {
 
           <View style={styles.bottomInputContainer}>
             <TextInput placeholder="Nueva tarea" style={styles.taskInput} value={taskName} onChangeText={setTaskName} />
-            <View style={styles.pickerContainer}>
-              <RNPickerSelect
-                onValueChange={(value) => setPriority(priorities.find(p => p.id === value))}
-                items={priorities.map(p => ({ label: p.name, value: p.id, color: p.colorHex }))}
-                value={priority?.id}
-                style={pickerSelectStyles}
-                useNativeAndroidPickerStyle={false}
-                Icon={() => <Feather name="chevron-down" size={18} color="#333" />}
-              />
+
+            <View style={styles.customDropdownContainer}>
+              <TouchableOpacity onPress={() => setShowPriorityOptions(!showPriorityOptions)} style={styles.selectedPriorityBox}>
+                <Text style={[styles.selectedPriorityText, { color: priority?.colorHex }]}> {priority ? priority.name : 'Selecciona prioridad'} </Text>
+                <Feather name={showPriorityOptions ? 'chevron-up' : 'chevron-down'} size={18} color="#333" />
+              </TouchableOpacity>
+              {showPriorityOptions && (
+                <View style={styles.dropdownOptionsListAbove}>
+                  {priorities.map((p) => (
+                    <TouchableOpacity
+                      key={p.id}
+                      onPress={() => {
+                        setPriority(p);
+                        setShowPriorityOptions(false);
+                      }}
+                      style={styles.priorityOption}
+                    >
+                      <Text style={[styles.priorityOptionText, { color: p.colorHex }]}>● {p.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
             </View>
+
             <TouchableOpacity onPress={handleCreateTask} style={styles.sendButton}>
               <Feather name="plus" size={24} color="white" />
             </TouchableOpacity>
@@ -168,91 +182,44 @@ const TasksScreen = ({ navigation }) => {
 
 const styles = {
   taskItemContainer: {
-    backgroundColor: '#CDF8FA',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    padding: 20,
-    marginVertical: 5,
-    borderRadius: 8,
-    borderLeftWidth: 8,
+    backgroundColor: '#CDF8FA', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', padding: 20,
+    marginVertical: 5, borderRadius: 8, borderLeftWidth: 8,
   },
-  taskName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#0C2527',
-    flex: 1,
-  },
+  taskName: { fontSize: 16, fontWeight: 'bold', color: '#0C2527', flex: 1 },
   bottomInputContainer: {
-    position: 'absolute',
-    bottom: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 10,
-    borderTopWidth: 1,
-    borderColor: '#ccc',
-    width: '100%',
+    position: 'absolute', bottom: 0, flexDirection: 'row', alignItems: 'center', backgroundColor: '#CDF8FA',
+    padding: 12, borderTopWidth: 1, borderColor: '#ccc', width: '100%', borderRadius: 10,
   },
   taskInput: {
-    flex: 1.3,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    marginRight: 6,
+    flex: 1.3, backgroundColor: 'transparent', paddingHorizontal: 10, paddingVertical: 6,
+    borderRadius: 8, marginRight: 6, fontSize: 16, color: '#0C2527',
   },
-  pickerContainer: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    justifyContent: 'center',
-    marginRight: 6,
+  customDropdownContainer: { flex: 1, position: 'relative', marginRight: 6 },
+  selectedPriorityBox: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'transparent',
+    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#ccc',
   },
+  selectedPriorityText: { fontSize: 16, flex: 1 },
+  dropdownOptionsListAbove: {
+    position: 'absolute', bottom: '100%', left: 0, right: 0, backgroundColor: '#CDF8FA', borderRadius: 8,
+    elevation: 3, zIndex: 10, marginBottom: 4,
+  },
+  priorityOption: { paddingVertical: 8, paddingHorizontal: 10 },
+  priorityOptionText: { fontSize: 16 },
   sendButton: {
-    backgroundColor: '#007BFF',
-    padding: 10,
-    borderRadius: 8,
+    backgroundColor: '#007BFF', padding: 12, borderRadius: 10, alignItems: 'center', justifyContent: 'center',
   },
-  checkWrapper: {
-    marginRight: 12,
-  },
+  checkWrapper: { marginRight: 12 },
   checkCircle: {
-    width: 25,
-    height: 25,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#0C2527',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 25, height: 25, borderRadius: 20, borderWidth: 2, borderColor: '#0C2527', alignItems: 'center', justifyContent: 'center',
   },
   deleteAction: {
-    backgroundColor: '#FF4C4C',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-    padding: 20,
-    borderRadius: 8,
+    backgroundColor: '#FF4C4C', justifyContent: 'center', alignItems: 'flex-end', padding: 15, borderRadius: 8,
   },
   editAction: {
-    backgroundColor: '#4CAF50',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    padding: 20,
-    borderRadius: 8,
+    backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'flex-start', padding: 20, borderRadius: 8,
   },
-  actionText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-};
-
-const pickerSelectStyles = {
-  inputIOS: { fontSize: 14, color: '#333' },
-  inputAndroid: { fontSize: 14, color: '#333' },
+  actionText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
 };
 
 export default TasksScreen;

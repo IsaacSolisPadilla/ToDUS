@@ -91,6 +91,23 @@ public class TaskService {
     
         return Map.of("message", "Tarea marcada como completada");
     }
+
+    public Map<String, String> deleteTask(String token, Long taskId) {
+        User user = getAuthenticatedUser(token); // método que extrae el usuario desde el token
+    
+        Task task = taskRepository.findById(taskId)
+            .orElseThrow(() -> new RuntimeException("Tarea no encontrada"));
+    
+        // Verificar que la tarea pertenece al usuario autenticado
+        if (!task.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("No tienes permisos para eliminar esta tarea");
+        }
+    
+        taskRepository.delete(task);
+    
+        return Map.of("message", "Tarea eliminada correctamente");
+    }
+    
         
 
 }

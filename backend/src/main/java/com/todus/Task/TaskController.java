@@ -47,5 +47,17 @@ public class TaskController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTask(@RequestHeader("Authorization") String token, @PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(taskService.deleteTask(token, id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "Error interno en el servidor"));
+        }
+    }
+
+
     
 }
