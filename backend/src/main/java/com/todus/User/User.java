@@ -1,4 +1,4 @@
-package com.todus.User;
+package com.todus.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

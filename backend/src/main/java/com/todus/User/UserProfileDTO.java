@@ -1,4 +1,4 @@
-package com.todus.User;
+package com.todus.user;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;

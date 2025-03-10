@@ -2,13 +2,13 @@ package com.todus.task;
 
 import jakarta.persistence.*;
 import lombok.*;
-import com.todus.User.User;
+import com.todus.user.User;
 import com.todus.enums.Status;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import com.todus.category.Category;
-import com.todus.subtask.SubTask;
+import com.todus.subTask.SubTask;
 
 
 

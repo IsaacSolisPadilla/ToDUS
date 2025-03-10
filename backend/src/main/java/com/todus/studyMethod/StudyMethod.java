@@ -1,4 +1,4 @@
-package com.todus.study;
+package com.todus.studyMethod;
 
 import jakarta.persistence.*;
 import lombok.*;

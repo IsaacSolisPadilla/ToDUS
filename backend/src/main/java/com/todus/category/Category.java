@@ -2,14 +2,13 @@ package com.todus.category;
 
 import jakarta.persistence.*;
 import lombok.*;
-import com.todus.User.User;
+import com.todus.user.User;
 import com.todus.task.Task;
 import javax.validation.constraints.NotNull;
 import com.todus.image.Image;
 import java.util.List;
 import com.todus.enums.OrderTask;
-import java.util.List;
-import com.todus.study.StudyMethod;
+import com.todus.studyMethod.StudyMethod;
 
 @Entity
 @Getter

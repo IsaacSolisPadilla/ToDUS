@@ -1,8 +1,8 @@
 package com.todus.util;
 
-import com.todus.User.User;
+import com.todus.user.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import com.todus.User.UserRepository;
+import com.todus.user.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;

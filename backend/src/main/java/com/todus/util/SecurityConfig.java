@@ -34,8 +34,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/user/profile").authenticated()
                 .requestMatchers("/api/user/update").authenticated()
                 .requestMatchers("/api/tasks/create").authenticated()
+                .requestMatchers("/api/tasks/list").authenticated()
                 .requestMatchers("/api/categories/create").authenticated()
                 .requestMatchers("/api/priorities/all").permitAll()
+                .requestMatchers("/api/tasks/complete/**").authenticated()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

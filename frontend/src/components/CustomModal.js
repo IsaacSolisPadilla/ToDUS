@@ -7,12 +7,13 @@ const CustomModal = ({
   children, 
   onConfirm, 
   onCancel, 
-  showCancel = true // Prop para mostrar u ocultar el botón "Cancelar"
+  showCancel = true, // Prop para mostrar u ocultar el botón "Cancelar"
+  modalWidth = '80%' // Prop para personalizar el ancho del modal
 }) => {
   return (
     <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onCancel}>
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
+        <View style={[styles.modalContent, { width: modalWidth }]}>
           {title && <Text style={styles.modalTitle}>{title}</Text>}
 
           {/* Contenido dinámico del modal */}
@@ -45,7 +46,6 @@ const styles = {
   },
   modalContent: {
     backgroundColor: '#CDF8FA', // Fondo del modal
-    width: '80%',
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',

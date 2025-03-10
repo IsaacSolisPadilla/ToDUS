@@ -1,4 +1,4 @@
-package com.todus.subtask;
+package com.todus.subTask;
 
 import jakarta.persistence.*;
 import lombok.*;

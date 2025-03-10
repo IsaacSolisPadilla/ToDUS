@@ -7,6 +7,7 @@ const GeneralStyles = StyleSheet.create({
     color: '#CDF8FA',
     marginBottom: 30,
     marginTop: 100,
+    textAlign: 'center',
   },
   link: {
     color: '#CDF8FA',

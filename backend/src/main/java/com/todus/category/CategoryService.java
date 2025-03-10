@@ -2,15 +2,15 @@ package com.todus.category;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.todus.User.User;
-import com.todus.User.UserRepository;
+
 import com.todus.image.ImageRepository;
-import com.todus.study.StudyMethodRepository;
+import com.todus.studyMethod.StudyMethodRepository;
+import com.todus.user.User;
+import com.todus.user.UserRepository;
 import com.todus.util.JwtUtil;
-import java.util.Optional;
 import java.util.Map;
 import com.todus.image.Image;
-import com.todus.study.StudyMethod;
+import com.todus.studyMethod.StudyMethod;
 
 @Service
 public class CategoryService {

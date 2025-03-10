@@ -3,7 +3,7 @@ package com.todus.task;
 import jakarta.persistence.*;
 import lombok.*;
 import com.todus.enums.Color;
-import java.util.List;
+
 
 @Entity
 @Getter
@@ -20,5 +20,9 @@ public class Priority {
 
     @Enumerated(EnumType.STRING)
     private Color color;
-
+    
+    @Transient
+    public String getColorHex() {
+        return color.getHex();
+    }
 }

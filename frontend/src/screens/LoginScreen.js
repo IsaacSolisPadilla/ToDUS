@@ -25,7 +25,7 @@ const LoginScreen = ({ navigation }) => {
         }
 
         await AsyncStorage.setItem('token', data.token);
-        navigation.navigate('Profile');
+        navigation.navigate('Tasks');
 
     } catch (error) {
         console.error('Error al iniciar sesión:', error);

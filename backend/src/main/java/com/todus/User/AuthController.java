@@ -1,4 +1,4 @@
-package com.todus.User;
+package com.todus.user;
 
 import java.util.ArrayList;
 import java.util.List;

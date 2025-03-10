@@ -233,7 +233,6 @@ const styles = StyleSheet.create({
   },
   bottomNav: {
     position: 'absolute',
-    left: 5,
     alignItems: 'flex-start',
     paddingLeft: 5,
   },

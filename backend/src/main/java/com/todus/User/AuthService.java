@@ -1,10 +1,9 @@
-package com.todus.User;
+package com.todus.user;
 
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.todus.image.Image;
@@ -24,9 +23,6 @@ public class AuthService {
 
     @Autowired
     private JwtUtil jwtUtil;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public String login(String email, String password) {
         User user = userRepository.findByEmail(email)

@@ -1,4 +1,4 @@
-package com.todus.User;
+package com.todus.user;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

@@ -1,9 +1,13 @@
 package com.todus.task;
 
 import org.springframework.http.ResponseEntity;
+
+import com.todus.user.AuthService;
+import com.todus.user.User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -12,6 +16,8 @@ public class TaskController {
 
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private AuthService userService;
 
     @PostMapping("/create")
     public ResponseEntity<?> createTask(@RequestHeader("Authorization") String token, @RequestBody TaskDTO taskRequest) {
@@ -22,4 +28,24 @@ public class TaskController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<Task>> getTaskByUser(@RequestHeader("Authorization") String token) {
+        User user = userService.getAuthenticatedUser(token);
+        List<Task> tasks = taskService.getTasksByUser(user);
+        return ResponseEntity.ok(tasks);
+    }
+
+    @PutMapping("/complete/{id}")
+    public ResponseEntity<?> markTaskAsCompleted(@RequestHeader("Authorization") String token, @PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(taskService.markTaskAsCompleted(token, id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "Error interno en el servidor"));
+        }
+    }
+
+    
 }
