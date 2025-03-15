@@ -20,13 +20,12 @@ const InputField = ({ label, placeholder, value, onChangeText, secureTextEntry, 
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 12,
+    marginBottom: 5,
   },
   label: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#CDF8FA',
-    marginBottom: 4,
     marginLeft: 4,
   },
   input: {

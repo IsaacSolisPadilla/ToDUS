@@ -26,6 +26,7 @@ public class Category {
     private String description;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 100)
     private OrderTask orderTasks;
 
     @ManyToOne

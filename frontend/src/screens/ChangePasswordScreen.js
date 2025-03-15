@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, Alert, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons'; 
+import { BASE_URL } from '../config';
 import GeneralTemplate from '../components/GeneralTemplate';
 import InputField from '../components/InputField';
 import CustomModal from '../components/CustomModal';
@@ -55,8 +56,8 @@ const ChangePasswordScreen = ({ navigation }) => {
       }
 
       const response = await axios.post(
-        'http://192.168.0.12:8080/api/auth/change-password',
-        { oldPassword, newPassword, confirmNewPassword },
+        `${BASE_URL}/api/auth/change-password`,
+      { oldPassword, newPassword, confirmNewPassword },
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
       );
 

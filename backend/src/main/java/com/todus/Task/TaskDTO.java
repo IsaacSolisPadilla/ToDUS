@@ -12,5 +12,4 @@ public class TaskDTO {
     private LocalDateTime dueDate;
     private Long categoryId; // Opcional
     private Long priorityId;
-    private Long userId;
 }

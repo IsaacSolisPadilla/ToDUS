@@ -92,6 +92,42 @@ public class TaskService {
         return Map.of("message", "Tarea marcada como completada");
     }
 
+    public Map<String, String> updateTask(String token, Long taskId, TaskDTO taskRequest) {
+        User user = getAuthenticatedUser(token);
+    
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Tarea no encontrada"));
+    
+        if (!task.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("No tienes permisos para modificar esta tarea");
+        }
+    
+        task.setName(taskRequest.getName());
+        task.setDescription(taskRequest.getDescription());
+    
+        if (taskRequest.getDueDate() == null) {
+            task.setDueDate(null);
+        } else {
+            task.setDueDate(taskRequest.getDueDate());
+        }
+    
+        if (taskRequest.getPriorityId() != null) {
+            Priority priority = priorityRepository.findById(taskRequest.getPriorityId())
+                    .orElseThrow(() -> new RuntimeException("Prioridad no encontrada"));
+            task.setPriority(priority);
+        }
+    
+        if (taskRequest.getCategoryId() != null) {
+            Category category = categoryRepository.findById(taskRequest.getCategoryId())
+                    .orElse(null); // categoría opcional
+            task.setCategory(category);
+        }
+    
+        taskRepository.save(task);
+        return Map.of("message", "Tarea actualizada con éxito");
+    }
+    
+
     public Map<String, String> deleteTask(String token, Long taskId) {
         User user = getAuthenticatedUser(token); // método que extrae el usuario desde el token
     

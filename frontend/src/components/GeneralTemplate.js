@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomModal from '../components/CustomModal';
 import axios from 'axios'; // Para obtener la imagen del usuario
+import { BASE_URL } from '../config';
 
 const { width, height } = Dimensions.get('window');
 
@@ -29,12 +30,12 @@ const GeneralTemplate = ({ children }) => {
 
       if (token) {
         // Obtener información del usuario incluyendo la imagen
-        const response = await axios.get('http://192.168.0.12:8080/api/user/profile', {
+        const response = await axios.get(`${BASE_URL}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         const imageUrl = response.data.imageUrl;
-        setUserImage(imageUrl ? `http://192.168.0.12:8080/api/images/${imageUrl}` : null);
+        setUserImage(imageUrl ? `${BASE_URL}/api/images/${imageUrl}` : null);
       }
     } catch (error) {
       console.error('Error obteniendo datos del usuario:', error);
@@ -136,7 +137,7 @@ const GeneralTemplate = ({ children }) => {
       </Animated.View>
 
       {/* Botón de inicio en la parte superior derecha */}
-      <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Home')}>
+      <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Tasks')}>
         <Feather name="home" size={35} color="#CDF8FA" />
       </TouchableOpacity>
 

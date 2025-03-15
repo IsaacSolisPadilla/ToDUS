@@ -47,6 +47,15 @@ public class TaskController {
         }
     }
 
+    @PutMapping("/update/{taskId}")
+    public ResponseEntity<?> updateTask(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long taskId,
+            @RequestBody TaskDTO taskDTO) {
+        return ResponseEntity.ok(taskService.updateTask(token, taskId, taskDTO));
+    }
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTask(@RequestHeader("Authorization") String token, @PathVariable Long id) {
         try {

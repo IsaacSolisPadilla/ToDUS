@@ -19,6 +19,7 @@ public class Priority {
     private String name;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 20)
     private Color color;
     
     @Transient

@@ -35,6 +35,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/user/update").authenticated()
                 .requestMatchers("/api/tasks/create").authenticated()
                 .requestMatchers("/api/tasks/list").authenticated()
+                .requestMatchers("/api/tasks/update/**").authenticated()
+                .requestMatchers("/api/tasks/delete/**").authenticated()
                 .requestMatchers("/api/categories/create").authenticated()
                 .requestMatchers("/api/priorities/all").permitAll()
                 .requestMatchers("/api/tasks/complete/**").authenticated()

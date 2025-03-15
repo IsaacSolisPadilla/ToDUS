@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
+import { BASE_URL } from '../config';
 import GeneralTemplate from '../components/GeneralTemplate';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
@@ -12,7 +13,7 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     try {
-        const response = await fetch('http://192.168.0.12:8080/api/auth/login', {
+        const response = await fetch(`${BASE_URL}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),

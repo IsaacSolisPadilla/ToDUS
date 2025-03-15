@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Image } from 'react-native';
+import { BASE_URL } from '../config';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GeneralTemplate from '../components/GeneralTemplate';
@@ -28,7 +29,7 @@ const ProfileScreen = ({ navigation }) => {
   const fetchUserData = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get('http://192.168.0.12:8080/api/user/profile', {
+      const response = await axios.get(`${BASE_URL}/api/user/profile`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -49,7 +50,7 @@ const ProfileScreen = ({ navigation }) => {
   // Obtener lista de imágenes disponibles
   const fetchImages = async () => {
     try {
-      const response = await axios.get('http://192.168.0.12:8080/api/images/list/USER');
+      const response = await axios.get(`${BASE_URL}/api/images/list/USER`);
       setImages(response.data);
     } catch (error) {
       console.error('Error al obtener imágenes', error);
@@ -78,7 +79,7 @@ const ProfileScreen = ({ navigation }) => {
         email, 
         imageId: selectedImageId };
 
-      const response = await axios.put('http://192.168.0.12:8080/api/user/update', updatedUser, {
+      const response = await axios.put(`${BASE_URL}/api/user/update`, updatedUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -131,7 +132,7 @@ const ProfileScreen = ({ navigation }) => {
           <View style={styles.imageSelectionContainer}>
               <View style={styles.imageCircle}>
                 {selectedImageUrl ? (
-                  <Image source={{ uri: `http://192.168.0.12:8080/api/images/${selectedImageUrl}` }} style={styles.imageCircle} />
+                  <Image source={{ uri: `${BASE_URL}/api/images/${selectedImageUrl}` }} style={styles.imageCircle} />
                 ) : (
                   <Text style={styles.imagePlaceholder}>?</Text>
                 )}
@@ -174,7 +175,7 @@ const ProfileScreen = ({ navigation }) => {
                 ]}
               >
                 <Image
-                  source={{ uri: `http://192.168.0.12:8080/api/images/${image.imageUrl}` }}
+                  source={{ uri: `${BASE_URL}/api/images/${image.imageUrl}` }}
                   style={styles.image}
                 />
               </TouchableOpacity>

@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, Alert, KeyboardAvoidingView, Platform, TouchableOpacity, FlatList, TextInput, Dimensions } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { BASE_URL } from '../config';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 import { Swipeable } from 'react-native-gesture-handler';
 import GeneralTemplate from '../components/GeneralTemplate';
@@ -17,10 +19,11 @@ const TasksScreen = ({ navigation }) => {
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [showPriorityOptions, setShowPriorityOptions] = useState(false);
   const screenWidth = Dimensions.get('window').width;
+  const swipeableRefs = useRef({});
 
   const fetchPriorities = async () => {
     try {
-      const response = await axios.get('http://192.168.0.12:8080/api/priorities/all');
+      const response = await axios.get(`${BASE_URL}/api/priorities/all`);
       setPriorities(response.data);
       if (response.data.length > 0) setPriority(response.data[0]);
     } catch (error) {
@@ -32,7 +35,7 @@ const TasksScreen = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) return;
-      const response = await axios.get('http://192.168.0.12:8080/api/tasks/list', {
+      const response = await axios.get(`${BASE_URL}/api/tasks/list`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTasks(response.data);
@@ -46,13 +49,19 @@ const TasksScreen = ({ navigation }) => {
     fetchTasks();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchTasks();
+    }, [])
+  );
+
   const handleCreateTask = async () => {
     if (!taskName.trim()) return Alert.alert('Error', 'El nombre de la tarea es obligatorio');
     if (!priority) return Alert.alert('Error', 'Selecciona una prioridad');
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) return Alert.alert('Error', 'No estás autenticado. Inicia sesión de nuevo.');
-      await axios.post('http://192.168.0.12:8080/api/tasks/create', { name: taskName, priorityId: priority.id }, {
+      await axios.post(`${BASE_URL}/api/tasks/create`, { name: taskName, priorityId: priority.id }, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
       setTaskName('');
@@ -68,7 +77,7 @@ const TasksScreen = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) return;
-      await axios.put(`http://192.168.0.12:8080/api/tasks/complete/${taskId}`, {}, {
+      await axios.put(`${BASE_URL}/api/tasks/complete/${taskId}`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchTasks();
@@ -82,7 +91,7 @@ const TasksScreen = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token || !taskToDelete) return;
-      await axios.delete(`http://192.168.0.12:8080/api/tasks/${taskToDelete.id}`, {
+      await axios.delete(`${BASE_URL}/api/tasks/${taskToDelete.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setDeleteModalVisible(false);
@@ -94,23 +103,52 @@ const TasksScreen = ({ navigation }) => {
     }
   };
 
-  const renderRightActions = (task) => (
-    <TouchableOpacity onPress={() => { setTaskToDelete(task); setDeleteModalVisible(true); }} style={styles.deleteAction}>
-      <Text style={styles.actionText}>Eliminar</Text>
-    </TouchableOpacity>
+  const renderLeftActions = () => (
+    <View style={styles.leftAction}>
+      <Text style={styles.actionText}>Editar</Text>
+    </View>
   );
 
-  const renderLeftActions = (task) => (
-    <TouchableOpacity onPress={() => navigation.navigate('TaskDetails', { task })} style={styles.editAction}>
-      <Text style={styles.actionText}>Editar</Text>
-    </TouchableOpacity>
+  const renderRightActions = () => (
+    <View style={styles.rightAction}>
+      <Text style={styles.actionText}>Eliminar</Text>
+    </View>
   );
+
+  const getTaskStatusInfo = (item) => {
+    const today = new Date();
+    const dueDate = item.dueDate ? new Date(item.dueDate) : null;
+
+    if (!dueDate) return '';
+
+    const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+    const completedDate = new Date(item.dateUpdated || item.dateCreated);
+
+    if (item.status === 'COMPLETED') {
+      if (completedDate < dueDate) {
+        const earlyDays = Math.floor((dueDate - completedDate) / (1000 * 60 * 60 * 24));
+        return `✔ ${earlyDays} días antes`;
+      } else if (completedDate > dueDate) {
+        const lateDays = Math.floor((completedDate - dueDate) / (1000 * 60 * 60 * 24));
+        return `✔ ${lateDays} días tarde`;
+      } else {
+        return '✔ A tiempo';
+      }
+    } else {
+      if (diffDays < 0) return '⚠️ Vencida';
+      if (diffDays === 0) return '⚠️ Vence hoy';
+      if (diffDays> 0 && diffDays <= 7) return `⏳ ${diffDays} días restantes`;
+      return '';
+    }
+  };
 
   return (
     <GeneralTemplate>
+      <View>
+        <Text style={GeneralStyles.title}>Tus Tareas</Text>
+      </View>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={GeneralStyles.keyboardAvoiding}>
         <View style={{ flex: 1, width: screenWidth * 0.8 }}>
-          <Text style={GeneralStyles.title}>Tus Tareas</Text>
           <FlatList
             showsVerticalScrollIndicator={false}
             data={tasks}
@@ -118,18 +156,33 @@ const TasksScreen = ({ navigation }) => {
             contentContainerStyle={{ paddingBottom: 100 }}
             renderItem={({ item }) => (
               <Swipeable
-                renderLeftActions={() => renderLeftActions(item)}
-                renderRightActions={() => renderRightActions(item)}
+                ref={(ref) => {
+                  if (ref && item.id) swipeableRefs.current[item.id] = ref;
+                }}
+                renderLeftActions={renderLeftActions}
+                renderRightActions={renderRightActions}
+                onSwipeableOpen={(direction) => {
+                  swipeableRefs.current[item.id]?.close();
+                  if (direction === 'left') {
+                    navigation.navigate('TaskDetails', { task: item });
+                  } else if (direction === 'right') {
+                    setTaskToDelete(item);
+                    setDeleteModalVisible(true);
+                  }
+                }}
               >
-                <View style={[styles.taskItemContainer, { borderLeftColor: item.priority?.colorHex }]}>  
-                  <TouchableOpacity onPress={() => handleCompleteTask(item.id)} style={styles.checkWrapper}>
-                    <View style={styles.checkCircle}>
-                      {item.status === 'COMPLETED' && (
-                        <FontAwesome name="check" size={18} color="#0C2527" />
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                  <Text style={styles.taskName}>{item.name}</Text>
+                <View style={[styles.taskItemContainer, { borderLeftColor: item.priority?.colorHex, flexDirection: 'row', justifyContent: 'space-between' }]}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                    <TouchableOpacity onPress={() => handleCompleteTask(item.id)} style={styles.checkWrapper}>
+                      <View style={styles.checkCircle}>
+                        {item.status === 'COMPLETED' && (
+                          <FontAwesome name="check" size={18} color="#0C2527" />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                    <Text style={styles.taskName}>{item.name}</Text>
+                  </View>
+                  <Text style={styles.taskStatusInfo}>{getTaskStatusInfo(item)}</Text>
                 </View>
               </Swipeable>
             )}
@@ -162,7 +215,7 @@ const TasksScreen = ({ navigation }) => {
             </View>
 
             <TouchableOpacity onPress={handleCreateTask} style={styles.sendButton}>
-              <Feather name="plus" size={24} color="white" />
+              <Feather name="plus" size={15} color="white" />
             </TouchableOpacity>
           </View>
 
@@ -182,44 +235,131 @@ const TasksScreen = ({ navigation }) => {
 
 const styles = {
   taskItemContainer: {
-    backgroundColor: '#CDF8FA', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', padding: 20,
-    marginVertical: 5, borderRadius: 8, borderLeftWidth: 8,
+    backgroundColor: '#CDF8FA',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    padding: 20,
+    marginVertical: 5,
+    borderRadius: 8,
+    borderLeftWidth: 8,
   },
-  taskName: { fontSize: 16, fontWeight: 'bold', color: '#0C2527', flex: 1 },
+  taskName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0C2527',
+    flex: 1,
+  },
+  taskStatusInfo: {
+    fontSize: 12,
+    fontStyle: 'italic',
+    color: '#084F52',
+    marginLeft: 8,
+    alignSelf: 'center',
+    textAlign: 'right',
+    maxWidth: 90,
+  },
   bottomInputContainer: {
-    position: 'absolute', bottom: 0, flexDirection: 'row', alignItems: 'center', backgroundColor: '#CDF8FA',
-    padding: 12, borderTopWidth: 1, borderColor: '#ccc', width: '100%', borderRadius: 10,
+    position: 'absolute',
+    bottom: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#CDF8FA',
+    padding: 12,
+    borderTopWidth: 1,
+    borderColor: '#ccc',
+    width: '100%',
+    borderRadius: 10,
+    marginBottom: 25,
   },
   taskInput: {
-    flex: 1.3, backgroundColor: 'transparent', paddingHorizontal: 10, paddingVertical: 6,
-    borderRadius: 8, marginRight: 6, fontSize: 16, color: '#0C2527',
+    flex: 1.3,
+    backgroundColor: 'transparent',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginRight: 6,
+    fontSize: 16,
+    color: '#0C2527',
   },
-  customDropdownContainer: { flex: 1, position: 'relative', marginRight: 6 },
+  customDropdownContainer: {
+    flex: 1,
+    position: 'relative',
+    marginRight: 6,
+  },
   selectedPriorityBox: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'transparent',
-    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: '#ccc',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
-  selectedPriorityText: { fontSize: 16, flex: 1 },
+  selectedPriorityText: {
+    fontSize: 16,
+    flex: 1,
+  },
   dropdownOptionsListAbove: {
-    position: 'absolute', bottom: '100%', left: 0, right: 0, backgroundColor: '#CDF8FA', borderRadius: 8,
-    elevation: 3, zIndex: 10, marginBottom: 4,
+    position: 'absolute',
+    bottom: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: '#CDF8FA',
+    borderRadius: 8,
+    elevation: 3,
+    zIndex: 10,
+    marginBottom: 4,
   },
-  priorityOption: { paddingVertical: 8, paddingHorizontal: 10 },
-  priorityOptionText: { fontSize: 16 },
+  priorityOption: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+  },
+  priorityOptionText: {
+    fontSize: 16,
+  },
   sendButton: {
-    backgroundColor: '#007BFF', padding: 12, borderRadius: 10, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#084F52',
+    padding: 12,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  checkWrapper: { marginRight: 12 },
+  checkWrapper: {
+    marginRight: 12,
+  },
   checkCircle: {
-    width: 25, height: 25, borderRadius: 20, borderWidth: 2, borderColor: '#0C2527', alignItems: 'center', justifyContent: 'center',
+    width: 25,
+    height: 25,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#0C2527',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  deleteAction: {
-    backgroundColor: '#FF4C4C', justifyContent: 'center', alignItems: 'flex-end', padding: 15, borderRadius: 8,
+  leftAction: {
+    backgroundColor: '#4CAF50',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    paddingHorizontal: 20,
+    flex: 1,
+    borderRadius: 8,
   },
-  editAction: {
-    backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'flex-start', padding: 20, borderRadius: 8,
+  rightAction: {
+    backgroundColor: '#FF4C4C',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    paddingHorizontal: 20,
+    flex: 1,
+    borderRadius: 8,
   },
-  actionText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
+  actionText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
 };
 
 export default TasksScreen;
