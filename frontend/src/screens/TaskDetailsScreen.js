@@ -13,7 +13,7 @@ import axios from 'axios';
 import GeneralTemplate from '../components/GeneralTemplate';
 import GeneralStyles from '../styles/GeneralStyles';
 import InputField from '../components/InputField';
-import ButtonCancel from '../components/ButtonCancel';
+import Button from '../components/Button';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomModal from '../components/CustomModal';
 import { BASE_URL } from '../config';
@@ -79,8 +79,17 @@ const TaskDetailScreen = ({ route, navigation }) => {
   };
 
   const onChangeDate = (event, selectedDate) => {
-    if (Platform.OS === 'android') setShowDatePicker(false);
-    if (selectedDate) setTempDate(selectedDate);
+    if (!selectedDate) {
+      if (Platform.OS === 'android') setShowDatePicker(false);
+      return;
+    }
+  
+    setTempDate(selectedDate);
+  
+    if (Platform.OS === 'android') {
+      setDueDate(selectedDate.toISOString()); // aquí actualizamos directamente
+      setShowDatePicker(false);
+    }
   };
 
   const confirmDate = () => {
@@ -228,7 +237,7 @@ const TaskDetailScreen = ({ route, navigation }) => {
                 editable={true}
               />
 
-              <ButtonCancel title="Volver" onPress={handleGoBack} />
+              <Button title="Guardar" onPress={handleGoBack} />
             </View>
           </View>
         </ScrollView>

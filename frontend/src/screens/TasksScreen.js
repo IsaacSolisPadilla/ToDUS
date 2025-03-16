@@ -122,7 +122,7 @@ const TasksScreen = ({ navigation }) => {
     if (!dueDate) return '';
 
     const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-    const completedDate = new Date(item.dateUpdated || item.dateCreated);
+    const completedDate = new Date();
 
     if (item.status === 'COMPLETED') {
       if (completedDate < dueDate) {
