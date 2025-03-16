@@ -77,7 +77,7 @@ public class TaskService {
     }
 
     public Map<String, String> markTaskAsCompleted(String token, Long taskId) {
-        User user = getAuthenticatedUser(token); // ⚠ Este método debes tenerlo ya definido
+        User user = getAuthenticatedUser(token);
     
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Tarea no encontrada"));
@@ -86,11 +86,17 @@ public class TaskService {
             throw new RuntimeException("No tienes permisos para modificar esta tarea");
         }
     
-        task.setStatus(Status.COMPLETED);
-        taskRepository.save(task);
-    
-        return Map.of("message", "Tarea marcada como completada");
+        if (task.getStatus() == Status.COMPLETED) {
+            task.setStatus(Status.PENDENT);
+            taskRepository.save(task);
+            return Map.of("message", "Tarea vuelta a pendiente");
+        } else {
+            task.setStatus(Status.COMPLETED);
+            taskRepository.save(task);
+            return Map.of("message", "Tarea marcada como completada");
+        }
     }
+    
 
     public Map<String, String> updateTask(String token, Long taskId, TaskDTO taskRequest) {
         User user = getAuthenticatedUser(token);

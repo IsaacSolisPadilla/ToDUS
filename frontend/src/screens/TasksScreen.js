@@ -242,7 +242,7 @@ const styles = {
     padding: 20,
     marginVertical: 5,
     borderRadius: 8,
-    borderLeftWidth: 8,
+    borderLeftWidth: 10,
   },
   taskName: {
     fontSize: 16,

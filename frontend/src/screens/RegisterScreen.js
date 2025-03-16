@@ -155,35 +155,33 @@ const RegisterScreen = ({ navigation }) => {
             </View>
             {/* Usamos el modal reutilizable */}
             <CustomModal
-              visible={modalVisible}
-              title="Elige un icono"
-              onConfirm={() => setModalVisible(false)}
-              onCancel={() => setModalVisible(false)}
-              showCancel={false}
-            >
-              <ScrollView style={{ maxHeight: 300 }}>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
-                  {images.map((image) => (
-                    <TouchableOpacity
-                      key={image.id}
-                      onPress={() => {
-                        setSelectedImageId(image.id);
-                        setSelectedImageUrl(image.imageUrl);
-                      }}
-                      style={[
-                        styles.imageOption,
-                        selectedImageId === image.id ? styles.selectedImage : {},
-                      ]}
-                    >
-                      <Image
-                        source={{ uri: `${BASE_URL}/api/images/${image.imageUrl}` }}
-                        style={styles.image}
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </ScrollView>
-            </CustomModal>
+          visible={modalVisible}
+          title="Elige un icono"
+          onConfirm={() => setModalVisible(false)}
+          onCancel={() => setModalVisible(false)}
+          showCancel={false}
+          >
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {images.map((image) => (
+              <TouchableOpacity
+                key={image.id}
+                onPress={() => {
+                  setSelectedImageId(image.id);
+                  setSelectedImageUrl(image.imageUrl);
+                }}
+                style={[
+                  styles.imageOption,
+                  selectedImageId === image.id ? styles.selectedImage : {},
+                ]}
+              >
+                <Image
+                  source={{ uri: `${BASE_URL}/api/images/${image.imageUrl}` }}
+                  style={styles.image}
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </CustomModal>
 
           </ScrollView>
         </KeyboardAvoidingView>
