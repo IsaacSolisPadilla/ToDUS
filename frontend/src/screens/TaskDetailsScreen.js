@@ -238,6 +238,7 @@ const TaskDetailScreen = ({ route, navigation }) => {
               />
 
               <Button title="Guardar" onPress={handleGoBack} />
+              
             </View>
           </View>
         </ScrollView>

@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Text, View, ImageBackground, StyleSheet, Dimensions, TouchableOpacity, Animated, Image, Alert } from 'react-native';
+import { Text, View, ImageBackground, StyleSheet, Dimensions, TouchableOpacity, Animated, Image, Alert, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomModal from '../components/CustomModal';
-import axios from 'axios'; // Para obtener la imagen del usuario
+import axios from 'axios';
 import { BASE_URL } from '../config';
 
 const { width, height } = Dimensions.get('window');
@@ -15,7 +15,8 @@ const GeneralTemplate = ({ children }) => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
-  const [userImage, setUserImage] = useState(null); // Estado para la imagen del usuario
+  const [userImage, setUserImage] = useState(null);
+  const [categories, setCategories] = useState([]);
   const navWidth = useRef(new Animated.Value(50)).current;
   const textOpacity = useRef(new Animated.Value(0)).current;
 
@@ -29,28 +30,30 @@ const GeneralTemplate = ({ children }) => {
       setIsLoggedIn(!!token);
 
       if (token) {
-        // Obtener información del usuario incluyendo la imagen
         const response = await axios.get(`${BASE_URL}/api/user/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         const imageUrl = response.data.imageUrl;
         setUserImage(imageUrl ? `${BASE_URL}/api/images/${imageUrl}` : null);
+
+        const catRes = await axios.get(`${BASE_URL}/api/categories/all`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setCategories(catRes.data);
       }
     } catch (error) {
-      console.error('Error obteniendo datos del usuario:', error);
+      console.error('Error obteniendo datos del usuario/categorías:', error);
     }
   };
 
-  const handleLogout = () => {
-    setIsLogoutModalVisible(true);
-  };
+  const handleLogout = () => setIsLogoutModalVisible(true);
 
   const handleConfirmLogout = async () => {
     try {
       await AsyncStorage.removeItem('token');
       setIsLoggedIn(false);
-      setUserImage(null); // Resetear la imagen al cerrar sesión
+      setUserImage(null);
       setIsLogoutModalVisible(false);
       Alert.alert('Cierre de sesión', 'Has cerrado sesión correctamente.');
       navigation.replace('Login');
@@ -79,7 +82,6 @@ const GeneralTemplate = ({ children }) => {
   return (
     <View style={styles.container}>
       <StatusBar style="light" backgroundColor="transparent" translucent />
-      {/* Navbar animada */}
       <Animated.View style={[styles.navbar, { width: navWidth }]}>
         <TouchableOpacity style={styles.navItem} onPress={toggleNavbar}>
           <Feather name="menu" size={30} color="#CDF8FA" />
@@ -115,7 +117,36 @@ const GeneralTemplate = ({ children }) => {
           </TouchableOpacity>
         )}
 
-        {/* Botones en la parte inferior */}
+        {isLoggedIn && (
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Categories')}>
+            <Feather name="layers" size={30} color="#CDF8FA" />
+            <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
+              <Text style={styles.navText}>Categorías</Text>
+            </Animated.View>
+          </TouchableOpacity>
+        )}
+
+        {/* Scroll solo para categorías */}
+        {isLoggedIn && categories.length > 0 && (
+          <ScrollView style={styles.categoryScroll} contentContainerStyle={{ paddingVertical: 10 }}>
+            {categories.map((cat) => (
+              <TouchableOpacity
+                key={cat.id}
+                style={styles.categoryIconWrapper}
+                onPress={() => navigation.navigate('Tasks', { category: cat })}
+              >
+                <Image
+                  source={{ uri: `${BASE_URL}/api/images/${cat.image.imageUrl}` }}
+                  style={styles.categoryIconImage}
+                />
+                <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
+                  <Text style={styles.navText}>{cat.name}</Text>
+                </Animated.View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
+
         <View style={[styles.bottomNav, { bottom: isLoggedIn ? 40 : 20 }]}>
           <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('About')}>
             <Feather name="info" size={25} color="#CDF8FA" />
@@ -133,19 +164,15 @@ const GeneralTemplate = ({ children }) => {
             </TouchableOpacity>
           )}
         </View>
-
       </Animated.View>
 
-      {/* Botón de inicio en la parte superior derecha */}
       <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Tasks')}>
         <Feather name="home" size={35} color="#CDF8FA" />
       </TouchableOpacity>
 
-      {/* Fondo y contenido */}
       <ImageBackground source={require('../../assets/background.png')} style={styles.background} />
       <View style={styles.overlay}>{children}</View>
 
-      {/* Modal de confirmación de logout */}
       <CustomModal
         visible={isLogoutModalVisible}
         title="Cerrar Sesión"
@@ -236,6 +263,23 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'flex-start',
     paddingLeft: 5,
+  },
+  categoryScroll: {
+    maxHeight: 180,
+    width: '100%',
+    paddingLeft: 5,
+  },
+  categoryIconWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 4, // antes no había, esto controla el espacio entre categorías
+    paddingVertical: 2, // opcional, si quieres más compacto
+    gap: 6, // si tu versión soporta `gap` (React Native >= 0.71)
+  },
+  categoryIconImage: {
+    width: 35,
+    height: 35,
+    borderRadius: 10,
   },
 });
 
