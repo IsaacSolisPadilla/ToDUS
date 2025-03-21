@@ -83,7 +83,8 @@ const CategoryScreen = ({ route, navigation }) => {
 
   return (
     <GeneralTemplate>
-        <Text style={styles.title}>{isEditMode ? 'Editar Categoría' : 'Crear Categoría'}</Text>
+      <ScrollView>
+        <Text style={GeneralStyles.title}>{isEditMode ? 'Editar Categoría' : 'Crear Categoría'}</Text>
 
         {/* Vista previa y botón para seleccionar imagen */}
         <View style={styles.imageSelectionContainer}>
@@ -99,69 +100,48 @@ const CategoryScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <InputField style={styles.input} placeholder="Nombre" value={name} onChangeText={setName} />
+        <View style={styles.formContainer}>
+          <InputField style={styles.input} placeholder="Nombre" value={name} onChangeText={setName} />
+          <InputField style={styles.input} placeholder="Descripción" value={description} onChangeText={setDescription} />
 
-        <InputField style={styles.input} placeholder="Descripción" value={description} onChangeText={setDescription} />
-
-        <View style={{ marginBottom: 12 }}>
+          <View style={{ marginBottom: 12 }}>
             <TouchableOpacity
-                onPress={() => setShowOrderOptions(!showOrderOptions)}
-                style={{
-                width: 300,
-                height: 50,
-                paddingHorizontal: 10,
-                paddingVertical: 12,
-                marginVertical: 10,
-                borderWidth: 1,
-                borderColor: '#084F52',
-                borderRadius: 8,
-                backgroundColor: '#CDF8FA',
-                justifyContent: 'center'
-                }}
+              onPress={() => setShowOrderOptions(!showOrderOptions)}
+              style={styles.orderButton}
             >
-                <Text style={{ fontSize: 16, color: orderTasks ? '#0C2527' : '#777' }}>
+              <Text style={{ fontSize: 16, color: orderTasks ? '#0C2527' : '#777' }}>
                 {orderOptions.find((o) => o.value === orderTasks)?.label || 'Selecciona orden'}
-                </Text>
+              </Text>
             </TouchableOpacity>
 
             {showOrderOptions && (
-                <View
-                style={{
-                    backgroundColor: '#CDF8FA',
-                    borderRadius: 8,
-                    borderWidth: 1,
-                    borderColor: '#ccc',
-                    marginTop: -10,
-                    marginBottom: 10,
-                    overflow: 'hidden'
-                }}
-                >
+              <View style={styles.dropdownOptions}>
                 {orderOptions.map((option) => (
-                    <TouchableOpacity
+                  <TouchableOpacity
                     key={option.value}
                     onPress={() => {
-                        setOrderTasks(option.value);
-                        setShowOrderOptions(false);
+                      setOrderTasks(option.value);
+                      setShowOrderOptions(false);
                     }}
-                    style={{ paddingVertical: 10, paddingHorizontal: 12 }}
-                    >
-                    <Text style={{ fontSize: 16, color: '#0C2527' }}>{option.label}</Text>
-                    </TouchableOpacity>
+                    style={styles.dropdownOption}
+                  >
+                    <Text style={styles.optionText}>{option.label}</Text>
+                  </TouchableOpacity>
                 ))}
-                </View>
+              </View>
             )}
+          </View>
+
+          <InputField
+            style={styles.input}
+            placeholder="Ej: 1"
+            value={studyMethodId ? studyMethodId.toString() : ''}
+            onChangeText={(text) => setStudyMethodId(text ? parseInt(text) : null)}
+            keyboardType="numeric"
+          />
+
+          <Button title={isEditMode ? 'Guardar Cambios' : 'Crear Categoría'} onPress={handleSave} />
         </View>
-
-
-        <InputField
-          style={styles.input}
-          placeholder="Ej: 1"
-          value={studyMethodId ? studyMethodId.toString() : ''}
-          onChangeText={(text) => setStudyMethodId(text ? parseInt(text) : null)}
-          keyboardType="numeric"
-        />
-
-        <Button title={isEditMode ? 'Guardar Cambios' : 'Crear Categoría'} onPress={handleSave}/>
 
         {/* Modal de selección de imagen */}
         <CustomModal
@@ -171,7 +151,7 @@ const CategoryScreen = ({ route, navigation }) => {
           onCancel={() => setModalVisible(false)}
           showCancel={false}
         >
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <View style={styles.modalContent}>
             {images.map((img) => (
               <TouchableOpacity
                 key={img.id}
@@ -179,53 +159,28 @@ const CategoryScreen = ({ route, navigation }) => {
                   setImageId(img.id);
                   setImageUrl(img.imageUrl);
                 }}
-                style={[
-                  styles.imageOption,
-                  imageId === img.id ? styles.selectedImage : {},
-                ]}
+                style={[styles.imageOption, imageId === img.id ? styles.selectedImage : {}]}
               >
                 <Image source={{ uri: `${BASE_URL}/api/images/${img.imageUrl}` }} style={styles.image} />
               </TouchableOpacity>
             ))}
           </View>
         </CustomModal>
+      </ScrollView>
     </GeneralTemplate>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 24,
-    backgroundColor: '#CDF8FA',
-    borderRadius: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#0C2527',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 4,
-    color: '#084F52',
-    marginTop: 12,
-  },
-  input: {
-    backgroundColor: 'white',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#ccc',
+  formContainer: {
+    alignItems: 'center', // Centra los elementos dentro del formulario
+    width: '100%',
   },
   imageSelectionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
+    justifyContent: 'center',
   },
   imageCircle: {
     width: 60,
@@ -251,6 +206,51 @@ const styles = StyleSheet.create({
     color: '#0C2527',
     fontWeight: 'bold',
   },
+  input: {
+    backgroundColor: 'white',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 12,
+    width: '80%',
+  },
+  orderButton: {
+    width: 300,
+    height: 50,
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#084F52',
+    borderRadius: 8,
+    backgroundColor: '#CDF8FA',
+    justifyContent: 'center',
+  },
+  dropdownOptions: {
+    backgroundColor: '#CDF8FA',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginTop: -10,
+    marginBottom: 10,
+    overflow: 'hidden',
+  },
+  dropdownOption: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  optionText: {
+    fontSize: 16,
+    color: '#0C2527',
+  },
+  modalContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
   imageOption: {
     marginHorizontal: 5,
     padding: 5,
@@ -265,37 +265,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 10,
-  },
-  selectedOrderBox: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 6,
-  },
-  selectedOrderText: {
-    fontSize: 16,
-    color: '#0C2527',
-  },
-  dropdownOptionsList: {
-    backgroundColor: '#CDF8FA',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 10,
-  },
-  orderOption: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  },
-  orderOptionText: {
-    fontSize: 16,
-    color: '#0C2527',
   },
 });
 

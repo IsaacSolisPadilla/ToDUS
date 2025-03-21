@@ -10,7 +10,9 @@ import GeneralStyles from '../styles/GeneralStyles';
 import CustomModal from '../components/CustomModal';
 import axios from 'axios';
 
-const TasksScreen = ({ navigation }) => {
+const TasksScreen = ({ navigation, route }) => {
+  const selectedCategory = route?.params?.category || null;
+
   const [taskName, setTaskName] = useState('');
   const [priority, setPriority] = useState(null);
   const [priorities, setPriorities] = useState([]);
@@ -35,14 +37,21 @@ const TasksScreen = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) return;
+  
       const response = await axios.get(`${BASE_URL}/api/tasks/list`, {
         headers: { Authorization: `Bearer ${token}` },
-      });
-      setTasks(response.data);
+      });  
+      // Filtrar las tareas por categoría seleccionada
+      const filteredTasks = selectedCategory
+        ? response.data.filter((t) => t.category?.id === selectedCategory.id) // Filtra por category.id
+        : response.data;
+  
+      setTasks(filteredTasks);
     } catch (error) {
       console.error('Error al obtener tareas del usuario:', error);
     }
   };
+  
 
   useEffect(() => {
     fetchPriorities();
@@ -52,16 +61,25 @@ const TasksScreen = ({ navigation }) => {
   useFocusEffect(
     useCallback(() => {
       fetchTasks();
-    }, [])
+    }, [selectedCategory])
   );
 
   const handleCreateTask = async () => {
     if (!taskName.trim()) return Alert.alert('Error', 'El nombre de la tarea es obligatorio');
     if (!priority) return Alert.alert('Error', 'Selecciona una prioridad');
+
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) return Alert.alert('Error', 'No estás autenticado. Inicia sesión de nuevo.');
-      await axios.post(`${BASE_URL}/api/tasks/create`, { name: taskName, priorityId: priority.id }, {
+
+      // Construir el cuerpo de la solicitud, solo incluyendo categoryId si existe
+      const requestData = {
+        name: taskName,
+        priorityId: priority.id,
+        ...(selectedCategory && selectedCategory.id ? { categoryId: selectedCategory.id } : {})
+      };
+
+      await axios.post(`${BASE_URL}/api/tasks/create`, requestData, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
       setTaskName('');
@@ -145,15 +163,18 @@ const TasksScreen = ({ navigation }) => {
   return (
     <GeneralTemplate>
       <View>
-        <Text style={GeneralStyles.title}>Tus Tareas</Text>
+        <Text style={GeneralStyles.title}>
+          {selectedCategory ? selectedCategory.name : 'Tus Tareas'}
+        </Text>
       </View>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={GeneralStyles.keyboardAvoiding}>
+      <KeyboardAvoidingView 
+        style={GeneralStyles.keyboardAvoiding}>
         <View style={{ flex: 1, width: screenWidth * 0.8 }}>
           <FlatList
             showsVerticalScrollIndicator={false}
             data={tasks}
             keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={{ paddingBottom: screenWidth * 0.5 }}
             renderItem={({ item }) => (
               <Swipeable
                 ref={(ref) => {
@@ -172,7 +193,7 @@ const TasksScreen = ({ navigation }) => {
                 }}
               >
                 <View style={[styles.taskItemContainer, { borderLeftColor: item.priority?.colorHex, flexDirection: 'row', justifyContent: 'space-between' }]}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
                     <TouchableOpacity onPress={() => handleCompleteTask(item.id)} style={styles.checkWrapper}>
                       <View style={styles.checkCircle}>
                         {item.status === 'COMPLETED' && (
@@ -199,14 +220,14 @@ const TasksScreen = ({ navigation }) => {
               {showPriorityOptions && (
                 <View style={styles.dropdownOptionsListAbove}>
                   {priorities.map((p) => (
-                    <TouchableOpacity
-                      key={p.id}
-                      onPress={() => {
-                        setPriority(p);
-                        setShowPriorityOptions(false);
-                      }}
+                    <TouchableOpacity 
+                    key={p.id}
+                    onPress={() => { 
+                      setPriority(p);
+                      setShowPriorityOptions(false); 
+                      }} 
                       style={styles.priorityOption}
-                    >
+                      >
                       <Text style={[styles.priorityOptionText, { color: p.colorHex }]}>● {p.name}</Text>
                     </TouchableOpacity>
                   ))}

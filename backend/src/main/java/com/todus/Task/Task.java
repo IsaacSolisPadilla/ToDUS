@@ -7,6 +7,7 @@ import com.todus.enums.Status;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.todus.category.Category;
 import com.todus.subTask.SubTask;
 
@@ -44,6 +45,7 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = true)
     @org.hibernate.annotations.OnDelete(action = org.hibernate.annotations.OnDeleteAction.SET_NULL)
+    @JsonManagedReference
     private Category category;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)

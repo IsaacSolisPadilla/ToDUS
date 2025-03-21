@@ -73,10 +73,11 @@ const CategoriesScreen = ({ navigation }) => {
       <View>
         <Text style={GeneralStyles.title}>Tus Categorías</Text>
       </View>
+      <View style={{ flex: 1, width: screenWidth * 0.8 }}>
       <FlatList
         data={categories}
         keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: screenWidth * 0.1 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
         renderItem={({ item }) => (
           <Swipeable
             ref={(ref) => {
@@ -104,8 +105,20 @@ const CategoriesScreen = ({ navigation }) => {
                   />
                 </View>
                 <View>
-                  <Text style={styles.categoryName}>{item.name}</Text>
-                  <Text style={styles.categoryDescription}>{item.description}</Text>
+                <Text
+                    style={[styles.categoryName, { width: screenWidth * 0.6 }]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {item.name}
+                  </Text>
+                  <Text
+                    style={[styles.categoryDescription, { width: screenWidth * 0.6 }]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {item.description}
+                  </Text>               
                 </View>
               </View>
             </View>
@@ -114,7 +127,9 @@ const CategoriesScreen = ({ navigation }) => {
         
       />
 
-      <Button title="Nueva Categoría" onPress={() => navigation.navigate('Category')} />
+      <View style={{ marginTop: 10, marginBottom: 20, alignItems: 'center' }}>
+        <Button title="Nueva Categoría" onPress={() => navigation.navigate('Category')} />
+      </View>
 
       
 
@@ -126,6 +141,8 @@ const CategoriesScreen = ({ navigation }) => {
       >
         <Text>¿Estás seguro de que quieres eliminar esta categoría?</Text>
       </CustomModal>
+      </View>
+      
     </GeneralTemplate>
   );
 };

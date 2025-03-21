@@ -7,6 +7,7 @@ import com.todus.task.Task;
 import javax.validation.constraints.NotNull;
 import com.todus.image.Image;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.todus.enums.OrderTask;
 import com.todus.studyMethod.StudyMethod;
 
@@ -38,6 +39,7 @@ public class Category {
     private User user;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @JsonBackReference
     private List<Task> tasks;
 
     @OneToOne
