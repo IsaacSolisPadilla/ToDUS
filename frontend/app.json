@@ -4,20 +4,20 @@
     "slug": "ToDUS",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icono.jpg",
+    "icon": "./assets/icono.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#084F52"
     },
-    "ios": { 
+    "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icono.png",
         "backgroundColor": "#084F52"
       },
       "package": "com.isasolpad.frontend"
@@ -27,7 +27,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "284c5625-54bb-47f6-97fe-8d8de5198684"
+        "projectId": "22a828c9-2e6a-4eb5-88e2-0547e6370d4c"
       }
     }
   }
