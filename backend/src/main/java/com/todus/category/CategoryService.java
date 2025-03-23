@@ -65,6 +65,7 @@ public class CategoryService {
         category.setImage(image);
         category.setUser(user);
         category.setStudyMethod(studyMethod);
+        category.setShowComplete(categoryRequest.getShowComplete());
 
         categoryRepository.save(category);
         return Map.of("message", "Categoría creada con éxito");
@@ -78,9 +79,7 @@ public class CategoryService {
         return categoryRepository.findAllByUser(user);
     }
 
-    /**
-     * Actualiza una categoría del usuario autenticado.
-     */
+   
     public Map<String, String> updateCategory(String token, Long categoryId, CategoryDTO categoryRequest) {
         User user = getAuthenticatedUser(token);
 
@@ -94,6 +93,7 @@ public class CategoryService {
         category.setName(categoryRequest.getName());
         category.setDescription(categoryRequest.getDescription());
         category.setOrderTasks(categoryRequest.getOrderTasks());
+        category.setShowComplete(categoryRequest.getShowComplete());
 
         if (categoryRequest.getImageId() != null) {
             Image image = imageRepository.findById(categoryRequest.getImageId())
@@ -125,5 +125,9 @@ public class CategoryService {
 
         categoryRepository.delete(category);
         return Map.of("message", "Categoría eliminada correctamente");
+    }
+
+    public List<Category> getAllCategories() {
+        return categoryRepository.findAll();
     }
 }

@@ -11,5 +11,6 @@ public class CategoryDTO {
     private String description;
     private OrderTask orderTasks;
     private Long imageId;
+    private Boolean showComplete = false;
     private Long studyMethodId; // Opcional
 }

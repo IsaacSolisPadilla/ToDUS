@@ -90,7 +90,7 @@ const GeneralTemplate = ({ children }) => {
           </Animated.View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Tasks')}>
           <Feather name="home" size={30} color="#CDF8FA" />
           <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
             <Text style={styles.navText}>Inicio</Text>
@@ -165,10 +165,6 @@ const GeneralTemplate = ({ children }) => {
           )}
         </View>
       </Animated.View>
-
-      <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Tasks')}>
-        <Feather name="home" size={35} color="#CDF8FA" />
-      </TouchableOpacity>
 
       <ImageBackground source={require('../../assets/background.png')} style={styles.background} />
       <View style={styles.overlay}>{children}</View>

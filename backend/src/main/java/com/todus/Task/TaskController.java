@@ -67,6 +67,34 @@ public class TaskController {
         }
     }
 
+    @PutMapping("/trash/{id}")
+    public ResponseEntity<?> trashTask(@RequestHeader("Authorization") String token, @PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(taskService.trashTask(token, id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "Error interno en el servidor"));
+        }
+    }
+
+    @PutMapping("/restore/{id}")
+    public ResponseEntity<?> recoverTask(@RequestHeader("Authorization") String token, @PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(taskService.recoverTask(token, id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/trash")
+    public ResponseEntity<List<Task>> getTrashedTasks(@RequestHeader("Authorization") String token,
+                                                      @RequestParam(required = false) Long categoryId) {
+        User user = taskService.getAuthenticatedUser(token);
+        List<Task> trashedTasks = taskService.getTrashedTasks(user, categoryId);
+        return ResponseEntity.ok(trashedTasks);
+    }
+
 
     
 }

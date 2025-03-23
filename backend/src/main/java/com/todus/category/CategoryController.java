@@ -61,4 +61,10 @@ public class CategoryController {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @GetMapping("/list")
+    public List<Category> getAllCategories() {
+        return categoryService.getAllCategories();
+        
+    }
 }

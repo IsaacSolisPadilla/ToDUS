@@ -1,7 +1,7 @@
-INSERT IGNORE INTO priorities (name, color) VALUES ('Alta', 'RED');
-INSERT IGNORE INTO priorities (name, color) VALUES ('Media', 'YELLOW');
-INSERT IGNORE INTO priorities (name, color) VALUES ('Baja', 'ORANGE');
-INSERT IGNORE INTO priorities (name, color) VALUES ('Crítica', 'PURPLE');
+INSERT IGNORE INTO priorities (name, color, level) VALUES ('Alta', 'RED', 2);
+INSERT IGNORE INTO priorities (name, color, level) VALUES ('Media', 'YELLOW', 3);
+INSERT IGNORE INTO priorities (name, color, level) VALUES ('Baja', 'ORANGE', 4);
+INSERT IGNORE INTO priorities (name, color, level) VALUES ('Crítica', 'PURPLE', 1);
 
 
 INSERT IGNORE INTO study_methods (id, name, method_type) VALUES (1, 'Método Pomodoro', 'POMODORO');

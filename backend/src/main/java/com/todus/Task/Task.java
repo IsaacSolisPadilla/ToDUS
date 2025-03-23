@@ -38,6 +38,9 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(nullable = false)
+    private Boolean trashed = false;
+
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;

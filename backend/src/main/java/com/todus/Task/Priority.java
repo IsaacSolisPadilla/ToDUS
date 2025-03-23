@@ -21,6 +21,9 @@ public class Priority {
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private Color color;
+
+    @Column(nullable = false)
+    private Integer level;
     
     @Transient
     public String getColorHex() {

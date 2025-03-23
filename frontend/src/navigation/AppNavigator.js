@@ -9,6 +9,7 @@ import TasksScreen from '../screens/TasksScreen';
 import TaskDetailsScreen from '../screens/TaskDetailsScreen';
 import CategoriesScreen from '../screens/CategoriesScreen';
 import CategoryScreen from '../screens/CategoryScreen';
+import TrashTasksScreen from '../screens/TrashTasksScreen';
 
 
 const Stack = createStackNavigator();
@@ -25,6 +26,7 @@ const AppNavigator = () => {
         <Stack.Screen name="TaskDetails" component={TaskDetailsScreen} />
         <Stack.Screen name="Categories" component={CategoriesScreen} />
         <Stack.Screen name="Category" component={CategoryScreen} />
+        <Stack.Screen name="TrashTasks" component={TrashTasksScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

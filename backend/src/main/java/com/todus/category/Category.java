@@ -26,6 +26,9 @@ public class Category {
 
     private String description;
 
+    @NotNull
+    private Boolean showComplete = false;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 100)
     private OrderTask orderTasks;

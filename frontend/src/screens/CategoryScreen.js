@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Image, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Image, StyleSheet, Switch } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { BASE_URL } from '../config';
@@ -24,6 +24,9 @@ const CategoryScreen = ({ route, navigation }) => {
   const [images, setImages] = useState([]);
   const [showOrderOptions, setShowOrderOptions] = useState(false);
 
+  // Estado para manejar el valor de 'showComplete' (mostrar tareas completadas)
+  const [showComplete, setShowComplete] = useState(false);
+
   const orderOptions = [
     { label: 'Fecha de creación', value: 'DATE_CREATED' },
     { label: 'Fecha de vencimiento', value: 'DUE_DATE' },
@@ -42,6 +45,7 @@ const CategoryScreen = ({ route, navigation }) => {
       setImageId(category.image?.id || null);
       setImageUrl(category.image?.imageUrl || null);
       setStudyMethodId(category.studyMethod?.id || null);
+      setShowComplete(category.showComplete || false);  // Set the value of showComplete
     }
   }, []);
 
@@ -60,7 +64,7 @@ const CategoryScreen = ({ route, navigation }) => {
 
     try {
       const token = await AsyncStorage.getItem('token');
-      const body = { name, description, orderTasks, imageId, studyMethodId };
+      const body = { name, description, orderTasks, imageId, studyMethodId, showComplete };  // Include showComplete in the body
 
       if (isEditMode) {
         await axios.put(`${BASE_URL}/api/categories/update/${category.id}`, body, {
@@ -140,6 +144,15 @@ const CategoryScreen = ({ route, navigation }) => {
             keyboardType="numeric"
           />
 
+          {/* Switch para habilitar o deshabilitar la opción de mostrar tareas completadas */}
+          <View style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Mostrar tareas completadas</Text>
+            <Switch
+              value={showComplete}
+              onValueChange={setShowComplete}
+            />
+          </View>
+
           <Button title={isEditMode ? 'Guardar Cambios' : 'Crear Categoría'} onPress={handleSave} />
         </View>
 
@@ -173,7 +186,7 @@ const CategoryScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   formContainer: {
-    alignItems: 'center', // Centra los elementos dentro del formulario
+    alignItems: 'center',
     width: '100%',
   },
   imageSelectionContainer: {
@@ -265,6 +278,22 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 10,
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 15,
+    backgroundColor: '#CDF8FA',
+    paddingHorizontal: 7,
+    borderRadius: 8,
+    borderColor: '#084F52',
+  },
+  switchLabel: {
+    fontSize: 16,
+    marginRight: 10,
+    color: '#084F52',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
 });
 

@@ -11,6 +11,7 @@ import com.todus.enums.Status;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -66,6 +67,7 @@ public class TaskService {
         task.setCategory(category);
         task.setPriority(priority);
         task.setStatus(Status.PENDENT);
+        task.setTrashed(false);
 
 
         taskRepository.save(task);
@@ -148,6 +150,44 @@ public class TaskService {
         taskRepository.delete(task);
     
         return Map.of("message", "Tarea eliminada correctamente");
+    }
+
+    public Map<String, String> trashTask(String token, Long taskId) {
+        User user = getAuthenticatedUser(token);
+    
+        Task task = taskRepository.findById(taskId)
+            .orElseThrow(() -> new RuntimeException("Tarea no encontrada"));
+    
+        if (!task.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("No tienes permisos para eliminar esta tarea");
+        }
+    
+        task.setTrashed(true);
+        taskRepository.save(task);
+    
+        return Map.of("message", "Tarea movida a la papelera correctamente");
+    }
+
+    public List<Task> getTrashedTasks(User user, Long categoryId) {
+        List<Task> trashed = taskRepository.findByUserAndTrashed(user, true);
+        if (categoryId != null) {
+            trashed = trashed.stream()
+              .filter(task -> task.getCategory() != null && task.getCategory().getId().equals(categoryId))
+              .collect(Collectors.toList());
+        }
+        return trashed;
+    }
+
+    public Map<String, String> recoverTask(String token, Long taskId) {
+        User user = getAuthenticatedUser(token);
+        Task task = taskRepository.findById(taskId)
+            .orElseThrow(() -> new RuntimeException("Tarea no encontrada"));
+        if (!task.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("No tienes permisos para recuperar esta tarea");
+        }
+        task.setTrashed(false);
+        taskRepository.save(task);
+        return Map.of("message", "Tarea recuperada con éxito");
     }
     
         

@@ -43,6 +43,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/categories/update/**").authenticated()
                 .requestMatchers("/api/priorities/all").permitAll()
                 .requestMatchers("/api/tasks/complete/**").authenticated()
+                .requestMatchers("/api/tasks/trash/**").authenticated()
+                .requestMatchers("/api/tasks/restore/**").authenticated()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
