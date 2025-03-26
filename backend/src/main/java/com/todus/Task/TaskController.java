@@ -1,5 +1,6 @@
 package com.todus.task;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.todus.user.AuthService;
@@ -67,6 +68,8 @@ public class TaskController {
         }
     }
 
+    
+
     @PutMapping("/trash/{id}")
     public ResponseEntity<?> trashTask(@RequestHeader("Authorization") String token, @PathVariable Long id) {
         try {
@@ -93,6 +96,20 @@ public class TaskController {
         User user = taskService.getAuthenticatedUser(token);
         List<Task> trashedTasks = taskService.getTrashedTasks(user, categoryId);
         return ResponseEntity.ok(trashedTasks);
+    }
+
+    @PostMapping("/trash/deleteAll")
+    public ResponseEntity<Map<String, String>> deleteAllTrashedTasks(
+        @RequestHeader("Authorization") String token, 
+        @RequestParam(value = "categoryId", required = false) Long categoryId) {
+
+        try {
+            Map<String, String> response = taskService.deleteAllTrashedTasks(token, categoryId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
 

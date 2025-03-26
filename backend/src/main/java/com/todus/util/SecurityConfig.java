@@ -45,6 +45,12 @@ public class SecurityConfig {
                 .requestMatchers("/api/tasks/complete/**").authenticated()
                 .requestMatchers("/api/tasks/trash/**").authenticated()
                 .requestMatchers("/api/tasks/restore/**").authenticated()
+                .requestMatchers("/api/tasks/trash/deleteAll").authenticated()
+                .requestMatchers("/api/subtasks/create/**").authenticated()
+                .requestMatchers("/api/subtasks/delete/**").authenticated()
+                .requestMatchers("/api/subtasks/update/**").authenticated()
+                .requestMatchers("/api/subtasks/complete/**").authenticated()
+                .requestMatchers("/api/subtasks/list/**").authenticated()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

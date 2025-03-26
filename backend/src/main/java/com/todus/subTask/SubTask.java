@@ -2,6 +2,8 @@ package com.todus.subTask;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.todus.enums.Status;
 import javax.validation.constraints.NotNull;
 import com.todus.task.Task;
@@ -25,5 +27,6 @@ public class SubTask {
     @ManyToOne
     @JoinColumn(name = "task_id", referencedColumnName = "id")
     @NotNull
+    @JsonBackReference
     private Task task;
 }

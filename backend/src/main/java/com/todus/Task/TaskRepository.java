@@ -12,4 +12,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByUser(User user);
     List<Task> findAll();
     List<Task> findByUserAndTrashed(User user, Boolean trashed);
+    List<Task> findByUserAndTrashedAndCategoryId(User user, Boolean trashed, Long categoryId);
+
 }

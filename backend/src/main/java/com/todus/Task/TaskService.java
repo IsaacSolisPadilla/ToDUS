@@ -40,9 +40,11 @@ public class TaskService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
-    /**
-     * Crea una nueva tarea para el usuario autenticado.
-     */
+    public Task getTaskById(Long taskId) {
+        return taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Tarea no encontrada"));
+    }
+    
     public Map<String, String> createTask(String token, TaskDTO taskRequest) {
         User user = getAuthenticatedUser(token);
 
@@ -54,7 +56,6 @@ public class TaskService {
         Priority priority = priorityRepository.findById(taskRequest.getPriorityId())
                 .orElseThrow(() -> new RuntimeException("Prioridad no encontrada"));
 
-        // Crear la tarea
         Task task = new Task();
         task.setName(taskRequest.getName());
         task.setDescription(taskRequest.getDescription());
@@ -150,6 +151,25 @@ public class TaskService {
         taskRepository.delete(task);
     
         return Map.of("message", "Tarea eliminada correctamente");
+    }
+
+    public Map<String, String> deleteAllTrashedTasks(String token, Long categoryId) {
+        User user = getAuthenticatedUser(token); // Obtener el usuario autenticado
+
+        List<Task> trashedTasks;
+        if (categoryId != null) {
+            trashedTasks = taskRepository.findByUserAndTrashedAndCategoryId(user, true, categoryId);
+        } else {
+            trashedTasks = taskRepository.findByUserAndTrashed(user, true);
+        }
+
+        if (trashedTasks.isEmpty()) {
+            return Map.of("message", "No hay tareas en la papelera para eliminar");
+        }
+
+        taskRepository.deleteAll(trashedTasks);
+
+        return Map.of("message", "Todas las tareas en la papelera han sido eliminadas correctamente");
     }
 
     public Map<String, String> trashTask(String token, Long taskId) {

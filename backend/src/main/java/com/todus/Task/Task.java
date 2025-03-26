@@ -7,6 +7,7 @@ import com.todus.enums.Status;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.todus.category.Category;
 import com.todus.subTask.SubTask;
@@ -52,6 +53,7 @@ public class Task {
     private Category category;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<SubTask> subtasks;
 
     @ManyToOne
