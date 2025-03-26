@@ -31,7 +31,6 @@ const TasksScreen = ({ navigation, route }) => {
   const screenWidth = Dimensions.get('window').width;
   const swipeableRefs = useRef({});
 
-  // Si cambia la categoría, actualizamos el estado de mostrar completadas (solo para categoría)
   useEffect(() => {
     if (selectedCategory && typeof selectedCategory.showComplete !== 'undefined') {
       setShowCompletedTasks(selectedCategory.showComplete);
@@ -55,14 +54,11 @@ const TasksScreen = ({ navigation, route }) => {
       const response = await axios.get(`${BASE_URL}/api/tasks/list`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      // Filtramos las tareas para que no se muestren las que están en papelera
       let filteredTasks = response.data.filter(t => !t.trashed);
-      // Si hay una categoría seleccionada, filtramos por esa categoría
       if (selectedCategory) {
         filteredTasks = filteredTasks.filter((t) => t.category?.id === selectedCategory.id);
       }
       
-      // Aplicar orden según la categoría (si aplica)
       if (selectedCategory && selectedCategory.orderTasks) {
         switch (selectedCategory.orderTasks) {
           case 'DATE_CREATED':
@@ -127,7 +123,6 @@ const TasksScreen = ({ navigation, route }) => {
     }
   };
 
-  // Si el input está vacío, redirige a la pantalla de papelera
   const handleAddButtonPress = () => {
     if (taskName.trim() === '') {
       navigation.navigate("TrashTasks", { category: selectedCategory });
@@ -150,32 +145,88 @@ const TasksScreen = ({ navigation, route }) => {
     }
   };
 
-  // Para mover a papelera o eliminar definitivamente
+  const handleTrashTask = async (taskId) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) return;
+      await axios.put(`${BASE_URL}/api/tasks/trash/${taskId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchTasks();
+    } catch (error) {
+      console.error('Error al mover la tarea a la papelera:', error);
+      Alert.alert('Error', 'No se pudo mover la tarea a la papelera');
+    }
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) return;
+      await axios.delete(`${BASE_URL}/api/tasks/${taskId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchTasks();
+    } catch (error) {
+      console.error('Error al eliminar permanentemente la tarea:', error);
+      Alert.alert('Error', 'No se pudo eliminar permanentemente la tarea');
+    }
+  };
+
   const handleTrashOrDeleteTask = async () => {
     if (!taskToDelete) return;
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) return;
+
       if (!taskToDelete.trashed) {
-        await axios.put(`${BASE_URL}/api/tasks/trash/${taskToDelete.id}`, {}, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        handleTrashTask(taskToDelete.id);
       } else {
-        await axios.delete(`${BASE_URL}/api/tasks/${taskToDelete.id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        handleDeleteTask(taskToDelete.id);
+        setDeleteModalVisible(true);
       }
-      setDeleteModalVisible(false);
-      setTaskToDelete(null);
-      fetchTasks();
+
+      setTaskToDelete(null); // Limpiar taskToDelete
     } catch (error) {
       console.error('Error al procesar la eliminación de la tarea:', error);
       Alert.alert('Error', 'No se pudo procesar la eliminación de la tarea');
     }
   };
 
+  const handleTaskPress = (task) => {
+    navigation.navigate('SubTasks', { task });
+  };
+
+  const getTaskStatusInfo = (item) => {
+    const today = new Date();
+    const dueDate = item.dueDate ? new Date(item.dueDate) : null;
+
+    if (!dueDate) return '';
+
+    const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+    const completedDate = new Date();
+
+    if (item.status === 'COMPLETED') {
+      if (completedDate < dueDate) {
+        const earlyDays = Math.floor((dueDate - completedDate) / (1000 * 60 * 60 * 24));
+        return `✔ ${earlyDays} días antes`;
+      } else if (completedDate > dueDate) {
+        const lateDays = Math.floor((completedDate - dueDate) / (1000 * 60 * 60 * 24));
+        return `✔ ${lateDays} días tarde`;
+      } else {
+        return '✔ A tiempo';
+      }
+    } else {
+      if (diffDays < 0) return '⚠️ Vencida';
+      if (diffDays === 0) return '⚠️ Vence hoy';
+      if (diffDays > 0 && diffDays <= 7) return `⏳ ${diffDays} días restantes`;
+      return '';
+    }
+  };
+
   const renderTaskItem = ({ item }) => (
     <Swipeable
+      activeOffsetX={[-10, 10]}
       ref={(ref) => {
         if (ref && item.id) swipeableRefs.current[item.id] = ref;
       }}
@@ -193,6 +244,7 @@ const TasksScreen = ({ navigation, route }) => {
       )}
       onSwipeableOpen={(direction) => {
         swipeableRefs.current[item.id]?.close();
+        // Si se desliza a la izquierda para editar, ahora navegamos a SubTasksScreen
         if (direction === 'left') {
           navigation.navigate('TaskDetails', { task: item });
         } else if (direction === 'right') {
@@ -201,23 +253,23 @@ const TasksScreen = ({ navigation, route }) => {
         }
       }}
     >
-      <View style={[styles.taskItemContainer, { borderLeftColor: item.priority?.colorHex, flexDirection: 'row', justifyContent: 'space-between' }]}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-          <TouchableOpacity onPress={() => handleCompleteTask(item.id)} style={styles.checkWrapper}>
-            <View style={styles.checkCircle}>
-              {item.status === 'COMPLETED' && (
-                <FontAwesome name="check" size={18} color="#0C2527" />
-              )}
-            </View>
-          </TouchableOpacity>
-          <Text style={styles.taskName}>{item.name}</Text>
+      <TouchableOpacity onPress={() => handleTaskPress(item)}>
+        <View style={[styles.taskItemContainer, { borderLeftColor: item.priority?.colorHex, flexDirection: 'row', justifyContent: 'space-between' }]}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+            <TouchableOpacity onPress={() => handleCompleteTask(item.id)} style={styles.checkWrapper}>
+              <View style={styles.checkCircle}>
+                {item.status === 'COMPLETED' && (
+                  <FontAwesome name="check" size={18} color="#0C2527" />
+                )}
+              </View>
+            </TouchableOpacity>
+            <Text style={styles.taskName}>{item.name}</Text>
+          </View>
+          <Text style={styles.taskStatusInfo}>{getTaskStatusInfo(item)}</Text>
         </View>
-      </View>
+      </TouchableOpacity>
     </Swipeable>
   );
-
-  // Si no hay categoría seleccionada (Vista "Tus Tareas"), mostramos todas las tasks
-  // Si hay categoría, se aplica la lógica del interruptor
   let dataToRender = [];
   if (!selectedCategory) {
     dataToRender = tasks;
@@ -231,7 +283,6 @@ const TasksScreen = ({ navigation, route }) => {
         <Text style={GeneralStyles.title}>
           {selectedCategory ? selectedCategory.name : 'Tus Tareas'}
         </Text>
-        {/* Mostrar el ícono del ojo solo si hay categoría y showComplete es false */}
         {selectedCategory && selectedCategory.showComplete === false && (
           <TouchableOpacity onPress={() => setShowCompletedTasks(!showCompletedTasks)}>
             <Feather name={showCompletedTasks ? 'eye-off' : 'eye'} size={24} color="#CDF8FA" />
@@ -244,6 +295,7 @@ const TasksScreen = ({ navigation, route }) => {
             data={dataToRender}
             keyExtractor={(item) => item.id.toString()}
             renderItem={renderTaskItem}
+            showsVerticalScrollIndicator={false}
           />
 
           {/* Input para nueva tarea */}
@@ -289,7 +341,7 @@ const TasksScreen = ({ navigation, route }) => {
 
           <CustomModal
             visible={deleteModalVisible}
-            title={taskToDelete && taskToDelete.trashed ? "Eliminar permanentemente" : "Mover a papelera"}
+            title="Eliminar permanentemente"
             onConfirm={handleTrashOrDeleteTask}
             onCancel={() => setDeleteModalVisible(false)}
           >

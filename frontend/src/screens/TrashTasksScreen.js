@@ -44,7 +44,6 @@ const TrashTasksScreen = ({ navigation, route }) => {
     }, [category])
   );
 
-  // Recuperar la tarea (swipe a la derecha)
   const handleRecoverTask = async (taskId) => {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -59,7 +58,6 @@ const TrashTasksScreen = ({ navigation, route }) => {
     }
   };
 
-  // Eliminación definitiva (swipe a la izquierda con confirmación)
   const handleDeleteTaskPermanently = async () => {
     if (!taskToDelete) return;
     try {
@@ -76,6 +74,29 @@ const TrashTasksScreen = ({ navigation, route }) => {
       Alert.alert('Error', 'No se pudo eliminar la tarea');
     }
   };
+
+  const handleDeleteAllTasks = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      if (!token) return;
+
+      const url = `${BASE_URL}/api/tasks/trash/deleteAll`;
+      const categoryId = category ? category.id : null;
+
+      await axios.post(url, null, {
+        params: { categoryId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      fetchTrashedTasks();
+      Alert.alert('Éxito', 'Se han eliminado todas las tareas de la papelera');
+    } catch (error) {
+      console.error('Error al eliminar todas las tareas:', error);
+      Alert.alert('Error', 'No se pudo eliminar todas las tareas');
+    }
+};
 
   const renderLeftActions = (item) => (
     <View style={styles.leftAction}>
@@ -96,6 +117,7 @@ const TrashTasksScreen = ({ navigation, route }) => {
           {category ? `Papelera: ${category.name}` : 'Papelera'}
         </Text>
       </View>
+      <View style={{ flex: 1, width: screenWidth * 0.8 }}>
       <FlatList
         showsVerticalScrollIndicator={false}
         data={trashedTasks}
@@ -113,7 +135,6 @@ const TrashTasksScreen = ({ navigation, route }) => {
               if (direction === 'left') {
                 handleRecoverTask(item.id);
               } else if (direction === 'right') {
-                // Swipe izquierda: mostrar modal para eliminar definitivamente
                 setTaskToDelete(item);
                 setDeleteModalVisible(true);
               }
@@ -128,6 +149,11 @@ const TrashTasksScreen = ({ navigation, route }) => {
           </Swipeable>
         )}
       />
+      <TouchableOpacity onPress={handleDeleteAllTasks} style={styles.deleteAllButton}>
+          <Feather name="trash-2" size={20} color="white" />
+          <Text style={styles.deleteAllText}>Eliminar toda la papelera</Text>
+        </TouchableOpacity>
+
       <CustomModal
         visible={deleteModalVisible}
         title="Eliminar permanentemente"
@@ -136,6 +162,7 @@ const TrashTasksScreen = ({ navigation, route }) => {
       >
         <Text>¿Estás seguro de que deseas eliminar permanentemente esta tarea?</Text>
       </CustomModal>
+      </View>
     </GeneralTemplate>
   );
 };
@@ -158,10 +185,7 @@ const styles = {
     fontSize: 12,
     fontStyle: 'italic',
     color: '#721C24',
-    marginLeft: 8,
-    alignSelf: 'center',
     textAlign: 'right',
-    maxWidth: 90,
   },
   leftAction: {
     backgroundColor: '#28A745',
@@ -181,6 +205,20 @@ const styles = {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  deleteAllButton: {
+    backgroundColor: '#DC3545',
+    padding: 15,
+    borderRadius: 8,
+    marginVertical: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteAllText: {
+    fontSize: 16,
+    color: 'white',
+    marginLeft: 10,
   },
 };
 
