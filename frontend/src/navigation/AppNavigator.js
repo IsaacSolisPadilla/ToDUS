@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { BackHandler } from 'react-native';  // Importa el BackHandler de React Native
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import LoginScreen from '../screens/LoginScreen';
@@ -16,10 +17,34 @@ import PreventBack from './PreventBack'; // Importa el componente de prevención
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
+  const transitionConfig = {
+    cardStyleInterpolator: ({ current, next, layouts }) => {
+      return {
+        cardStyle: {
+          opacity: current.progress,
+          transform: [
+            {
+              translateX: current.progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [layouts.screen.width, 0],
+              }),
+            },
+          ],
+        },
+      };
+    },
+  };
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Tasks" screenOptions={{ headerShown: false }} options={{ gestureEnabled: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} options={{ gestureEnabled: false }} />
+      <Stack.Navigator 
+        initialRouteName="Tasks" 
+        screenOptions={{
+          headerShown: false,
+          gestureEnabled: false,
+          ...transitionConfig,
+        }}>
+        <Stack.Screen name="Login" component={LoginScreen} options={{ gestureEnabled: true }} />
         <Stack.Screen name="Register" component={RegisterScreen} options={{ gestureEnabled: false }} />
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ gestureEnabled: false }} />

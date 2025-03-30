@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, Alert, KeyboardAvoidingView, TouchableOpacity, FlatList, TextInput, Dimensions, Platform } from 'react-native';
+import { View, Text, Alert, KeyboardAvoidingView, TouchableOpacity, FlatList, TextInput, Dimensions, Platform, BackHandler } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { BASE_URL } from '../config';
 import { Feather, FontAwesome } from '@expo/vector-icons';
@@ -11,6 +11,22 @@ import CustomModal from '../components/CustomModal';
 import axios from 'axios';
 
 const TasksScreen = ({ navigation, route }) => {
+
+  const handleBackPress = () => {
+    // Bloquea el retroceso en TasksScreen
+    return true;  // Esto evita que el usuario navegue hacia atrás
+  };
+
+  useEffect(() => {
+    // Agregar el listener para bloquear el botón de retroceso de Android
+    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+    // Limpiar el listener cuando el componente se desmonta
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+    };
+  }, []);
+
   const selectedCategory = route?.params?.category || null;
 
   const [taskName, setTaskName] = useState('');
