@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, Alert, KeyboardAvoidingView, TouchableOpacity, FlatList, TextInput, Dimensions } from 'react-native';
+import { View, Text, Alert, KeyboardAvoidingView, TouchableOpacity, FlatList, TextInput, Dimensions, Platform } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { BASE_URL } from '../config';
 import { Feather, FontAwesome } from '@expo/vector-icons';
@@ -244,7 +244,6 @@ const TasksScreen = ({ navigation, route }) => {
       )}
       onSwipeableOpen={(direction) => {
         swipeableRefs.current[item.id]?.close();
-        // Si se desliza a la izquierda para editar, ahora navegamos a SubTasksScreen
         if (direction === 'left') {
           navigation.navigate('TaskDetails', { task: item });
         } else if (direction === 'right') {
@@ -289,7 +288,10 @@ const TasksScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         )}
       </View>
-      <KeyboardAvoidingView style={GeneralStyles.keyboardAvoiding}>
+      <KeyboardAvoidingView 
+      style={GeneralStyles.keyboardAvoiding}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
         <View style={{ flex: 1, width: screenWidth * 0.8 }}>
           <FlatList
             data={dataToRender}
@@ -309,7 +311,7 @@ const TasksScreen = ({ navigation, route }) => {
             <View style={styles.customDropdownContainer}>
               <TouchableOpacity onPress={() => setShowPriorityOptions(!showPriorityOptions)} style={styles.selectedPriorityBox}>
                 <Text style={[styles.selectedPriorityText, { color: priority?.colorHex }]}>
-                  {priority ? priority.name : 'Selecciona prioridad'}
+                  {priority ? priority.name : 'Sin prioridad'}
                 </Text>
                 <Feather name={showPriorityOptions ? 'chevron-up' : 'chevron-down'} size={18} color="#333" />
               </TouchableOpacity>
@@ -451,8 +453,8 @@ const styles = {
     marginRight: 12,
   },
   checkCircle: {
-    width: 25,
-    height: 25,
+    width: 30,
+    height: 30,
     borderRadius: 20,
     borderWidth: 2,
     borderColor: '#0C2527',

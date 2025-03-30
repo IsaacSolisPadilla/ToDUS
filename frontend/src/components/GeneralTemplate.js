@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Text, View, ImageBackground, StyleSheet, Dimensions, TouchableOpacity, Animated, Image, Alert, ScrollView } from 'react-native';
+import { Text, View, ImageBackground, StyleSheet, Dimensions, TouchableOpacity, Animated, Image, Alert, ScrollView, TouchableWithoutFeedback } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
@@ -79,7 +79,14 @@ const GeneralTemplate = ({ children }) => {
     setIsNavOpen(!isNavOpen);
   };
 
+  const handleOutsidePress = () => {
+    if (isNavOpen) {
+      toggleNavbar();
+    }
+  };
+
   return (
+    <TouchableWithoutFeedback onPress={handleOutsidePress}>
     <View style={styles.container}>
       <StatusBar style="light" backgroundColor="transparent" translucent />
       <Animated.View style={[styles.navbar, { width: navWidth }]}>
@@ -179,6 +186,7 @@ const GeneralTemplate = ({ children }) => {
         <Text>¿Estás seguro de que quieres cerrar sesión?</Text>
       </CustomModal>
     </View>
+  </TouchableWithoutFeedback>
   );
 };
 

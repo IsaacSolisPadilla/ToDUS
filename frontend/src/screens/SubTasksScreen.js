@@ -8,7 +8,8 @@ import {
     KeyboardAvoidingView,
     Dimensions,
     Alert,
-    StyleSheet
+    StyleSheet,
+    Platform,
   } from 'react-native';
   import AsyncStorage from '@react-native-async-storage/async-storage';
   import axios from 'axios';
@@ -20,7 +21,6 @@ import {
   import InputField from '../components/InputField';
 
 const SubTasksScreen = ({ route, navigation }) => {
-  // Recibimos la tarea completa desde la navegación
   const { task } = route.params;
   const [subTasks, setSubTasks] = useState([]);
   const [subTaskName, setSubTaskName] = useState('');
@@ -30,7 +30,6 @@ const SubTasksScreen = ({ route, navigation }) => {
   const screenWidth = Dimensions.get('window').width;
   const swipeableRefs = useRef({});
 
-  // Obtener las subtareas asociadas a la tarea
   const fetchSubTasks = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -69,7 +68,6 @@ const SubTasksScreen = ({ route, navigation }) => {
     }
   };
 
-  // Función para alternar el estado de completado de una subtarea
   const handleToggleCompleteSubTask = async (subTaskId) => {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -96,7 +94,6 @@ const SubTasksScreen = ({ route, navigation }) => {
     }
   };
 
-  // Función para actualizar el nombre de una subtarea
   const handleUpdateSubTask = async (subTaskId) => {
     if (!editingSubTaskName.trim()) {
       Alert.alert('Error', 'El nombre no puede estar vacío');
@@ -118,7 +115,6 @@ const SubTasksScreen = ({ route, navigation }) => {
       Alert.alert('Error', 'No se pudo actualizar la subtarea');
     }
   };
-
 
   const renderSubTask = ({ item }) => (
     <Swipeable
@@ -173,17 +169,19 @@ const SubTasksScreen = ({ route, navigation }) => {
 
   return (
     <GeneralTemplate>
-      <KeyboardAvoidingView style={GeneralStyles.keyboardAvoiding}>
+      <KeyboardAvoidingView 
+        style={GeneralStyles.keyboardAvoiding}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} // Usar padding para iOS y height para Android
+      >
         <View style={styles.container}>
-        <Text
+          <Text
             style={[GeneralStyles.title]}
             numberOfLines={1}
             ellipsizeMode="tail"
-            >
+          >
             {task.name}
-            </Text>
+          </Text>
           
-          {/* Recuadro con nombre y descripción de la tarea */}
           <View>
             <InputField
                 label="Nombre de la tarea"
@@ -192,29 +190,27 @@ const SubTasksScreen = ({ route, navigation }) => {
               />
           </View>
           <View>
-          <InputField
+            <InputField
                 label="Descripción"
                 value={task.description}
                 editable={false}
               />
           </View>
           
-          {/* Título para las subtareas */}
           <Text style={styles.subTaskTitle}>Subtareas</Text>
           {subTasks.length === 0 ? (
             <Text style={styles.noSubTasks}>No hay subtareas para esta tarea.</Text>
-            ) : (
+          ) : (
             <FlatList
                 data={subTasks}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderSubTask}
                 style={{ flex: 1 }}
-                contentContainerStyle={{ paddingBottom: 80 }}
+                contentContainerStyle={{ paddingBottom: 80 }}  // Asegura que haya espacio en la parte inferior
                 showsVerticalScrollIndicator={false}
             />
-            )}
+          )}
           
-          {/* Input para crear una nueva subtarea */}
           <View style={styles.bottomInputContainer}>
             <TextInput
               placeholder="Nueva subtarea"
