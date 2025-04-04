@@ -1,6 +1,7 @@
 package com.todus.util;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import com.todus.image.Image;
 import com.todus.image.ImageRepository;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Component
+@Order(1)
 public class DataLoader implements CommandLineRunner {
 
     @Autowired
@@ -44,9 +46,6 @@ public class DataLoader implements CommandLineRunner {
                          image.setImageUrl(filename);
                          image.setImageType(imageType);
                          imageRepository.save(image);
-                         System.out.println("✅ Imagen guardada: " + filename + " → Tipo: " + imageType);
-                     } else {
-                         System.out.println("⚠️ Imagen ya existente en BD: " + filename);
                      }
                  });
 

@@ -306,7 +306,7 @@ const TasksScreen = ({ navigation, route }) => {
       </View>
       <KeyboardAvoidingView 
       style={GeneralStyles.keyboardAvoiding}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : ''}
       >
         <View style={{ flex: 1, width: screenWidth * 0.8 }}>
           <FlatList
