@@ -1,4 +1,4 @@
-package com.todus.task;
+package com.todus.priority;
 
 import jakarta.persistence.*;
 import lombok.*;

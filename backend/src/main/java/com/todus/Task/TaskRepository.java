@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import com.todus.user.User;
 
+
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByCategoryId(Long categoryId);
@@ -13,5 +14,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findAll();
     List<Task> findByUserAndTrashed(User user, Boolean trashed);
     List<Task> findByUserAndTrashedAndCategoryId(User user, Boolean trashed, Long categoryId);
+    List<Task> findByPriorityId(Long priorityId);
 
 }

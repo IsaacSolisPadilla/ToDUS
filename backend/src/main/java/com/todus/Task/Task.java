@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import com.todus.user.User;
 import com.todus.enums.Status;
+import com.todus.priority.Priority;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.constraints.NotNull;
