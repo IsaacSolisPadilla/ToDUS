@@ -116,7 +116,7 @@ const RegisterScreen = ({ navigation }) => {
           <ScrollView 
             contentContainerStyle={{ flexGrow: 1 }} 
             showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled" // Permite tocar inputs sin cerrar teclado
+            keyboardShouldPersistTaps="handled"
           >            
           <View style={GeneralStyles.innerContainer}>
               <Text style={GeneralStyles.title}>Registrate</Text>
@@ -182,7 +182,6 @@ const RegisterScreen = ({ navigation }) => {
             ))}
           </View>
         </CustomModal>
-
           </ScrollView>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
@@ -200,7 +199,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#ccc',
+    backgroundColor: 'rgba(12, 37, 39, 1)',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',

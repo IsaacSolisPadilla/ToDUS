@@ -1,5 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Text, View, ImageBackground, StyleSheet, Dimensions, TouchableOpacity, Animated, Image, Alert, ScrollView, TouchableWithoutFeedback } from 'react-native';
+import { 
+  Text, 
+  View, 
+  ImageBackground, 
+  StyleSheet, 
+  Dimensions, 
+  TouchableOpacity, 
+  Animated, 
+  Image, 
+  Alert, 
+  ScrollView, 
+  TouchableWithoutFeedback,
+  Keyboard,
+  Easing,
+} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
@@ -20,9 +34,36 @@ const GeneralTemplate = ({ children }) => {
   const navWidth = useRef(new Animated.Value(50)).current;
   const textOpacity = useRef(new Animated.Value(0)).current;
 
+  // Valor animado para la visibilidad de los íconos del bottom nav
+  const bottomNavAnim = useRef(new Animated.Value(1)).current;
+
   useEffect(() => {
     checkAuthStatus();
   }, [isLoggedIn]);
+
+  // Listeners para eventos de teclado
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', () => {
+      Animated.timing(bottomNavAnim, {
+        toValue: 0, // Ocultar (opacidad 0 y, si lo deseas, puedes combinar con translateY)
+        duration: 400,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      }).start();
+    });
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      Animated.timing(bottomNavAnim, {
+        toValue: 1, // Volver a mostrar
+        duration: 400,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      }).start();
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const checkAuthStatus = async () => {
     try {
@@ -87,106 +128,128 @@ const GeneralTemplate = ({ children }) => {
 
   return (
     <TouchableWithoutFeedback onPress={handleOutsidePress}>
-    <View style={styles.container}>
-      <StatusBar style="light" backgroundColor="transparent" translucent />
-      <Animated.View style={[styles.navbar, { width: navWidth }]}>
-        <TouchableOpacity style={styles.navItem} onPress={toggleNavbar}>
-          <Feather name="menu" size={30} color="#CDF8FA" />
-          <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-            <Text style={styles.navText}>Menú</Text>
-          </Animated.View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Tasks')}>
-          <Feather name="home" size={30} color="#CDF8FA" />
-          <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-            <Text style={styles.navText}>Inicio</Text>
-          </Animated.View>
-        </TouchableOpacity>
-
-        {isLoggedIn ? (
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
-            {userImage ? (
-              <Image source={{ uri: userImage }} style={styles.profileImage} />
-            ) : (
-              <Feather name="user" size={30} color="#CDF8FA" />
-            )}
+      <View style={styles.container}>
+        <StatusBar style="light" backgroundColor="transparent" translucent />
+        <Animated.View style={[styles.navbar, { width: navWidth }]}>
+          <TouchableOpacity style={styles.navItem} onPress={toggleNavbar}>
+            <Feather name="menu" size={30} color="#CDF8FA" />
             <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-              <Text style={styles.navText}>Perfil</Text>
-            </Animated.View>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Login')}>
-            <Image source={require('../../assets/logo_defecto.jpg')} style={styles.avatar} />
-            <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-              <Text style={styles.navText}>Iniciar sesión</Text>
-            </Animated.View>
-          </TouchableOpacity>
-        )}
-
-        {isLoggedIn && (
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Categories')}>
-            <Feather name="layers" size={30} color="#CDF8FA" />
-            <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-              <Text style={styles.navText}>Categorías</Text>
-            </Animated.View>
-          </TouchableOpacity>
-        )}
-
-        {/* Scroll solo para categorías */}
-        {isLoggedIn && categories.length > 0 && (
-          <ScrollView style={styles.categoryScroll} contentContainerStyle={{ paddingVertical: 10 }}>
-            {categories.map((cat) => (
-              <TouchableOpacity
-                key={cat.id}
-                style={styles.categoryIconWrapper}
-                onPress={() => navigation.navigate('Tasks', { category: cat })}
-              >
-                <Image
-                  source={{ uri: `${BASE_URL}/api/images/${cat.image.imageUrl}` }}
-                  style={styles.categoryIconImage}
-                />
-                <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-                  <Text style={styles.navText}>{cat.name}</Text>
-                </Animated.View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        )}
-
-        <View style={[styles.bottomNav, { bottom: isLoggedIn ? 40 : 20 }]}>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('About')}>
-            <Feather name="info" size={25} color="#CDF8FA" />
-            <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-              <Text style={styles.navText}>About</Text>
+              <Text style={styles.navText}>Menú</Text>
             </Animated.View>
           </TouchableOpacity>
 
-          {isLoggedIn && (
-            <TouchableOpacity style={[styles.navItem, isLoggedIn ? { marginBottom: 20 } : {}]} onPress={handleLogout}>
-              <Feather name="log-out" size={25} color="#CDF8FA" />
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Tasks')}>
+            <Feather name="home" size={30} color="#CDF8FA" />
+            <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
+              <Text style={styles.navText}>Inicio</Text>
+            </Animated.View>
+          </TouchableOpacity>
+
+          {isLoggedIn ? (
+            <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
+              {userImage ? (
+                <Image source={{ uri: userImage }} style={styles.profileImage} />
+              ) : (
+                <Feather name="user" size={30} color="#CDF8FA" />
+              )}
               <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-                <Text style={styles.navText}>Logout</Text>
+                <Text style={styles.navText}>Perfil</Text>
+              </Animated.View>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Login')}>
+              <Image source={require('../../assets/logo_defecto.jpg')} style={styles.avatar} />
+              <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
+                <Text style={styles.navText}>Iniciar sesión</Text>
               </Animated.View>
             </TouchableOpacity>
           )}
-        </View>
-      </Animated.View>
 
-      <ImageBackground source={require('../../assets/background.png')} style={styles.background} />
-      <View style={styles.overlay}>{children}</View>
+          {isLoggedIn && (
+            <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Categories')}>
+              <Feather name="layers" size={30} color="#CDF8FA" />
+              <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
+                <Text style={styles.navText}>Categorías</Text>
+              </Animated.View>
+            </TouchableOpacity>
+          )}
 
-      <CustomModal
-        visible={isLogoutModalVisible}
-        title="Cerrar Sesión"
-        onConfirm={handleConfirmLogout}
-        onCancel={() => setIsLogoutModalVisible(false)}
-        showCancel={true}
-      >
-        <Text>¿Estás seguro de que quieres cerrar sesión?</Text>
-      </CustomModal>
-    </View>
-  </TouchableWithoutFeedback>
+          {isLoggedIn && categories.length > 0 && (
+            <ScrollView style={styles.categoryScroll} contentContainerStyle={{ paddingVertical: 10 }}>
+              {categories.map((cat) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={styles.categoryIconWrapper}
+                  onPress={() => navigation.navigate('Tasks', { category: cat })}
+                >
+                  <Image
+                    source={{ uri: `${BASE_URL}/api/images/${cat.image.imageUrl}` }}
+                    style={styles.categoryIconImage}
+                  />
+                  <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
+                    <Text style={styles.navText}>{cat.name}</Text>
+                  </Animated.View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
+
+          {isLoggedIn && (
+            <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Settings')}>
+              <Feather name="settings" size={30} color="#CDF8FA" />
+              <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
+                <Text style={styles.navText}>Configuración</Text>
+              </Animated.View>
+            </TouchableOpacity>
+          )}
+                
+
+          {/* Contenedor animado que se oculta al aparecer el teclado */}
+          <Animated.View
+            style={[
+              styles.bottomNav,
+              { 
+                bottom: isLoggedIn ? 40 : 20,
+                opacity: bottomNavAnim, // controla la visibilidad
+                transform: [{ translateY: bottomNavAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [20, 0]
+                }) }]
+              },
+            ]}
+          >
+            <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('About')}>
+              <Feather name="info" size={25} color="#CDF8FA" />
+              <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
+                <Text style={styles.navText}>About</Text>
+              </Animated.View>
+            </TouchableOpacity>
+
+            {isLoggedIn && (
+              <TouchableOpacity style={[styles.navItem, { marginBottom: 20 }]} onPress={handleLogout}>
+                <Feather name="log-out" size={25} color="#CDF8FA" />
+                <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
+                  <Text style={styles.navText}>Logout</Text>
+                </Animated.View>
+              </TouchableOpacity>
+            )}
+          </Animated.View>
+        </Animated.View>
+
+        <ImageBackground source={require('../../assets/background.png')} style={styles.background} />
+        <View style={styles.overlay}>{children}</View>
+
+        <CustomModal
+          visible={isLogoutModalVisible}
+          title="Cerrar Sesión"
+          onConfirm={handleConfirmLogout}
+          onCancel={() => setIsLogoutModalVisible(false)}
+          showCancel={true}
+        >
+          <Text>¿Estás seguro de que quieres cerrar sesión?</Text>
+        </CustomModal>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -229,7 +292,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   navText: {
-    color: 'white',
+    color: '#CDF8FA',
     fontSize: 18,
   },
   profileImage: {
@@ -276,9 +339,9 @@ const styles = StyleSheet.create({
   categoryIconWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 4, // antes no había, esto controla el espacio entre categorías
-    paddingVertical: 2, // opcional, si quieres más compacto
-    gap: 6, // si tu versión soporta `gap` (React Native >= 0.71)
+    marginVertical: 4,
+    paddingVertical: 2,
+    gap: 6,
   },
   categoryIconImage: {
     width: 35,

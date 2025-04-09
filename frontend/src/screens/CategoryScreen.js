@@ -64,7 +64,7 @@ const CategoryScreen = ({ route, navigation }) => {
 
     try {
       const token = await AsyncStorage.getItem('token');
-      const body = { name, description, orderTasks, imageId, studyMethodId, showComplete };  // Include showComplete in the body
+      const body = { name, description, orderTasks, imageId, studyMethodId, showComplete };
 
       if (isEditMode) {
         await axios.put(`${BASE_URL}/api/categories/update/${category.id}`, body, {
@@ -158,27 +158,31 @@ const CategoryScreen = ({ route, navigation }) => {
 
         {/* Modal de selección de imagen */}
         <CustomModal
-          visible={modalVisible}
-          title="Elige un icono"
-          onConfirm={() => setModalVisible(false)}
-          onCancel={() => setModalVisible(false)}
-          showCancel={false}
-        >
-          <View style={styles.modalContent}>
-            {images.map((img) => (
-              <TouchableOpacity
-                key={img.id}
-                onPress={() => {
-                  setImageId(img.id);
-                  setImageUrl(img.imageUrl);
-                }}
-                style={[styles.imageOption, imageId === img.id ? styles.selectedImage : {}]}
-              >
-                <Image source={{ uri: `${BASE_URL}/api/images/${img.imageUrl}` }} style={styles.image} />
-              </TouchableOpacity>
-            ))}
-          </View>
-        </CustomModal>
+  visible={modalVisible}
+  title="Elige un icono"
+  onConfirm={() => setModalVisible(false)}
+  onCancel={() => setModalVisible(false)}
+  showCancel={false}
+>
+  {/* Envolvemos el contenido en un ScrollView que se activa si hay más de 4 filas */}
+  <ScrollView style={styles.modalScrollView} contentContainerStyle={styles.modalContent}>
+    {images.map((img) => (
+      <TouchableOpacity
+        key={img.id}
+        onPress={() => {
+          setImageId(img.id);
+          setImageUrl(img.imageUrl);
+        }}
+        style={[styles.imageOption, imageId === img.id ? styles.selectedImage : {}]}
+      >
+        <View style={styles.modalImageBox}>
+          <View style={styles.modalEnlargedBackground} />
+          <Image source={{ uri: `${BASE_URL}/api/images/${img.imageUrl}` }} style={styles.modalImage} />
+        </View>
+      </TouchableOpacity>
+    ))}
+  </ScrollView>
+</CustomModal>
       </ScrollView>
     </GeneralTemplate>
   );
@@ -199,7 +203,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#ccc',
+    backgroundColor: 'rgba(12, 37, 39, 1)',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
@@ -294,6 +298,46 @@ const styles = StyleSheet.create({
     color: '#084F52',
     fontWeight: 'bold',
     fontSize: 18,
+  },
+  modalContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  imageOption: {
+    marginHorizontal: 5,
+    padding: 5,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  selectedImage: {
+    borderColor: 'blue',
+  },
+  modalImageBox: {
+    width: 50,
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  modalEnlargedBackground: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(12, 37, 39, 1)',
+    top: -5,
+    left: -5,
+  },
+  modalImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    zIndex: 1,
+  },
+  modalScrollView: {
+    maxHeight: 280,
   },
 });
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Image, ScrollView } from 'react-native';
 import { BASE_URL } from '../config';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -126,6 +126,11 @@ const ProfileScreen = ({ navigation }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
         style={GeneralStyles.keyboardAvoiding}
       >
+        <ScrollView 
+                    contentContainerStyle={{ flexGrow: 1 }} 
+                    showsVerticalScrollIndicator={false}
+                    keyboardShouldPersistTaps="handled"
+                  > 
         <View style={GeneralStyles.innerContainer}>
           <Text style={GeneralStyles.title}>Perfil</Text>
           {/* Círculo con la imagen seleccionada y botón de selección */}
@@ -182,6 +187,7 @@ const ProfileScreen = ({ navigation }) => {
             ))}
           </View>
         </CustomModal>
+        </ScrollView>
       </KeyboardAvoidingView>
     </GeneralTemplate>
   );
@@ -197,7 +203,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#ccc',
+    backgroundColor: 'rgba(12, 37, 39, 1)',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',

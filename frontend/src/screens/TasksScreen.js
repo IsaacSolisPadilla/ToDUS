@@ -1,6 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, Alert, KeyboardAvoidingView, TouchableOpacity, FlatList, TextInput, Dimensions, Platform, BackHandler } from 'react-native';
+import { 
+  View, 
+  Text, 
+  Alert, 
+  KeyboardAvoidingView, 
+  TouchableOpacity, 
+  TextInput, 
+  Dimensions, 
+  Platform, 
+  BackHandler,
+  SectionList,
+  StyleSheet
+} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { BASE_URL } from '../config';
 import { Feather, FontAwesome } from '@expo/vector-icons';
@@ -11,20 +23,11 @@ import CustomModal from '../components/CustomModal';
 import axios from 'axios';
 
 const TasksScreen = ({ navigation, route }) => {
-
-  const handleBackPress = () => {
-    // Bloquea el retroceso en TasksScreen
-    return true;  // Esto evita que el usuario navegue hacia atrás
-  };
+  const handleBackPress = () => true; // Bloquea el retroceso
 
   useEffect(() => {
-    // Agregar el listener para bloquear el botón de retroceso de Android
     BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-
-    // Limpiar el listener cuando el componente se desmonta
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
-    };
+    return () => BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
   }, []);
 
   const selectedCategory = route?.params?.category || null;
@@ -36,13 +39,14 @@ const TasksScreen = ({ navigation, route }) => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [showPriorityOptions, setShowPriorityOptions] = useState(false);
-
-  // Estado para controlar la visibilidad de las tareas completadas en una categoría
   const [showCompletedTasks, setShowCompletedTasks] = useState(
     selectedCategory && typeof selectedCategory.showComplete !== 'undefined'
       ? selectedCategory.showComplete
       : false
   );
+  // Categorías configuradas en Settings para aparecer en pantalla principal
+  const [mainCategories, setMainCategories] = useState([]);
+  const [showCategoryList, setShowCategoryList] = useState(false);
 
   const screenWidth = Dimensions.get('window').width;
   const swipeableRefs = useRef({});
@@ -63,6 +67,10 @@ const TasksScreen = ({ navigation, route }) => {
     }
   };
 
+  useEffect(() => {
+  setShowCategoryList(true);
+}, []);
+
   const fetchTasks = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -72,9 +80,8 @@ const TasksScreen = ({ navigation, route }) => {
       });
       let filteredTasks = response.data.filter(t => !t.trashed);
       if (selectedCategory) {
-        filteredTasks = filteredTasks.filter((t) => t.category?.id === selectedCategory.id);
+        filteredTasks = filteredTasks.filter(t => t.category?.id === selectedCategory.id);
       }
-      
       if (selectedCategory && selectedCategory.orderTasks) {
         switch (selectedCategory.orderTasks) {
           case 'DATE_CREATED':
@@ -105,9 +112,30 @@ const TasksScreen = ({ navigation, route }) => {
     }
   };
 
+  const fetchMainCategories = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.get(`${BASE_URL}/api/categories/all`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const cats = await Promise.all(
+        response.data.map(async (cat) => {
+          const stored = await AsyncStorage.getItem(`showCategory_${cat.id}`);
+          return { ...cat, showOnMain: stored === 'true' };
+        })
+      );
+      const mainCats = cats.filter(cat => cat.showOnMain);
+      setMainCategories(mainCats);
+      console.log('mainCategories:', mainCats);
+    } catch (error) {
+      console.error('Error al obtener categorías para pantalla principal:', error);
+    }
+  };
+
   useEffect(() => {
     fetchPriorities();
     fetchTasks();
+    fetchMainCategories();
   }, []);
 
   useFocusEffect(
@@ -194,15 +222,13 @@ const TasksScreen = ({ navigation, route }) => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) return;
-
       if (!taskToDelete.trashed) {
         handleTrashTask(taskToDelete.id);
       } else {
         handleDeleteTask(taskToDelete.id);
         setDeleteModalVisible(true);
       }
-
-      setTaskToDelete(null); // Limpiar taskToDelete
+      setTaskToDelete(null);
     } catch (error) {
       console.error('Error al procesar la eliminación de la tarea:', error);
       Alert.alert('Error', 'No se pudo procesar la eliminación de la tarea');
@@ -216,12 +242,9 @@ const TasksScreen = ({ navigation, route }) => {
   const getTaskStatusInfo = (item) => {
     const today = new Date();
     const dueDate = item.dueDate ? new Date(item.dueDate) : null;
-
     if (!dueDate) return '';
-
     const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
     const completedDate = new Date();
-
     if (item.status === 'COMPLETED') {
       if (completedDate < dueDate) {
         const earlyDays = Math.floor((dueDate - completedDate) / (1000 * 60 * 60 * 24));
@@ -285,55 +308,63 @@ const TasksScreen = ({ navigation, route }) => {
       </TouchableOpacity>
     </Swipeable>
   );
-  let dataToRender = [];
-  if (!selectedCategory) {
-    dataToRender = tasks;
+
+
+  let sections = [];
+  if (selectedCategory) {
+    sections = [{ title: selectedCategory.name, data: tasks }];
   } else {
-    dataToRender = showCompletedTasks ? [...tasks] : tasks.filter(task => task.status !== 'COMPLETED');
+    sections = [{ title: 'Tus Tareas', data: tasks }];
+    mainCategories.forEach(cat => {
+      const catTasks = tasks.filter(task => task.category?.id === cat.id);
+      if (catTasks.length > 0) {
+        sections.push({ title: cat.name, data: catTasks });
+      }
+    });
   }
 
   return (
     <GeneralTemplate>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Text style={GeneralStyles.title}>
-          {selectedCategory ? selectedCategory.name : 'Tus Tareas'}
-        </Text>
-        {selectedCategory && selectedCategory.showComplete === false && (
-          <TouchableOpacity onPress={() => setShowCompletedTasks(!showCompletedTasks)}>
-            <Feather name={showCompletedTasks ? 'eye-off' : 'eye'} size={24} color="#CDF8FA" />
-          </TouchableOpacity>
-        )}
-      </View>
-      <KeyboardAvoidingView 
-      style={GeneralStyles.keyboardAvoiding}
-      behavior={Platform.OS === 'ios' ? 'padding' : ''}
+      <KeyboardAvoidingView
+        style={GeneralStyles.keyboardAvoiding}
+        behavior={Platform.OS === 'ios' ? 'padding' : ''}
       >
         <View style={{ flex: 1, width: screenWidth * 0.8 }}>
-          <FlatList
-            data={dataToRender}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={renderTaskItem}
+          <SectionList
+            sections={sections}
+            keyExtractor={item => item.id.toString()}
+            renderItem={({ item }) => renderTaskItem({ item })}
+            renderSectionHeader={({ section: { title } }) => (
+              <Text style={[GeneralStyles.title, styles.sectionHeader]}>{title}</Text>
+            )}
             showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 100 }}
           />
 
-          {/* Input para nueva tarea */}
           <View style={styles.bottomInputContainer}>
-            <TextInput 
-              placeholder="Nueva tarea" 
-              style={styles.taskInput} 
-              value={taskName} 
-              onChangeText={setTaskName} 
+            <TextInput
+              placeholder="Nueva tarea"
+              style={styles.taskInput}
+              value={taskName}
+              onChangeText={setTaskName}
             />
             <View style={styles.customDropdownContainer}>
-              <TouchableOpacity onPress={() => setShowPriorityOptions(!showPriorityOptions)} style={styles.selectedPriorityBox}>
+              <TouchableOpacity
+                onPress={() => setShowPriorityOptions(!showPriorityOptions)}
+                style={styles.selectedPriorityBox}
+              >
                 <Text style={[styles.selectedPriorityText, { color: priority?.colorHex }]}>
                   {priority ? priority.name : 'Sin prioridad'}
                 </Text>
-                <Feather name={showPriorityOptions ? 'chevron-up' : 'chevron-down'} size={18} color="#333" />
+                <Feather
+                  name={showPriorityOptions ? 'chevron-up' : 'chevron-down'}
+                  size={18}
+                  color="#333"
+                />
               </TouchableOpacity>
               {showPriorityOptions && (
                 <View style={styles.dropdownOptionsListAbove}>
-                  {priorities.map((p) => (
+                  {priorities.map(p => (
                     <TouchableOpacity
                       key={p.id}
                       onPress={() => {
@@ -342,7 +373,9 @@ const TasksScreen = ({ navigation, route }) => {
                       }}
                       style={styles.priorityOption}
                     >
-                      <Text style={[styles.priorityOptionText, { color: p.colorHex }]}>● {p.name}</Text>
+                      <Text style={[styles.priorityOptionText, { color: p.colorHex }]}>
+                        ● {p.name}
+                      </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -364,8 +397,8 @@ const TasksScreen = ({ navigation, route }) => {
             onCancel={() => setDeleteModalVisible(false)}
           >
             <Text>
-              {taskToDelete && taskToDelete.trashed 
-                ? "¿Estás seguro de que deseas eliminar permanentemente esta tarea?" 
+              {taskToDelete && taskToDelete.trashed
+                ? "¿Estás seguro de que deseas eliminar permanentemente esta tarea?"
                 : "¿Estás seguro de que deseas mover esta tarea a la papelera?"}
             </Text>
           </CustomModal>
@@ -496,6 +529,16 @@ const styles = {
     fontWeight: 'bold',
     fontSize: 16,
   },
+  // Sección extra: cada sección con título y lista de tareas de la categoría
+  categoryTasksSection: {
+    marginTop: 20,
+  },
+  categorySectionTitle: {
+    fontSize: 18,
+    color: '#084F52',
+    fontWeight: '600',
+    marginBottom: 10,
+  }
 };
 
 export default TasksScreen;

@@ -13,6 +13,7 @@ import CategoryScreen from '../screens/CategoryScreen';
 import TrashTasksScreen from '../screens/TrashTasksScreen';
 import SubTasksScreen from '../screens/SubTasksScreen';
 import PreventBack from './PreventBack'; // Importa el componente de prevención
+import SettingsScreen from '../screens/SettingsScreen';
 
 const Stack = createStackNavigator();
 
@@ -54,6 +55,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Category" component={CategoryScreen}/>
         <Stack.Screen name="TrashTasks" component={TrashTasksScreen} />
         <Stack.Screen name="SubTasks" component={SubTasksScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
       </Stack.Navigator>
       <PreventBack />
     </NavigationContainer>

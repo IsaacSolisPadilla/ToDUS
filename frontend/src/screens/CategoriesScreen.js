@@ -74,75 +74,73 @@ const CategoriesScreen = ({ navigation }) => {
         <Text style={GeneralStyles.title}>Tus Categorías</Text>
       </View>
       <View style={{ flex: 1, width: screenWidth * 0.8 }}>
-      <FlatList
-        data={categories}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ paddingBottom: 100 }}
-        renderItem={({ item }) => (
-          <Swipeable
-            ref={(ref) => {
-              if (ref && item.id) swipeableRefs.current[item.id] = ref;
-            }}
-            renderLeftActions={renderLeftActions}
-            renderRightActions={renderRightActions}
-            onSwipeableOpen={(direction) => {
-              swipeableRefs.current[item.id]?.close();
-              if (direction === 'left') {
-                navigation.navigate('Category', { category: item });
-              } else if (direction === 'right') {
-                setCategoryToDelete(item);
-                setDeleteModalVisible(true);
-              }
-            }}
-          >
-            <View style={styles.categoryItemContainer}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={styles.imageBox}>
-                  <Image
-                    source={{ uri: `${BASE_URL}/api/images/${item.image.imageUrl}` }}
-                    style={styles.image}
-                    resizeMode="contain"
-                  />
-                </View>
-                <View>
-                <Text
-                    style={[styles.categoryName, { width: screenWidth * 0.6 }]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {item.name}
-                  </Text>
-                  <Text
-                    style={[styles.categoryDescription, { width: screenWidth * 0.6 }]}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    {item.description}
-                  </Text>               
+        <FlatList
+          data={categories}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          renderItem={({ item }) => (
+            <Swipeable
+              ref={(ref) => {
+                if (ref && item.id) swipeableRefs.current[item.id] = ref;
+              }}
+              renderLeftActions={renderLeftActions}
+              renderRightActions={renderRightActions}
+              onSwipeableOpen={(direction) => {
+                swipeableRefs.current[item.id]?.close();
+                if (direction === 'left') {
+                  navigation.navigate('Category', { category: item });
+                } else if (direction === 'right') {
+                  setCategoryToDelete(item);
+                  setDeleteModalVisible(true);
+                }
+              }}
+            >
+              <View style={styles.categoryItemContainer}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={styles.imageBox}>
+                    {/* Fondo extra que se muestra detrás de la imagen */}
+                    <View style={styles.enlargedBackground} />
+                    <Image
+                      source={{ uri: `${BASE_URL}/api/images/${item.image.imageUrl}` }}
+                      style={styles.image}
+                      resizeMode="contain"
+                    />
+                  </View>
+                  <View>
+                    <Text
+                      style={[styles.categoryName, { width: screenWidth * 0.6 }]}
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
+                      {item.name}
+                    </Text>
+                    <Text
+                      style={[styles.categoryDescription, { width: screenWidth * 0.6 }]}
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                    >
+                      {item.description}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          </Swipeable>
-        )}
-        
-      />
+            </Swipeable>
+          )}
+        />
 
-      <View style={{ marginTop: 10, marginBottom: 20, alignItems: 'center' }}>
-        <Button title="Nueva Categoría" onPress={() => navigation.navigate('Category')} />
+        <View style={{ marginTop: 10, marginBottom: 20, alignItems: 'center' }}>
+          <Button title="Nueva Categoría" onPress={() => navigation.navigate('Category')} />
+        </View>
+
+        <CustomModal
+          visible={deleteModalVisible}
+          title="¿Eliminar categoría?"
+          onConfirm={handleDeleteCategory}
+          onCancel={() => setDeleteModalVisible(false)}
+        >
+          <Text>¿Estás seguro de que quieres eliminar esta categoría?</Text>
+        </CustomModal>
       </View>
-
-      
-
-      <CustomModal
-        visible={deleteModalVisible}
-        title="¿Eliminar categoría?"
-        onConfirm={handleDeleteCategory}
-        onCancel={() => setDeleteModalVisible(false)}
-      >
-        <Text>¿Estás seguro de que quieres eliminar esta categoría?</Text>
-      </CustomModal>
-      </View>
-      
     </GeneralTemplate>
   );
 };
@@ -166,12 +164,27 @@ const styles = {
     color: '#084F52',
   },
   imageBox: {
-    width: 40,
-    height: 40,
+    width: 48,
+    height: 48,
     marginRight: 12,
-    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+  },
+  enlargedBackground: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    borderRadius: 20,
+    backgroundColor: 'rgba(12, 37, 39, 1)',
+    top: -6,
+    left: -6,
+  },
+  image: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    zIndex: 1,
   },
   leftAction: {
     backgroundColor: '#4CAF50',
@@ -194,11 +207,6 @@ const styles = {
     fontWeight: 'bold',
     fontSize: 16,
   },
-  image: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-  }
 };
 
 export default CategoriesScreen;

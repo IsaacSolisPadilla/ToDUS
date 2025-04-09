@@ -8,10 +8,7 @@ const PreventBack = () => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-      // Aquí se puede realizar una verificación adicional si es necesario
-      e.preventDefault(); // Evita que el usuario regrese a la pantalla anterior
-
-      // Mostrar un alert antes de permitir el retroceso
+      e.preventDefault();
       Alert.alert(
         '¿Seguro que quieres salir?',
         'Tus cambios no se han guardado. ¿Estás seguro?',
@@ -19,7 +16,7 @@ const PreventBack = () => {
           { text: 'Cancelar', onPress: () => null, style: 'cancel' },
           {
             text: 'Salir',
-            onPress: () => navigation.replace('Tasks'), // Reemplaza con la pantalla principal
+            onPress: () => navigation.replace('Tasks'),
           },
         ]
       );
@@ -28,7 +25,7 @@ const PreventBack = () => {
     return unsubscribe;
   }, [navigation]);
 
-  return <></>; // Este componente no necesita renderizar nada
+  return <></>;
 };
 
 export default PreventBack;
