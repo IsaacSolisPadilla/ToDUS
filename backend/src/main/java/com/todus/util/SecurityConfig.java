@@ -51,6 +51,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/subtasks/update/**").authenticated()
                 .requestMatchers("/api/subtasks/complete/**").authenticated()
                 .requestMatchers("/api/subtasks/list/**").authenticated()
+                .requestMatchers("api/priorities/all").permitAll()
+                .requestMatchers("api/priorities/create").authenticated()
+                .requestMatchers("api/priorities/update/**").authenticated()
+                .requestMatchers("api/priorities/delete/**").authenticated()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

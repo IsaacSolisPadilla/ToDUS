@@ -11,6 +11,7 @@ import com.todus.enums.Status;
 import com.todus.priority.Priority;
 import com.todus.priority.PriorityRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -93,10 +94,12 @@ public class TaskService {
     
         if (task.getStatus() == Status.COMPLETED) {
             task.setStatus(Status.PENDENT);
+            task.setCompletedAt(null);
             taskRepository.save(task);
             return Map.of("message", "Tarea vuelta a pendiente");
         } else {
             task.setStatus(Status.COMPLETED);
+            task.setCompletedAt(LocalDateTime.now());
             taskRepository.save(task);
             return Map.of("message", "Tarea marcada como completada");
         }
@@ -185,6 +188,7 @@ public class TaskService {
         }
     
         task.setTrashed(true);
+        task.setDateTrashed(LocalDateTime.now());
         taskRepository.save(task);
     
         return Map.of("message", "Tarea movida a la papelera correctamente");
@@ -208,6 +212,7 @@ public class TaskService {
             throw new RuntimeException("No tienes permisos para recuperar esta tarea");
         }
         task.setTrashed(false);
+        task.setDateTrashed(null);
         taskRepository.save(task);
         return Map.of("message", "Tarea recuperada con éxito");
     }

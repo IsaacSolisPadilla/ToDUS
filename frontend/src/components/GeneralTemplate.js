@@ -34,18 +34,16 @@ const GeneralTemplate = ({ children }) => {
   const navWidth = useRef(new Animated.Value(50)).current;
   const textOpacity = useRef(new Animated.Value(0)).current;
 
-  // Valor animado para la visibilidad de los íconos del bottom nav
   const bottomNavAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     checkAuthStatus();
   }, [isLoggedIn]);
 
-  // Listeners para eventos de teclado
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', () => {
       Animated.timing(bottomNavAnim, {
-        toValue: 0, // Ocultar (opacidad 0 y, si lo deseas, puedes combinar con translateY)
+        toValue: 0,
         duration: 400,
         easing: Easing.inOut(Easing.ease),
         useNativeDriver: true,
@@ -175,7 +173,7 @@ const GeneralTemplate = ({ children }) => {
           )}
 
           {isLoggedIn && categories.length > 0 && (
-            <ScrollView style={styles.categoryScroll} contentContainerStyle={{ paddingVertical: 10 }}>
+            <ScrollView style={styles.categoryScroll} contentContainerStyle={{ paddingVertical: 10 }} showsVerticalScrollIndicator={false}>
               {categories.map((cat) => (
                 <TouchableOpacity
                   key={cat.id}

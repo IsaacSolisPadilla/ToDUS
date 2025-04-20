@@ -12,5 +12,7 @@ public class CategoryDTO {
     private OrderTask orderTasks;
     private Long imageId;
     private Boolean showComplete = false;
-    private Long studyMethodId; // Opcional
+    private Long studyMethodId;
+    private Boolean autoDeleteComplete = false;
+    private Integer deleteCompleteDays;
 }

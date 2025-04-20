@@ -2,10 +2,8 @@ package com.todus.priority;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.todus.task.Task;
 import com.todus.task.TaskRepository;
-
 import java.util.List;
 import java.util.Optional;
 

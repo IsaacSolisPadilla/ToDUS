@@ -44,6 +44,12 @@ public class Task {
     @Column(nullable = false)
     private Boolean trashed = false;
 
+    @Column(name = "date_trashed")
+    private LocalDateTime dateTrashed;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;

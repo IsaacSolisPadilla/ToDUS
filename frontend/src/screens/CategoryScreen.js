@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Image, StyleSheet, Switch } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  Image,
+  StyleSheet,
+  Switch,
+  Keyboard,
+  InputAccessoryView
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { BASE_URL } from '../config';
@@ -13,25 +25,32 @@ const CategoryScreen = ({ route, navigation }) => {
   const { category } = route.params || {};
   const isEditMode = !!category;
 
+  // estados existentes
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [orderTasks, setOrderTasks] = useState('PRIORITY_ASC');
   const [imageId, setImageId] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [studyMethodId, setStudyMethodId] = useState(null);
+  const [showComplete, setShowComplete] = useState(false);
 
+  // nuevos estados para auto‑borrar completadas
+  const [autoDeleteComplete, setAutoDeleteComplete] = useState(false);
+  const [deleteCompleteDays, setDeleteCompleteDays] = useState('7');
+
+  // imágenes y modal
   const [modalVisible, setModalVisible] = useState(false);
   const [images, setImages] = useState([]);
   const [showOrderOptions, setShowOrderOptions] = useState(false);
 
-  // Estado para manejar el valor de 'showComplete' (mostrar tareas completadas)
-  const [showComplete, setShowComplete] = useState(false);
+  // ID para InputAccessoryView
+  const accessoryViewID = 'deleteDaysAccessory';
 
   const orderOptions = [
     { label: 'Fecha de creación', value: 'DATE_CREATED' },
     { label: 'Fecha de vencimiento', value: 'DUE_DATE' },
-    { label: 'Prioridad (ascendente)', value: 'PRIORITY_ASC' },
-    { label: 'Prioridad (descendente)', value: 'PRIORITY_DES' },
+    { label: 'Prioridad (asc)', value: 'PRIORITY_ASC' },
+    { label: 'Prioridad (desc)', value: 'PRIORITY_DES' },
     { label: 'Nombre (A-Z)', value: 'NAME_ASC' },
     { label: 'Nombre (Z-A)', value: 'NAME_DES' },
   ];
@@ -45,16 +64,24 @@ const CategoryScreen = ({ route, navigation }) => {
       setImageId(category.image?.id || null);
       setImageUrl(category.image?.imageUrl || null);
       setStudyMethodId(category.studyMethod?.id || null);
-      setShowComplete(category.showComplete || false);  // Set the value of showComplete
+      setShowComplete(category.showComplete || false);
+
+      // rellenar nuevos campos
+      setAutoDeleteComplete(category.autoDeleteComplete || false);
+      setDeleteCompleteDays(
+        category.deleteCompleteDays != null
+          ? String(category.deleteCompleteDays)
+          : '7'
+      );
     }
   }, []);
 
   const fetchImages = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/images/list/CATEGORY`);
-      setImages(response.data);
-    } catch (error) {
-      console.error('Error al obtener imágenes', error);
+      const resp = await axios.get(`${BASE_URL}/api/images/list/CATEGORY`);
+      setImages(resp.data);
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -62,127 +89,197 @@ const CategoryScreen = ({ route, navigation }) => {
     if (!name.trim()) return Alert.alert('Error', 'El nombre es obligatorio');
     if (!imageId) return Alert.alert('Error', 'Debes seleccionar una imagen');
 
+    // validar días
+    if (autoDeleteComplete) {
+      const n = parseInt(deleteCompleteDays, 10);
+      if (isNaN(n) || n < 1) {
+        return Alert.alert('Error', 'Introduce un número válido de días (>=1)');
+      }
+    }
+
     try {
       const token = await AsyncStorage.getItem('token');
-      const body = { name, description, orderTasks, imageId, studyMethodId, showComplete };
+      const body = {
+        name,
+        description,
+        orderTasks,
+        imageId,
+        studyMethodId,
+        showComplete,
+        autoDeleteComplete,
+        deleteCompleteDays: autoDeleteComplete
+          ? parseInt(deleteCompleteDays, 10)
+          : null,
+      };
 
       if (isEditMode) {
         await axios.put(`${BASE_URL}/api/categories/update/${category.id}`, body, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        Alert.alert('Categoría actualizada', 'Se guardaron los cambios correctamente.');
+        Alert.alert('Categoría actualizada');
       } else {
         await axios.post(`${BASE_URL}/api/categories/create`, body, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        Alert.alert('Categoría creada', 'Se creó correctamente.');
+        Alert.alert('Categoría creada');
       }
-
       navigation.goBack();
-    } catch (error) {
-      console.error('Error al guardar categoría:', error);
-      Alert.alert('Error', error.response?.data?.error || 'No se pudo guardar la categoría');
+    } catch (e) {
+      console.error(e);
+      Alert.alert('Error', 'No se pudo guardar la categoría');
     }
   };
 
   return (
     <GeneralTemplate>
-      <ScrollView>
-        <Text style={GeneralStyles.title}>{isEditMode ? 'Editar Categoría' : 'Crear Categoría'}</Text>
+      <ScrollView contentContainerStyle={{ padding: 20 }}>
+        <Text style={GeneralStyles.title}>
+          {isEditMode ? 'Editar Categoría' : 'Crear Categoría'}
+        </Text>
 
-        {/* Vista previa y botón para seleccionar imagen */}
+        {/* Imagen */}
         <View style={styles.imageSelectionContainer}>
           <View style={styles.imageCircle}>
             {imageUrl ? (
-              <Image source={{ uri: `${BASE_URL}/api/images/${imageUrl}` }} style={styles.imageCircle} />
+              <Image
+                source={{ uri: `${BASE_URL}/api/images/${imageUrl}` }}
+                style={styles.imageCircle}
+              />
             ) : (
               <Text style={styles.imagePlaceholder}>?</Text>
             )}
           </View>
-          <TouchableOpacity style={styles.selectImageButton} onPress={() => setModalVisible(true)}>
+          <TouchableOpacity
+            style={styles.selectImageButton}
+            onPress={() => setModalVisible(true)}
+          >
             <Text style={styles.selectImageText}>Seleccionar Imagen</Text>
           </TouchableOpacity>
         </View>
 
+        {/* Formulario */}
         <View style={styles.formContainer}>
-          <InputField style={styles.input} placeholder="Nombre" value={name} onChangeText={setName} />
-          <InputField style={styles.input} placeholder="Descripción" value={description} onChangeText={setDescription} />
+          <InputField
+            style={styles.input}
+            placeholder="Nombre"
+            value={name}
+            onChangeText={setName}
+          />
+          <InputField
+            style={styles.input}
+            placeholder="Descripción"
+            value={description}
+            onChangeText={setDescription}
+          />
 
+          {/* Orden */}
           <View style={{ marginBottom: 12 }}>
             <TouchableOpacity
               onPress={() => setShowOrderOptions(!showOrderOptions)}
               style={styles.orderButton}
             >
-              <Text style={{ fontSize: 16, color: orderTasks ? '#0C2527' : '#777' }}>
-                {orderOptions.find((o) => o.value === orderTasks)?.label || 'Selecciona orden'}
+              <Text style={{ fontSize: 16, color: '#0C2527' }}>
+                {orderOptions.find((o) => o.value === orderTasks)?.label ||
+                  'Selecciona orden'}
               </Text>
             </TouchableOpacity>
-
             {showOrderOptions && (
               <View style={styles.dropdownOptions}>
-                {orderOptions.map((option) => (
+                {orderOptions.map((opt) => (
                   <TouchableOpacity
-                    key={option.value}
+                    key={opt.value}
                     onPress={() => {
-                      setOrderTasks(option.value);
+                      setOrderTasks(opt.value);
                       setShowOrderOptions(false);
                     }}
                     style={styles.dropdownOption}
                   >
-                    <Text style={styles.optionText}>{option.label}</Text>
+                    <Text style={styles.optionText}>{opt.label}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
             )}
           </View>
 
+          {/* Método de estudio */}
           <InputField
             style={styles.input}
             placeholder="Ej: 1"
             value={studyMethodId ? studyMethodId.toString() : ''}
-            onChangeText={(text) => setStudyMethodId(text ? parseInt(text) : null)}
+            onChangeText={(t) => setStudyMethodId(t ? parseInt(t) : null)}
             keyboardType="numeric"
           />
 
-          {/* Switch para habilitar o deshabilitar la opción de mostrar tareas completadas */}
+          {/* Mostrar completadas */}
           <View style={styles.switchContainer}>
             <Text style={styles.switchLabel}>Mostrar tareas completadas</Text>
-            <Switch
-              value={showComplete}
-              onValueChange={setShowComplete}
-            />
+            <Switch value={showComplete} onValueChange={setShowComplete} />
           </View>
 
-          <Button title={isEditMode ? 'Guardar Cambios' : 'Crear Categoría'} onPress={handleSave} />
+          {/* Auto‑borrar completadas */}
+          <View style={[styles.optionGroup, { marginTop: 20 }]}>
+            <View style={styles.switchContainer}>
+              <Text style={styles.switchLabel}>Auto‑borrar completadas</Text>
+              <Switch
+                value={autoDeleteComplete}
+                onValueChange={setAutoDeleteComplete}
+              />
+            </View>
+            {autoDeleteComplete && (
+              <>
+                <TextInput
+                  style={styles.numberInput}
+                  placeholder="Ej. 7"
+                  value={deleteCompleteDays}
+                  onChangeText={setDeleteCompleteDays}
+                  keyboardType="number-pad"
+                  returnKeyType="done"
+                />
+              </>
+            )}
+          </View>
+
+          <Button
+            title={isEditMode ? 'Guardar Cambios' : 'Crear Categoría'}
+            onPress={handleSave}
+          />
         </View>
 
-        {/* Modal de selección de imagen */}
+        {/* Modal de imágenes */}
         <CustomModal
-  visible={modalVisible}
-  title="Elige un icono"
-  onConfirm={() => setModalVisible(false)}
-  onCancel={() => setModalVisible(false)}
-  showCancel={false}
->
-  {/* Envolvemos el contenido en un ScrollView que se activa si hay más de 4 filas */}
-  <ScrollView style={styles.modalScrollView} contentContainerStyle={styles.modalContent}>
-    {images.map((img) => (
-      <TouchableOpacity
-        key={img.id}
-        onPress={() => {
-          setImageId(img.id);
-          setImageUrl(img.imageUrl);
-        }}
-        style={[styles.imageOption, imageId === img.id ? styles.selectedImage : {}]}
-      >
-        <View style={styles.modalImageBox}>
-          <View style={styles.modalEnlargedBackground} />
-          <Image source={{ uri: `${BASE_URL}/api/images/${img.imageUrl}` }} style={styles.modalImage} />
-        </View>
-      </TouchableOpacity>
-    ))}
-  </ScrollView>
-</CustomModal>
+          visible={modalVisible}
+          title="Elige un icono"
+          onConfirm={() => setModalVisible(false)}
+          onCancel={() => setModalVisible(false)}
+          showCancel={false}
+        >
+          <ScrollView
+            style={styles.modalScrollView}
+            contentContainerStyle={styles.modalContent}
+          >
+            {images.map((img) => (
+              <TouchableOpacity
+                key={img.id}
+                onPress={() => {
+                  setImageId(img.id);
+                  setImageUrl(img.imageUrl);
+                }}
+                style={[
+                  styles.imageOption,
+                  imageId === img.id && styles.selectedImage,
+                ]}
+              >
+                <View style={styles.modalImageBox}>
+                  <View style={styles.modalEnlargedBackground} />
+                  <Image
+                    source={{ uri: `${BASE_URL}/api/images/${img.imageUrl}` }}
+                    style={styles.modalImage}
+                  />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </CustomModal>
       </ScrollView>
     </GeneralTemplate>
   );
@@ -263,26 +360,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#0C2527',
   },
-  modalContent: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-  imageOption: {
-    marginHorizontal: 5,
-    padding: 5,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  selectedImage: {
-    borderColor: 'blue',
-  },
-  image: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-  },
   switchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -293,11 +370,36 @@ const styles = StyleSheet.create({
     borderColor: '#084F52',
   },
   switchLabel: {
-    fontSize: 16,
+    fontSize: 18,
     marginRight: 10,
     color: '#084F52',
     fontWeight: 'bold',
-    fontSize: 18,
+  },
+  /* NUEVOS ESTILOS */
+  optionGroup: {
+    backgroundColor: '#CDF8FA',
+    padding: 12,
+    borderRadius: 8,
+  },
+  retentionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  optionLabel: {
+    fontSize: 16,
+    color: '#084F52',
+    marginRight: 10,
+  },
+  numberInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 10,
+    fontSize: 16,
+    color: '#084F52',
+    width: 80,
+    textAlign: 'center',
   },
   modalContent: {
     flexDirection: 'row',

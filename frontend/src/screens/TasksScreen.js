@@ -21,6 +21,7 @@ import GeneralTemplate from '../components/GeneralTemplate';
 import GeneralStyles from '../styles/GeneralStyles';
 import CustomModal from '../components/CustomModal';
 import axios from 'axios';
+import * as Notifications from 'expo-notifications';
 
 const TasksScreen = ({ navigation, route }) => {
   const handleBackPress = () => true; // Bloquea el retroceso
@@ -44,12 +45,27 @@ const TasksScreen = ({ navigation, route }) => {
       ? selectedCategory.showComplete
       : false
   );
-  // Categorías configuradas en Settings para aparecer en pantalla principal
   const [mainCategories, setMainCategories] = useState([]);
-  const [showCategoryList, setShowCategoryList] = useState(false);
+  const [rules, setRules] = useState([]);
 
   const screenWidth = Dimensions.get('window').width;
   const swipeableRefs = useRef({});
+
+  const [notifyOnPriorityChange, setNotifyOnPriorityChange] = useState(false);
+  const [notifyDueReminders, setNotifyDueReminders] = useState(false);
+  const [dueReminderDays, setDueReminderDays] = useState(1);
+
+  // load notification prefs once
+  useEffect(() => {
+    (async () => {
+      const a = await AsyncStorage.getItem('notifyOnPriorityChange');
+      const b = await AsyncStorage.getItem('notifyDueReminders');
+      const c = await AsyncStorage.getItem('dueReminderDays');
+      if (a !== null) setNotifyOnPriorityChange(a === 'true');
+      if (b !== null) setNotifyDueReminders(b === 'true');
+      if (c !== null) setDueReminderDays(parseInt(c, 10));
+    })();
+  }, []);
 
   useEffect(() => {
     if (selectedCategory && typeof selectedCategory.showComplete !== 'undefined') {
@@ -67,48 +83,152 @@ const TasksScreen = ({ navigation, route }) => {
     }
   };
 
-  useEffect(() => {
-  setShowCategoryList(true);
-}, []);
 
   const fetchTasks = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) return;
-      const response = await axios.get(`${BASE_URL}/api/tasks/list`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      let filteredTasks = response.data.filter(t => !t.trashed);
-      if (selectedCategory) {
-        filteredTasks = filteredTasks.filter(t => t.category?.id === selectedCategory.id);
+
+      // 1) traer todo
+      const { data: all } = await axios.get(
+        `${BASE_URL}/api/tasks/list`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const now = new Date();
+
+      // 2) auto‑trash caducadas
+      for (const t of all) {
+        if (
+          t.status === 'COMPLETED' &&
+          t.category?.autoDeleteComplete &&
+          t.completedAt
+        ) {
+          const completedAt = new Date(t.completedAt);
+          const days = t.category.deleteCompleteDays ?? 0;
+          const cutoff = new Date(now - days * 86400e3);
+          if (completedAt < cutoff) {
+            try {
+              await axios.put(
+                `${BASE_URL}/api/tasks/trash/${t.id}`,
+                {},
+                { headers: { Authorization: `Bearer ${token}` } }
+              );
+            } catch (err) {
+              console.warn('Auto‑trash failed for', t.id, err);
+            }
+          }
+        }
       }
-      if (selectedCategory && selectedCategory.orderTasks) {
+
+      // 2.1) auto‑prioridad + notificación
+      const rulesJson = await AsyncStorage.getItem('priorityRules');
+      const loadedRules = rulesJson ? JSON.parse(rulesJson) : [];
+      setRules(loadedRules);
+
+      for (const t of all) {
+        if (!t.trashed && t.dueDate && t.priority?.id != null) {
+          const due = new Date(t.dueDate);
+          const daysLeft = (due - now) / 86400e3;
+          const rule = loadedRules.find(r =>
+            r.fromId === t.priority.id && daysLeft <= r.days
+          );
+          if (rule) {
+            // old/new priority names
+            const oldP = priorities.find(p => p.id === rule.fromId);
+            const newP = priorities.find(p => p.id === rule.toId);
+
+            try {
+              await axios.put(
+                `${BASE_URL}/api/tasks/update/${t.id}`,
+                {
+                  name: t.name,
+                  description: t.description,
+                  dueDate: t.dueDate,
+                  priorityId: rule.toId,
+                  categoryId: t.category?.id
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                  }
+                }
+              );
+              if (notifyOnPriorityChange && oldP && newP) {
+                await Notifications.scheduleNotificationAsync({
+                  content: {
+                    title: 'Prioridad cambiada',
+                    body: `La tarea "${t.name}" cambió de "${oldP.name}" a "${newP.name}".`
+                  },
+                  trigger: null
+                });
+              }
+            } catch (err) {
+              console.warn('Auto‑priority failed for', t.id, err);
+            }
+          }
+        }
+      }
+
+      // 3) refrescar lista
+      const { data: fresh } = await axios.get(
+        `${BASE_URL}/api/tasks/list`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      let filtered = fresh.filter(t => !t.trashed);
+
+      // 4) filtrar por categoría
+      if (selectedCategory) {
+        filtered = filtered.filter(t => t.category?.id === selectedCategory.id);
+      }
+
+      // 5) orden
+      if (selectedCategory?.orderTasks) {
         switch (selectedCategory.orderTasks) {
           case 'DATE_CREATED':
-            filteredTasks.sort((a, b) => new Date(a.dateCreated) - new Date(b.dateCreated));
+            filtered.sort((a, b) => new Date(a.dateCreated) - new Date(b.dateCreated));
             break;
           case 'DUE_DATE':
-            filteredTasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+            filtered.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
             break;
           case 'PRIORITY_ASC':
-            filteredTasks.sort((a, b) => a.priority.level - b.priority.level);
+            filtered.sort((a, b) => a.priority.level - b.priority.level);
             break;
           case 'PRIORITY_DES':
-            filteredTasks.sort((a, b) => b.priority.level - a.priority.level);
+            filtered.sort((a, b) => b.priority.level - a.priority.level);
             break;
           case 'NAME_ASC':
-            filteredTasks.sort((a, b) => a.name.localeCompare(b.name));
+            filtered.sort((a, b) => a.name.localeCompare(b.name));
             break;
           case 'NAME_DES':
-            filteredTasks.sort((a, b) => b.name.localeCompare(a.name));
-            break;
-          default:
+            filtered.sort((a, b) => b.name.localeCompare(a.name));
             break;
         }
       }
-      setTasks(filteredTasks);
-    } catch (error) {
-      console.error('Error al obtener tareas del usuario:', error);
+
+      setTasks(filtered);
+
+      // 6) due reminders
+      if (notifyDueReminders) {
+        filtered.forEach(async t => {
+          if (t.dueDate) {
+            const due = new Date(t.dueDate);
+            const daysLeft = Math.ceil((due - now) / 86400e3);
+            if (daysLeft === dueReminderDays) {
+              await Notifications.scheduleNotificationAsync({
+                content: {
+                  title: 'Tarea por vencer',
+                  body: `Faltan ${daysLeft} día(s) para que "${t.name}" venza.`
+                },
+                trigger: null
+              });
+            }
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Error fetching tasks:', e);
     }
   };
 
@@ -126,15 +246,20 @@ const TasksScreen = ({ navigation, route }) => {
       );
       const mainCats = cats.filter(cat => cat.showOnMain);
       setMainCategories(mainCats);
-      console.log('mainCategories:', mainCats);
     } catch (error) {
       console.error('Error al obtener categorías para pantalla principal:', error);
     }
   };
 
+  const fetchRules = async () => {
+    const json = await AsyncStorage.getItem('priorityRules');
+    if (json) setRules(JSON.parse(json));
+  };
+
   useEffect(() => {
     fetchPriorities();
     fetchTasks();
+    fetchRules();
     fetchMainCategories();
   }, []);
 
@@ -529,7 +654,6 @@ const styles = {
     fontWeight: 'bold',
     fontSize: 16,
   },
-  // Sección extra: cada sección con título y lista de tareas de la categoría
   categoryTasksSection: {
     marginTop: 20,
   },

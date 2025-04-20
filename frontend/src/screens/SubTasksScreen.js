@@ -219,7 +219,7 @@ const SubTasksScreen = ({ route, navigation }) => {
               onChangeText={setSubTaskName}
             />
             <TouchableOpacity onPress={handleCreateSubTask} style={styles.sendButton}>
-              <Feather name={subTaskName.trim() === '' ? 'trash' : 'plus'} size={15} color="white" />
+              <Feather name={'plus'} size={15} color="white" />
             </TouchableOpacity>
           </View>
         </View>

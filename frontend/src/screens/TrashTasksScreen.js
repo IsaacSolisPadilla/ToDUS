@@ -11,26 +11,56 @@ import CustomModal from '../components/CustomModal';
 import axios from 'axios';
 
 const TrashTasksScreen = ({ navigation, route }) => {
-  const { category } = route.params; // Puede ser null o tener datos
+  const { category } = route.params;
   const [trashedTasks, setTrashedTasks] = useState([]);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
-  const screenWidth = Dimensions.get('window').width;
   const swipeableRefs = useRef({});
+  const screenWidth = Dimensions.get('window').width;
+
+  const getRetentionDays = async () => {
+    const stored = await AsyncStorage.getItem('trashRetentionDays');
+    const days = parseInt(stored, 10);
+    return (isNaN(days) || days < 1) ? 7 : days;
+  };
 
   const fetchTrashedTasks = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) return;
-      const url = category && category.id 
-        ? `${BASE_URL}/api/tasks/trash?categoryId=${category.id}` 
+
+      const url = category?.id
+        ? `${BASE_URL}/api/tasks/trash?categoryId=${category.id}`
         : `${BASE_URL}/api/tasks/trash`;
+
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTrashedTasks(response.data);
+
+      const retentionDays = await getRetentionDays();
+      const cutoff = new Date(Date.now() - retentionDays * 24*60*60*1000);
+
+      const stillInTrash = [];
+      await Promise.all(response.data.map(async t => {
+        if (t.dateTrashed) {
+          const trashedAt = new Date(t.dateTrashed);
+          if (trashedAt < cutoff) {
+            try {
+              await axios.delete(`${BASE_URL}/api/tasks/${t.id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+            } catch (err) {
+              console.warn(`No se pudo auto-eliminar tarea ${t.id}`, err);
+            }
+            return;
+          }
+        }
+        stillInTrash.push(t);
+      }));
+
+      setTrashedTasks(stillInTrash);
     } catch (error) {
-      console.error('Error al obtener tareas en la papelera:', error);
+      console.error('Error cargando papelera:', error);
     }
   };
 
@@ -44,21 +74,21 @@ const TrashTasksScreen = ({ navigation, route }) => {
     }, [category])
   );
 
-  const handleRecoverTask = async (taskId) => {
+  const handleRecoverTask = async id => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) return;
-      await axios.put(`${BASE_URL}/api/tasks/restore/${taskId}`, {}, {
+      await axios.put(`${BASE_URL}/api/tasks/restore/${id}`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchTrashedTasks();
-    } catch (error) {
-      console.error('Error al recuperar la tarea:', error);
+    } catch (e) {
+      console.error(e);
       Alert.alert('Error', 'No se pudo recuperar la tarea');
     }
   };
 
-  const handleDeleteTaskPermanently = async () => {
+  const handleDeletePermanently = async () => {
     if (!taskToDelete) return;
     try {
       const token = await AsyncStorage.getItem('token');
@@ -69,42 +99,35 @@ const TrashTasksScreen = ({ navigation, route }) => {
       setDeleteModalVisible(false);
       setTaskToDelete(null);
       fetchTrashedTasks();
-    } catch (error) {
-      console.error('Error al eliminar permanentemente la tarea:', error);
+    } catch (e) {
+      console.error(e);
       Alert.alert('Error', 'No se pudo eliminar la tarea');
     }
   };
 
-  const handleDeleteAllTasks = async () => {
+  const handleDeleteAll = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) return;
-
-      const url = `${BASE_URL}/api/tasks/trash/deleteAll`;
-      const categoryId = category ? category.id : null;
-
-      await axios.post(url, null, {
-        params: { categoryId },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const params = category?.id ? { categoryId: category.id } : {};
+      await axios.post(`${BASE_URL}/api/tasks/trash/deleteAll`, null, {
+        params,
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       fetchTrashedTasks();
-      Alert.alert('Éxito', 'Se han eliminado todas las tareas de la papelera');
-    } catch (error) {
-      console.error('Error al eliminar todas las tareas:', error);
-      Alert.alert('Error', 'No se pudo eliminar todas las tareas');
+      Alert.alert('Éxito', 'Se eliminaron todas las tareas de la papelera');
+    } catch (e) {
+      console.error(e);
+      Alert.alert('Error', 'No se pudo vaciar la papelera');
     }
-};
+  };
 
-  const renderLeftActions = (item) => (
+  const renderLeftActions = () => (
     <View style={styles.leftAction}>
       <Text style={styles.actionText}>Recuperar</Text>
     </View>
   );
-
-  const renderRightActions = (item) => (
+  const renderRightActions = () => (
     <View style={styles.rightAction}>
       <Text style={styles.actionText}>Eliminar</Text>
     </View>
@@ -112,56 +135,50 @@ const TrashTasksScreen = ({ navigation, route }) => {
 
   return (
     <GeneralTemplate>
-      <View>
-        <Text style={GeneralStyles.title}>
-          {category ? `Papelera: ${category.name}` : 'Papelera'}
-        </Text>
-      </View>
-      <View style={{ flex: 1, width: screenWidth * 0.8 }}>
-      <FlatList
-        showsVerticalScrollIndicator={false}
-        data={trashedTasks}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{ paddingBottom: screenWidth * 0.5 }}
-        renderItem={({ item }) => (
-          <Swipeable
-            ref={(ref) => {
-              if (ref && item.id) swipeableRefs.current[item.id] = ref;
-            }}
-            renderLeftActions={() => renderLeftActions(item)}
-            renderRightActions={() => renderRightActions(item)}
-            onSwipeableOpen={(direction) => {
-              swipeableRefs.current[item.id]?.close();
-              if (direction === 'left') {
-                handleRecoverTask(item.id);
-              } else if (direction === 'right') {
-                setTaskToDelete(item);
-                setDeleteModalVisible(true);
-              }
-            }}
-          >
-            <View style={[styles.taskItemContainer, { borderLeftColor: item.priority?.colorHex }]}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+      <Text style={GeneralStyles.title}>
+        {category ? `Papelera: ${category.name}` : 'Papelera'}
+      </Text>
+      <View style={{ flex:1, width: screenWidth * 0.8 }}>
+        <FlatList
+          data={trashedTasks}
+          keyExtractor={item => item.id.toString()}
+          contentContainerStyle={{ paddingBottom: screenWidth * 0.5 }}
+          renderItem={({ item }) => (
+            <Swipeable
+              ref={ref => { if (ref) swipeableRefs.current[item.id] = ref }}
+              renderLeftActions={renderLeftActions}
+              renderRightActions={renderRightActions}
+              onSwipeableOpen={dir => {
+                swipeableRefs.current[item.id]?.close();
+                if (dir === 'left') handleRecoverTask(item.id);
+                else {
+                  setTaskToDelete(item);
+                  setDeleteModalVisible(true);
+                }
+              }}
+            >
+              <View style={[styles.taskItemContainer, { borderLeftColor: item.priority?.colorHex }]}>
                 <Text style={styles.taskName}>{item.name}</Text>
+                <Text style={styles.taskStatusInfo}>En Papelera</Text>
               </View>
-              <Text style={styles.taskStatusInfo}>En Papelera</Text>
-            </View>
-          </Swipeable>
-        )}
-      />
-      <TouchableOpacity onPress={handleDeleteAllTasks} style={styles.deleteAllButton}>
-          <Feather name="trash-2" size={20} color="white" />
-          <Text style={styles.deleteAllText}>Eliminar toda la papelera</Text>
+            </Swipeable>
+          )}
+          showsVerticalScrollIndicator={false}
+        />
+
+        <TouchableOpacity style={styles.deleteAllButton} onPress={handleDeleteAll}>
+          <Feather name="trash-2" size={20} color="#fff" />
+          <Text style={styles.deleteAllText}>Vaciar papelera</Text>
         </TouchableOpacity>
 
-      <CustomModal
-        visible={deleteModalVisible}
-        title="Eliminar permanentemente"
-        onConfirm={handleDeleteTaskPermanently}
-        onCancel={() => setDeleteModalVisible(false)}
-      >
-        <Text>¿Estás seguro de que deseas eliminar permanentemente esta tarea?</Text>
-      </CustomModal>
+        <CustomModal
+          visible={deleteModalVisible}
+          title="Eliminar permanentemente"
+          onConfirm={handleDeletePermanently}
+          onCancel={() => setDeleteModalVisible(false)}
+        >
+          <Text>¿Seguro que deseas eliminar esta tarea?</Text>
+        </CustomModal>
       </View>
     </GeneralTemplate>
   );
@@ -174,52 +191,28 @@ const styles = {
     marginVertical: 5,
     borderRadius: 8,
     borderLeftWidth: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  taskName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#721C24',
-    flex: 1,
-  },
-  taskStatusInfo: {
-    fontSize: 12,
-    fontStyle: 'italic',
-    color: '#721C24',
-    textAlign: 'right',
-  },
+  taskName: { fontSize: 16, fontWeight: 'bold', color: '#721C24' },
+  taskStatusInfo: { fontSize: 12, fontStyle: 'italic', color: '#721C24' },
   leftAction: {
-    backgroundColor: '#28A745',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    flex: 1,
-    borderRadius: 8,
+    backgroundColor: '#28A745', justifyContent: 'center', paddingHorizontal: 20, flex: 1, borderRadius: 8,
   },
   rightAction: {
-    backgroundColor: '#DC3545',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    flex: 1,
-    borderRadius: 8,
+    backgroundColor: '#DC3545', justifyContent: 'center', paddingHorizontal: 20, flex: 1, borderRadius: 8,
   },
-  actionText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
+  actionText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
   deleteAllButton: {
     backgroundColor: '#DC3545',
-    padding: 15,
-    borderRadius: 8,
-    marginVertical: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 15,
+    borderRadius: 8,
+    marginVertical: 20,
   },
-  deleteAllText: {
-    fontSize: 16,
-    color: 'white',
-    marginLeft: 10,
-  },
+  deleteAllText: { color: 'white', fontSize: 16, marginLeft: 8 },
 };
 
 export default TrashTasksScreen;

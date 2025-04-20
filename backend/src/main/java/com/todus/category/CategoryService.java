@@ -65,8 +65,10 @@ public class CategoryService {
         category.setImage(image);
         category.setUser(user);
         category.setStudyMethod(studyMethod);
+        category.setAutoDeleteComplete(categoryRequest.getAutoDeleteComplete());
+        category.setDeleteCompleteDays(categoryRequest.getDeleteCompleteDays() != null ? categoryRequest.getDeleteCompleteDays() : null);
         category.setShowComplete(categoryRequest.getShowComplete());
-
+        
         categoryRepository.save(category);
         return Map.of("message", "Categoría creada con éxito");
     }
@@ -94,6 +96,8 @@ public class CategoryService {
         category.setDescription(categoryRequest.getDescription());
         category.setOrderTasks(categoryRequest.getOrderTasks());
         category.setShowComplete(categoryRequest.getShowComplete());
+        category.setAutoDeleteComplete(categoryRequest.getAutoDeleteComplete());
+        category.setDeleteCompleteDays(categoryRequest.getDeleteCompleteDays() != null ? categoryRequest.getDeleteCompleteDays() : null);
 
         if (categoryRequest.getImageId() != null) {
             Image image = imageRepository.findById(categoryRequest.getImageId())

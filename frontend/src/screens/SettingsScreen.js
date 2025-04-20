@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -11,7 +11,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  InputAccessoryView
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -34,199 +35,230 @@ const COLORS = [
 ];
 
 const SettingsScreen = ({ navigation }) => {
-  // Estados para Categorías (ya existentes)
+  // categorías en home
   const [categorySettings, setCategorySettings] = useState([]);
-  const [showCategoryList, setShowCategoryList] = useState(false);
-
-  // Estados para Prioridades
+  // Retención papelera
+  const [trashRetentionDays, setTrashRetentionDays] = useState('7');
+  // Prioridades CRUD
   const [prioritiesList, setPrioritiesList] = useState([]);
   const [newPriorityName, setNewPriorityName] = useState('');
   const [newPriorityColor, setNewPriorityColor] = useState(COLORS[0].hex);
   const [editingPriority, setEditingPriority] = useState(null);
-  
-  // ---------------------------
-  // CONFIGURACIÓN DE CATEGORÍAS
-  // ---------------------------
-  const fetchShowCategoryList = async () => {
-    try {
-      const stored = await AsyncStorage.getItem('showCategoryList');
-      setShowCategoryList(stored !== null ? stored === 'true' : false);
-    } catch (error) {
-      console.error('Error al obtener showCategoryList:', error);
-    }
-  };
+  const swipeableRefs = useRef({});
 
+  // Reglas auto‑prioridad
+  const [rules, setRules] = useState([]);      // { fromId, days, toId }
+  const [fromId, setFromId] = useState(null);
+  const [daysThreshold, setDaysThreshold] = useState('3');
+  const [toId, setToId] = useState(null);
+
+  // Notificaciones
+  const [notifyOnPriorityChange, setNotifyOnPriorityChange] = useState(false);
+  const [notifyDueReminders, setNotifyDueReminders]         = useState(false);
+  const [dueReminderDays, setDueReminderDays]               = useState('1');
+  const accessoryID = 'daysAccessory';
+
+  // ------------ Fetch inicial ------------
+  useEffect(() => {
+    fetchCategories();
+    fetchTrashRetention();
+    fetchPriorities();
+    fetchRules();
+    fetchNotificationSettings();
+  }, []);
+
+  // --- Categorías visibles ---
   const fetchCategories = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`${BASE_URL}/api/categories/all`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const resp = await axios.get(`${BASE_URL}/api/categories/all`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      const categoriesWithSettings = await Promise.all(
-        response.data.map(async (cat) => {
-          const stored = await AsyncStorage.getItem(`showCategory_${cat.id}`);
-          return { ...cat, show: stored !== null ? stored === 'true' : false };
-        })
-      );
-      setCategorySettings(categoriesWithSettings);
-    } catch (error) {
-      console.error('Error al obtener categorías:', error);
-      Alert.alert('Error', 'No se pudieron cargar las categorías para configuración.');
+      const cats = await Promise.all(resp.data.map(async c => {
+        const s = await AsyncStorage.getItem(`showCategory_${c.id}`);
+        return { ...c, show: s === 'true' };
+      }));
+      setCategorySettings(cats);
+    } catch (e) {
+      console.error(e);
+      Alert.alert('Error', 'No se pudieron cargar categorías');
     }
   };
-
-  const toggleShowCategoryList = async (value) => {
-    try {
-      await AsyncStorage.setItem('showCategoryList', value.toString());
-      setShowCategoryList(value);
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo guardar la configuración');
-    }
+  const toggleCategoryOption = async (id, val) => {
+    await AsyncStorage.setItem(`showCategory_${id}`, val.toString());
+    setCategorySettings(cs =>
+      cs.map(c => c.id === id ? { ...c, show: val } : c)
+    );
   };
 
-  const toggleCategoryOption = async (categoryId, value) => {
-    try {
-      await AsyncStorage.setItem(`showCategory_${categoryId}`, value.toString());
-      setCategorySettings(prev =>
-        prev.map(cat =>
-          cat.id === categoryId ? { ...cat, show: value } : cat
-        )
-      );
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo guardar la configuración');
-    }
+  // --- Papelera ---
+  const fetchTrashRetention = async () => {
+    const s = await AsyncStorage.getItem('trashRetentionDays');
+    if (s) setTrashRetentionDays(s);
+  };
+  const saveTrashRetention = async v => {
+    const n = parseInt(v,10);
+    if (isNaN(n)||n<1) return Alert.alert('Error','Introduce un número válido (>=1)');
+    await AsyncStorage.setItem('trashRetentionDays', n.toString());
+    setTrashRetentionDays(n.toString());
+    Alert.alert('Guardado', `Eliminar tras ${n} días`);
   };
 
-  // ---------------------------
-  // GESTIÓN DE PRIORIDADES
-  // ---------------------------
+  // --- Prioridades CRUD ---
   const fetchPriorities = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`${BASE_URL}/api/priorities/all`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const resp = await axios.get(`${BASE_URL}/api/priorities/all`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      setPrioritiesList(response.data);
-    } catch (error) {
-      console.error('Error al obtener prioridades:', error);
-      Alert.alert('Error', 'No se pudieron obtener las prioridades');
+      setPrioritiesList(resp.data);
+    } catch (e) {
+      console.error(e);
+      Alert.alert('Error', 'No se pudieron obtener prioridades');
     }
   };
-
   const createPriority = async () => {
-    if (!newPriorityName.trim()) {
-      Alert.alert('Error', 'Debes ingresar un nombre para la prioridad');
-      return;
-    }
+    if (!newPriorityName.trim()) return Alert.alert('Error','Nombre requerido');
     try {
       const token = await AsyncStorage.getItem('token');
-      const requestData = { name: newPriorityName, colorHex: newPriorityColor };
-      await axios.post(`${BASE_URL}/api/priorities/create`, requestData, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      });
+      await axios.post(`${BASE_URL}/api/priorities/create`,
+        { name: newPriorityName, color: newPriorityColor },
+        { headers:{ Authorization:`Bearer ${token}` } }
+      );
       setNewPriorityName('');
       setNewPriorityColor(COLORS[0].hex);
       fetchPriorities();
-    } catch (error) {
-      console.error('Error al crear prioridad:', error);
-      Alert.alert('Error', 'No se pudo crear la prioridad');
+    } catch (e) {
+      console.error(e);
+      Alert.alert('Error','No se creó prioridad');
     }
   };
-
   const updatePriority = async () => {
-    if (!newPriorityName.trim()) {
-      Alert.alert('Error', 'Debes ingresar un nombre');
-      return;
-    }
+    if (!newPriorityName.trim()) return Alert.alert('Error','Nombre requerido');
     try {
       const token = await AsyncStorage.getItem('token');
-      const requestData = { name: newPriorityName, colorHex: newPriorityColor };
-      await axios.put(`${BASE_URL}/api/priorities/update/${editingPriority.id}`, requestData, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      });
+      await axios.put(`${BASE_URL}/api/priorities/update/${editingPriority.id}`,
+        { name: newPriorityName, color: newPriorityColor },
+        { headers:{ Authorization:`Bearer ${token}` } }
+      );
       setEditingPriority(null);
       setNewPriorityName('');
       setNewPriorityColor(COLORS[0].hex);
       fetchPriorities();
-    } catch (error) {
-      console.error('Error al actualizar prioridad:', error);
-      Alert.alert('Error', 'No se pudo actualizar la prioridad');
+    } catch (e) {
+      console.error(e);
+      Alert.alert('Error','No se actualizó prioridad');
     }
   };
-
-  const canDeletePriority = async (priorityId) => {
+  const canDeletePriority = async id => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`${BASE_URL}/api/tasks/list`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const resp = await axios.get(`${BASE_URL}/api/tasks/list`, {
+        headers:{ Authorization:`Bearer ${token}` }
       });
-      const tasksWithPriority = response.data.filter(
-        task => task.priority && task.priority.id === priorityId
-      );
-      return tasksWithPriority.length === 0;
-    } catch (error) {
-      console.error('Error al comprobar tareas de prioridad:', error);
+      return !resp.data.some(t=>t.priority?.id===id);
+    } catch {
       return false;
     }
   };
-
-  const deletePriority = async (priorityId) => {
-    if (!(await canDeletePriority(priorityId))) {
-      Alert.alert('Error', 'No se puede eliminar. Esta prioridad tiene tareas asociadas.');
-      return;
+  const deletePriority = async id => {
+    if (!(await canDeletePriority(id))) {
+      return Alert.alert('Error','Prioridad en uso');
     }
     try {
       const token = await AsyncStorage.getItem('token');
-      await axios.delete(`${BASE_URL}/api/priorities/${priorityId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      await axios.delete(`${BASE_URL}/api/priorities/delete/${id}`, {
+        headers:{ Authorization:`Bearer ${token}` }
       });
       fetchPriorities();
-    } catch (error) {
-      console.error('Error al eliminar prioridad:', error);
-      Alert.alert('Error', 'No se pudo eliminar la prioridad');
+    } catch (e) {
+      console.error(e);
+      Alert.alert('Error','No se eliminó prioridad');
     }
   };
 
-  useEffect(() => {
-    fetchShowCategoryList();
-    fetchCategories();
-    fetchPriorities();
-  }, []);
+  // --- Reglas auto‑prioridad en AsyncStorage ---
+  const fetchRules = async () => {
+    const s = await AsyncStorage.getItem('priorityRules');
+    if (s) setRules(JSON.parse(s));
+  };
+  const saveRules = async rs => {
+    await AsyncStorage.setItem('priorityRules', JSON.stringify(rs));
+    setRules(rs);
+  };
+  const addRule = () => {
+    if (!fromId || !toId) return Alert.alert('Selecciona prioridades');
+    const n = parseInt(daysThreshold,10);
+    if (isNaN(n)||n<1) return Alert.alert('Días inválidos');
+    saveRules([...rules,{ fromId, days:n, toId }]);
+    setFromId(null); setToId(null); setDaysThreshold('3');
+  };
+  const deleteRule = idx => saveRules(rules.filter((_,i)=>i!==idx));
+
+  // --- Notificaciones ---
+  const fetchNotificationSettings = async () => {
+    const a = await AsyncStorage.getItem('notifyOnPriorityChange');
+    const b = await AsyncStorage.getItem('notifyDueReminders');
+    const c = await AsyncStorage.getItem('dueReminderDays');
+    if (a !== null) setNotifyOnPriorityChange(a === 'true');
+    if (b !== null) setNotifyDueReminders(b === 'true');
+    if (c !== null) setDueReminderDays(c);
+  };
+  const saveNotificationSettings = async () => {
+    await AsyncStorage.setItem('notifyOnPriorityChange', notifyOnPriorityChange.toString());
+    await AsyncStorage.setItem('notifyDueReminders',    notifyDueReminders.toString());
+    await AsyncStorage.setItem('dueReminderDays',        dueReminderDays);
+    Alert.alert('Configuración de notificaciones guardada');
+  };
 
   return (
     <GeneralTemplate>
       <ScrollView 
-            contentContainerStyle={ styles.container } 
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled">
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={[GeneralStyles.keyboardAvoiding, { flex: 1 }]}
-        >
-          
+        contentContainerStyle={styles.container} 
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS==='ios'?'padding':'height'}
+            style={[GeneralStyles.keyboardAvoiding, { flex: 1 }]}
+          >
+
             <Text style={GeneralStyles.title}>Configuración</Text>
             <Text style={styles.subheader}>
-              Configura qué elementos se muestran en la pantalla principal.
+              Configura qué elementos y comportamientos tendrá la app.
             </Text>
 
-            {/* Sección de Categorías */}
+            {/* --- Retención de papelera --- */}
+            <View style={styles.optionGroup}>
+              <Text style={styles.optionLabel}>Días hasta eliminar papelera</Text>
+              <TextInput
+                style={styles.numberInput}
+                value={trashRetentionDays}
+                onChangeText={setTrashRetentionDays}
+                keyboardType="number-pad"
+                onEndEditing={()=>saveTrashRetention(trashRetentionDays)}
+                returnKeyType="done"
+                inputAccessoryViewID={accessoryID}
+              />
+              <InputAccessoryView nativeID={accessoryID}>
+                <TouchableOpacity onPress={()=>Keyboard.dismiss()} style={styles.doneBtn}>
+                  <Text style={styles.doneTxt}>Done</Text>
+                </TouchableOpacity>
+              </InputAccessoryView>
+            </View>
+
+            {/* --- Mostrar categorías --- */}
+            <Text style={[GeneralStyles.title, { marginTop: 30 }]}>
+              Mostrar categorías
+            </Text>
             <View style={styles.optionsContainer}>
-              <View style={styles.optionRow}>
-                <Text style={styles.optionLabel}>Mostrar listado de categorías</Text>
-                <Switch
-                  value={showCategoryList}
-                  onValueChange={toggleShowCategoryList}
-                  thumbColor={'#084F52'}
-                  trackColor={{ false: '#ccc', true: '#16CDD6' }}
-                />
-              </View>
-              {categorySettings.map((cat) => (
+              {categorySettings.map(cat => (
                 <View key={cat.id} style={styles.optionRow}>
                   <Text style={styles.optionLabel}>{cat.name}</Text>
                   <Switch
                     value={cat.show}
-                    onValueChange={(value) => toggleCategoryOption(cat.id, value)}
+                    onValueChange={v=>toggleCategoryOption(cat.id,v)}
                     thumbColor={'#084F52'}
                     trackColor={{ false: '#ccc', true: '#16CDD6' }}
                   />
@@ -234,42 +266,37 @@ const SettingsScreen = ({ navigation }) => {
               ))}
             </View>
 
-            {/* Sección de Gestión de Prioridades */}
+            {/* --- Gestión de Prioridades --- */}
+            <Text style={GeneralStyles.title}>Gestión de Prioridades</Text>
             <View style={styles.prioritiesSection}>
-              <Text style={GeneralStyles.title}>Gestión de Prioridades</Text>
-              {prioritiesList.map(priorityItem => (
+              {prioritiesList.map(p => (
                 <Swipeable
-                  key={priorityItem.id}
-                  renderLeftActions={() => (
-                    <View style={styles.leftAction}>
-                      <Text style={styles.actionText}>Editar</Text>
-                    </View>
+                  key={p.id}
+                  ref={ref=> swipeableRefs.current[p.id]=ref}
+                  renderLeftActions={()=>(
+                    <View style={styles.leftAction}><Text style={styles.actionText}>Editar</Text></View>
                   )}
-                  renderRightActions={() => (
-                    <View style={styles.rightAction}>
-                      <Text style={styles.actionText}>Eliminar</Text>
-                    </View>
+                  renderRightActions={()=>(
+                    <View style={styles.rightAction}><Text style={styles.actionText}>Eliminar</Text></View>
                   )}
-                  onSwipeableOpen={(direction) => {
-                    if (direction === 'left') {
-                      // Al deslizar a la izquierda, inicia la edición
-                      setEditingPriority(priorityItem);
-                      setNewPriorityName(priorityItem.name);
-                      setNewPriorityColor(priorityItem.colorHex);
-                    } else if (direction === 'right') {
-                      // Deslizando a la derecha se elimina, comprobando antes si es posible
-                      deletePriority(priorityItem.id);
+                  onSwipeableOpen={dir=>{
+                    swipeableRefs.current[p.id]?.close();
+                    if(dir==='left'){
+                      setEditingPriority(p);
+                      setNewPriorityName(p.name);
+                      setNewPriorityColor(p.colorHex);
+                    } else {
+                      deletePriority(p.id);
                     }
                   }}
                 >
                   <View style={styles.priorityRow}>
-                    <View style={[styles.priorityColorBox, { backgroundColor: priorityItem.colorHex }]} />
-                    <Text style={styles.priorityName}>{priorityItem.name}</Text>
+                    <View style={[styles.priorityColorBox, { backgroundColor: p.colorHex }]} />
+                    <Text style={styles.priorityName}>{p.name}</Text>
                   </View>
                 </Swipeable>
               ))}
 
-              {/* Formulario para Crear/Editar Prioridad */}
               <View style={styles.newPriorityContainer}>
                 <TextInput
                   placeholder="Nombre de prioridad"
@@ -278,40 +305,34 @@ const SettingsScreen = ({ navigation }) => {
                   onChangeText={setNewPriorityName}
                 />
                 <View style={styles.colorsContainer}>
-                  {COLORS.map(color => (
+                  {COLORS.map(c=>(
                     <TouchableOpacity
-                      key={color.name}
+                      key={c.name}
                       style={[
                         styles.colorCircle,
-                        { backgroundColor: color.hex },
-                        newPriorityColor === color.hex && styles.colorSelected
+                        { backgroundColor: c.hex },
+                        newPriorityColor===c.hex && styles.colorSelected
                       ]}
-                      onPress={() => setNewPriorityColor(color.hex)}
+                      onPress={()=>setNewPriorityColor(c.hex)}
                     />
                   ))}
                 </View>
                 <TouchableOpacity
                   style={styles.savePriorityButton}
-                  onPress={() => {
-                    if (editingPriority) {
-                      updatePriority();
-                    } else {
-                      createPriority();
-                    }
-                  }}
+                  onPress={editingPriority?updatePriority:createPriority}
                 >
                   <Text style={styles.savePriorityButtonText}>
-                    {editingPriority ? 'Actualizar Prioridad' : 'Crear Prioridad'}
+                    {editingPriority?'Actualizar':'Crear'} Prioridad
                   </Text>
                 </TouchableOpacity>
                 {editingPriority && (
                   <TouchableOpacity
-                    onPress={() => {
+                    style={styles.cancelEditButton}
+                    onPress={()=>{
                       setEditingPriority(null);
                       setNewPriorityName('');
                       setNewPriorityColor(COLORS[0].hex);
                     }}
-                    style={styles.cancelEditButton}
                   >
                     <Text style={styles.cancelEditButtonText}>Cancelar</Text>
                   </TouchableOpacity>
@@ -319,8 +340,110 @@ const SettingsScreen = ({ navigation }) => {
               </View>
             </View>
 
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
+            {/* --- Reglas auto‑prioridad --- */}
+            <Text style={[GeneralStyles.title, { marginTop: 30 }]}>
+              Reglas auto‑prioridad
+            </Text>
+            {rules.map((r,i)=>(
+              <View key={i} style={styles.ruleRow}>
+                <Text style={styles.ruleText}>
+                  Si "{prioritiesList.find(x=>x.id===r.fromId)?.name}" y ≤{r.days}d → "{prioritiesList.find(x=>x.id===r.toId)?.name}"
+                </Text>
+                <TouchableOpacity onPress={()=>deleteRule(i)}>
+                  <Text style={styles.deleteRule}>❌</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+
+            <View style={styles.ruleForm}>
+              <Text style={styles.optionLabel}>De:</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {prioritiesList.map(p=>(
+                  <TouchableOpacity
+                    key={p.id}
+                    style={[
+                      styles.priorityBubble,
+                      fromId===p.id && styles.bubbleSelected
+                    ]}
+                    onPress={()=>setFromId(p.id)}
+                  >
+                    <Text style={{ color: p.colorHex }}>{p.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
+              <Text style={[styles.optionLabel, { marginTop: 8 }]}>Días ≤</Text>
+              <TextInput
+                style={[styles.numberInput, { marginBottom: 8 }]}
+                value={daysThreshold}
+                onChangeText={setDaysThreshold}
+                keyboardType="number-pad"
+                returnKeyType="done"
+                inputAccessoryViewID={accessoryID}
+              />
+
+              <Text style={styles.optionLabel}>A:</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {prioritiesList.map(p=>(
+                  <TouchableOpacity
+                    key={p.id}
+                    style={[
+                      styles.priorityBubble,
+                      toId===p.id && styles.bubbleSelected
+                    ]}
+                    onPress={()=>setToId(p.id)}
+                  >
+                    <Text style={{ color: p.colorHex }}>{p.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
+              <TouchableOpacity style={styles.addRuleBtn} onPress={addRule}>
+                <Text style={styles.addRuleTxt}>Añadir Regla</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* --- Notificaciones --- */}
+            <Text style={[GeneralStyles.title, { marginTop: 30 }]}>Notificaciones</Text>
+            <View style={styles.optionGroup}>
+              <View style={styles.optionRow}>
+                <Text style={styles.optionLabel}>Al cambiar prioridad</Text>
+                <Switch
+                  value={notifyOnPriorityChange}
+                  onValueChange={setNotifyOnPriorityChange}
+                  thumbColor="#084F52"
+                  trackColor={{ false:'#ccc', true:'#16CDD6' }}
+                />
+              </View>
+              <View style={styles.optionRow}>
+                <Text style={styles.optionLabel}>Recordatorio por vencimiento</Text>
+                <Switch
+                  value={notifyDueReminders}
+                  onValueChange={setNotifyDueReminders}
+                  thumbColor="#084F52"
+                  trackColor={{ false:'#ccc', true:'#16CDD6' }}
+                />
+              </View>
+              {notifyDueReminders && (
+                <View style={styles.optionRow}>
+                  <Text style={styles.optionLabel}>Días antes</Text>
+                  <TextInput
+                    style={[styles.numberInput,{width:60}]}
+                    keyboardType="number-pad"
+                    value={dueReminderDays}
+                    onChangeText={setDueReminderDays}
+                    onEndEditing={saveNotificationSettings}
+                    returnKeyType="done"
+                  />
+                </View>
+              )}
+              <TouchableOpacity style={styles.saveNotifButton} onPress={saveNotificationSettings}>
+                <Text style={styles.saveNotifButtonText}>Guardar notificaciones</Text>
+              </TouchableOpacity>
+            </View>
+
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
       </ScrollView>
     </GeneralTemplate>
   );
@@ -330,23 +453,36 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     flexGrow: 1,
-    justifyContent: 'center',
-  },
-  header: {
-    fontSize: 22,
-    color: '#0C2527',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    marginBottom: 10,
+    justifyContent: 'center'
   },
   subheader: {
     fontSize: 16,
     color: '#CDF8FA',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 20
+  },
+  optionGroup: {
+    marginVertical: 10,
+    padding: 15,
+    backgroundColor: '#CDF8FA',
+    borderRadius: 8
+  },
+  optionLabel: {
+    fontSize: 16,
+    color: '#084F52',
+    marginBottom: 8
+  },
+  numberInput: {
+    width: 80,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 10,
+    textAlign: 'center',
+    backgroundColor: 'white'
   },
   optionsContainer: {
-    paddingBottom: 30,
+    paddingBottom: 30
   },
   optionRow: {
     flexDirection: 'row',
@@ -356,22 +492,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     backgroundColor: '#CDF8FA',
     borderRadius: 8,
-    marginBottom: 15,
-  },
-  optionLabel: {
-    fontSize: 16,
-    color: '#084F52',
+    marginBottom: 10
   },
   // Prioridades
   prioritiesSection: {
-    marginTop: 20,
-  },
-  sectionHeader: {
-    fontSize: 20,
-    color: '#0C2527',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 15,
+    marginTop: 20
   },
   priorityRow: {
     flexDirection: 'row',
@@ -380,57 +505,54 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,
-    marginBottom: 10,
+    marginBottom: 10
   },
   priorityColorBox: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    marginRight: 10,
+    marginRight: 10
   },
   priorityName: {
-    flex: 1,
     fontSize: 16,
-    color: '#084F52',
+    color: '#084F52'
   },
   leftAction: {
     backgroundColor: '#4CAF50',
     justifyContent: 'center',
     paddingHorizontal: 20,
     flex: 1,
-    borderRadius: 8,
+    borderRadius: 8
   },
   rightAction: {
     backgroundColor: '#FF4C4C',
     justifyContent: 'center',
     paddingHorizontal: 20,
     flex: 1,
-    borderRadius: 8,
+    borderRadius: 8
   },
   actionText: {
     color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
+    fontWeight: 'bold'
   },
   newPriorityContainer: {
     marginTop: 20,
     padding: 15,
     backgroundColor: '#CDF8FA',
-    borderRadius: 8,
+    borderRadius: 8
   },
   newPriorityInput: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 10,
-    fontSize: 16,
-    color: '#084F52',
     marginBottom: 10,
+    color: '#084F52'
   },
   colorsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 10,
+    marginBottom: 10
   },
   colorCircle: {
     width: 30,
@@ -439,31 +561,100 @@ const styles = StyleSheet.create({
     marginRight: 10,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#ccc'
   },
   colorSelected: {
     borderColor: '#000',
-    borderWidth: 2,
+    borderWidth: 2
   },
   savePriorityButton: {
     backgroundColor: '#084F52',
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 10
   },
   savePriorityButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 16
   },
   cancelEditButton: {
     alignItems: 'center',
-    paddingVertical: 6,
+    paddingVertical: 6
   },
   cancelEditButtonText: {
     color: '#FF4C4C',
-    fontSize: 16,
+    fontSize: 16
   },
+
+  // Reglas auto‑prioridad
+  ruleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F6EF',
+    padding: 10,
+    borderRadius: 6,
+    marginBottom: 6
+  },
+  ruleText: {
+    flex: 1,
+    color: '#084F52'
+  },
+  deleteRule: {
+    fontSize: 18,
+    marginLeft: 8
+  },
+  ruleForm: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: '#CDF8FA',
+    borderRadius: 8
+  },
+  priorityBubble: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginRight: 8
+  },
+  bubbleSelected: {
+    borderColor: '#084F52',
+    backgroundColor: '#E0F7F9'
+  },
+  doneBtn: {
+    backgroundColor: '#084F52',
+    padding: 6,
+    alignItems: 'center'
+  },
+  doneTxt: {
+    color: 'white',
+    fontWeight: 'bold'
+  },
+  addRuleBtn: {
+    marginTop: 12,
+    backgroundColor: '#084F52',
+    padding: 10,
+    borderRadius: 6,
+    alignItems: 'center'
+  },
+  addRuleTxt: {
+    color: 'white',
+    fontWeight: 'bold'
+  },
+
+  // Notificaciones
+  saveNotifButton: {
+    backgroundColor: '#084F52',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10
+  },
+  saveNotifButtonText: {
+    color: '#fff',
+    fontSize: 16
+  }
 });
 
 export default SettingsScreen;

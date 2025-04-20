@@ -29,6 +29,11 @@ public class Category {
     @NotNull
     private Boolean showComplete = false;
 
+    @NotNull
+    private Boolean autoDeleteComplete = false;
+
+    private Integer deleteCompleteDays;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 100)
     private OrderTask orderTasks;
