@@ -9,8 +9,11 @@ import CustomModal from '../components/CustomModal';
 import Button from '../components/Button';
 import GeneralStyles from '../styles/GeneralStyles';
 import useValidation from '../hooks/useValidation';
+import { useTranslation } from 'react-i18next'; // Importa el hook useTranslation
+
 
 const ProfileScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [surname, setSurname] = useState('');
   const [nickname, setNickname] = useState('');
@@ -42,9 +45,8 @@ const ProfileScreen = ({ navigation }) => {
       setSelectedImageUrl(userData.imageUrl);
 
     } catch (error) {
-      console.error('Error al obtener datos del usuario', error);
-      Alert.alert('Error', 'No se pudieron cargar los datos del perfil.');
-    }
+      console.error(err);
+      Alert.alert(t('profile.errorTitle'), t('profile.loadError'));    }
   };
 
   // Obtener lista de imágenes disponibles
@@ -62,12 +64,12 @@ const ProfileScreen = ({ navigation }) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
-      Alert.alert('Error', 'Por favor ingresa un correo electrónico válido.');
+      Alert.alert(t('profile.errorTitle'), t('profile.invalidEmail'));
       return;
     }
 
     if(emailError) {
-      Alert.alert('Error', 'Corrige los errores antes de continuar.');
+      Alert.alert(t('profile.errorTitle'), t('profile.correctErrors'));
       return;
     }
     try {
@@ -85,35 +87,27 @@ const ProfileScreen = ({ navigation }) => {
 
       if (response.data.newToken) {
         await AsyncStorage.removeItem('token');
-        Alert.alert('Perfil actualizado', 'Tu email ha cambiado, por favor inicia sesión nuevamente.');
+        Alert.alert(t('profile.updatedTitle'), t('profile.updatedEmailPrompt'));
         navigation.replace('Login');
 
         
       } else {
-        Alert.alert('Perfil actualizado', 'Tus datos han sido actualizados correctamente.');
+        Alert.alert(t('profile.updatedTitle'), t('profile.updatedSuccess'));
       }
-
-      
-  
     } catch (error) {
-      console.error('Error al actualizar el perfil:', error);
+      console.error(t('profile.loadError'), error);
 
-        // Verificar si el backend devuelve errores específicos en formato JSON
         if (error.response && error.response.data) {
           if (error.response.data.errors && Array.isArray(error.response.data.errors)) {
-            // Si hay múltiples errores, unirlos en un solo mensaje con saltos de línea
             const errorMessage = error.response.data.errors.join('\n');
             Alert.alert('Error', errorMessage);
           } else if (typeof error.response.data === 'string') {
-            // Si el backend envía un mensaje de error como string
             Alert.alert('Error', error.response.data);
           } else {
-            // Mensaje genérico si no se reconoce la estructura de la respuesta
-            Alert.alert('Error', 'No se pudo actualizar el perfil.');
+            Alert.alert('Error', t('profile.updateError'));
           }
         } else {
-          // Si no hay respuesta del backend (problema de conexión)
-          Alert.alert('Error', 'No se pudo conectar con el servidor.');
+          Alert.alert('Error', t('profile.connectionError'));
         }
       }
     
@@ -132,7 +126,7 @@ const ProfileScreen = ({ navigation }) => {
                     keyboardShouldPersistTaps="handled"
                   > 
         <View style={GeneralStyles.innerContainer}>
-          <Text style={GeneralStyles.title}>Perfil</Text>
+          <Text style={GeneralStyles.title}>{t('profile.title')}</Text>
           {/* Círculo con la imagen seleccionada y botón de selección */}
           <View style={styles.imageSelectionContainer}>
               <View style={styles.imageCircle}>
@@ -143,25 +137,25 @@ const ProfileScreen = ({ navigation }) => {
                 )}
               </View>
               <TouchableOpacity style={styles.selectImageButton} onPress={() => setModalVisible(true)}>
-                <Text style={styles.selectImageText}>Seleccionar Imagen</Text>
+                <Text style={styles.selectImageText}>{t('profile.chooseIcon')}</Text>
               </TouchableOpacity>
           </View>
 
           <View style={GeneralStyles.formContainer}>
-            <InputField placeholder="Nombre" value={name} onChangeText={setName} />
-            <InputField placeholder="Apellido" value={surname} onChangeText={setSurname} />
-            <InputField placeholder="Nombre de Usuario" value={nickname} onChangeText={setNickname} />
-            <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail} keyboardType="email-address"/>
+            <InputField placeholder={t('profile.firstNamePlaceholder')} value={name} onChangeText={setName} />
+            <InputField placeholder={t('profile.surnamePlaceholder')} value={surname} onChangeText={setSurname} />
+            <InputField placeholder={t('profile.nicknamePlaceholder')} value={nickname} onChangeText={setNickname} />
+            <InputField placeholder={t('profile.emailPlaceholder')} value={email} onChangeText={setEmail} keyboardType="email-address"/>
             {emailError ? <Text style={GeneralStyles.errorText}>{emailError}</Text> : null}
 
-            <Button title="Guardar Cambios" onPress={handleProfileUpdate} />
-            <Button title="Cambiar Contraseña" onPress={() => navigation.navigate('ChangePassword')} />
+            <Button title={t('profile.saveChanges')} onPress={handleProfileUpdate} />
+            <Button title={t('profile.changePassword')} onPress={() => navigation.navigate('ChangePassword')} />
           </View>
         </View>
 
         <CustomModal
           visible={modalVisible}
-          title="Elige un icono"
+          title={t('profile.chooseIcon')}
           onConfirm={() => setModalVisible(false)}
           onCancel={() => setModalVisible(false)}
           showCancel={false}

@@ -20,7 +20,7 @@ import GeneralTemplate from '../components/GeneralTemplate';
 import { BASE_URL } from '../config';
 import GeneralStyles from '../styles/GeneralStyles';
 import { Swipeable } from 'react-native-gesture-handler';
-import CustomModal from '../components/CustomModal';
+import { useTranslation } from 'react-i18next';
 
 // Simulamos el enum de Java en un arreglo
 const COLORS = [
@@ -35,6 +35,8 @@ const COLORS = [
 ];
 
 const SettingsScreen = ({ navigation }) => {
+  const { t, i18n } = useTranslation();
+
   // categorías en home
   const [categorySettings, setCategorySettings] = useState([]);
   // Retención papelera
@@ -58,14 +60,28 @@ const SettingsScreen = ({ navigation }) => {
   const [dueReminderDays, setDueReminderDays]               = useState('1');
   const accessoryID = 'daysAccessory';
 
-  // ------------ Fetch inicial ------------
+  const [lang, setLang] = useState(i18n.language);
+
   useEffect(() => {
+    AsyncStorage.getItem('appLanguage').then(saved => {
+      if (saved && saved !== i18n.language) {
+        i18n.changeLanguage(saved);
+        setLang(saved);
+      }
+    });
+
     fetchCategories();
     fetchTrashRetention();
     fetchPriorities();
     fetchRules();
     fetchNotificationSettings();
   }, []);
+
+  const changeLanguage = async newLang => {
+    await i18n.changeLanguage(newLang);
+    setLang(newLang);
+    await AsyncStorage.setItem('appLanguage', newLang);
+  };
 
   // --- Categorías visibles ---
   const fetchCategories = async () => {
@@ -224,14 +240,14 @@ const SettingsScreen = ({ navigation }) => {
             style={[GeneralStyles.keyboardAvoiding, { flex: 1 }]}
           >
 
-            <Text style={GeneralStyles.title}>Configuración</Text>
+            <Text style={GeneralStyles.title}>{t('settings.title')}</Text>
             <Text style={styles.subheader}>
-              Configura qué elementos y comportamientos tendrá la app.
+              {t('settings.subtitle')}
             </Text>
 
             {/* --- Retención de papelera --- */}
             <View style={styles.optionGroup}>
-              <Text style={styles.optionLabel}>Días hasta eliminar papelera</Text>
+              <Text style={styles.optionLabel}>{t('settings.trashRetentionLabel')}</Text>
               <TextInput
                 style={styles.numberInput}
                 value={trashRetentionDays}
@@ -250,7 +266,7 @@ const SettingsScreen = ({ navigation }) => {
 
             {/* --- Mostrar categorías --- */}
             <Text style={[GeneralStyles.title, { marginTop: 30 }]}>
-              Mostrar categorías
+            {t('settings.showCategories')}
             </Text>
             <View style={styles.optionsContainer}>
               {categorySettings.map(cat => (
@@ -267,7 +283,7 @@ const SettingsScreen = ({ navigation }) => {
             </View>
 
             {/* --- Gestión de Prioridades --- */}
-            <Text style={GeneralStyles.title}>Gestión de Prioridades</Text>
+            <Text style={GeneralStyles.title}>{t('settings.prioritiesManagement')}</Text>
             <View style={styles.prioritiesSection}>
               {prioritiesList.map(p => (
                 <Swipeable
@@ -299,7 +315,7 @@ const SettingsScreen = ({ navigation }) => {
 
               <View style={styles.newPriorityContainer}>
                 <TextInput
-                  placeholder="Nombre de prioridad"
+                  placeholder={t('settings.namePriority')}
                   style={styles.newPriorityInput}
                   value={newPriorityName}
                   onChangeText={setNewPriorityName}
@@ -322,7 +338,9 @@ const SettingsScreen = ({ navigation }) => {
                   onPress={editingPriority?updatePriority:createPriority}
                 >
                   <Text style={styles.savePriorityButtonText}>
-                    {editingPriority?'Actualizar':'Crear'} Prioridad
+                  {editingPriority
+                    ? t('settings.updatePriority')
+                    : t('settings.createPriority')}         
                   </Text>
                 </TouchableOpacity>
                 {editingPriority && (
@@ -342,12 +360,12 @@ const SettingsScreen = ({ navigation }) => {
 
             {/* --- Reglas auto‑prioridad --- */}
             <Text style={[GeneralStyles.title, { marginTop: 30 }]}>
-              Reglas auto‑prioridad
+              {t('settings.autoPriorityRules')}
             </Text>
             {rules.map((r,i)=>(
               <View key={i} style={styles.ruleRow}>
                 <Text style={styles.ruleText}>
-                  Si "{prioritiesList.find(x=>x.id===r.fromId)?.name}" y ≤{r.days}d → "{prioritiesList.find(x=>x.id===r.toId)?.name}"
+                  {t('settings.if')} "{prioritiesList.find(x=>x.id===r.fromId)?.name}" {t('settings.and')} ≤{r.days}d → "{prioritiesList.find(x=>x.id===r.toId)?.name}"
                 </Text>
                 <TouchableOpacity onPress={()=>deleteRule(i)}>
                   <Text style={styles.deleteRule}>❌</Text>
@@ -356,7 +374,7 @@ const SettingsScreen = ({ navigation }) => {
             ))}
 
             <View style={styles.ruleForm}>
-              <Text style={styles.optionLabel}>De:</Text>
+              <Text style={styles.optionLabel}>{t('settings.from')}</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {prioritiesList.map(p=>(
                   <TouchableOpacity
@@ -372,7 +390,7 @@ const SettingsScreen = ({ navigation }) => {
                 ))}
               </ScrollView>
 
-              <Text style={[styles.optionLabel, { marginTop: 8 }]}>Días ≤</Text>
+              <Text style={[styles.optionLabel, { marginTop: 8 }]}>{t('settings.days')} ≤</Text>
               <TextInput
                 style={[styles.numberInput, { marginBottom: 8 }]}
                 value={daysThreshold}
@@ -382,7 +400,7 @@ const SettingsScreen = ({ navigation }) => {
                 inputAccessoryViewID={accessoryID}
               />
 
-              <Text style={styles.optionLabel}>A:</Text>
+              <Text style={styles.optionLabel}>{t('settings.to')}:</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {prioritiesList.map(p=>(
                   <TouchableOpacity
@@ -399,15 +417,15 @@ const SettingsScreen = ({ navigation }) => {
               </ScrollView>
 
               <TouchableOpacity style={styles.addRuleBtn} onPress={addRule}>
-                <Text style={styles.addRuleTxt}>Añadir Regla</Text>
+                <Text style={styles.addRuleTxt}>{t('settings.addRule')}</Text>
               </TouchableOpacity>
             </View>
 
             {/* --- Notificaciones --- */}
-            <Text style={[GeneralStyles.title, { marginTop: 30 }]}>Notificaciones</Text>
+            <Text style={[GeneralStyles.title, { marginTop: 30 }]}>{t('settings.notifications')}</Text>
             <View style={styles.optionGroup}>
               <View style={styles.optionRow}>
-                <Text style={styles.optionLabel}>Al cambiar prioridad</Text>
+                <Text style={styles.optionLabel}>{t('settings.notificationsLabel1')}</Text>
                 <Switch
                   value={notifyOnPriorityChange}
                   onValueChange={setNotifyOnPriorityChange}
@@ -416,7 +434,7 @@ const SettingsScreen = ({ navigation }) => {
                 />
               </View>
               <View style={styles.optionRow}>
-                <Text style={styles.optionLabel}>Recordatorio por vencimiento</Text>
+                <Text style={styles.optionLabel}>{t('settings.notificationsLabel2')}</Text>
                 <Switch
                   value={notifyDueReminders}
                   onValueChange={setNotifyDueReminders}
@@ -426,7 +444,7 @@ const SettingsScreen = ({ navigation }) => {
               </View>
               {notifyDueReminders && (
                 <View style={styles.optionRow}>
-                  <Text style={styles.optionLabel}>Días antes</Text>
+                  <Text style={styles.optionLabel}>{t('settings.notificationsLabel2')}</Text>
                   <TextInput
                     style={[styles.numberInput,{width:60}]}
                     keyboardType="number-pad"
@@ -438,8 +456,32 @@ const SettingsScreen = ({ navigation }) => {
                 </View>
               )}
               <TouchableOpacity style={styles.saveNotifButton} onPress={saveNotificationSettings}>
-                <Text style={styles.saveNotifButtonText}>Guardar notificaciones</Text>
+                <Text style={styles.saveNotifButtonText}>{t('settings.saveNotifications')}</Text>
               </TouchableOpacity>
+            </View>
+
+            <Text style={[GeneralStyles.title, { marginTop: 30 }]}>
+              {t('settings.language')}
+            </Text>
+            <View style={styles.optionGroup}>
+              <View style={styles.optionRow}>
+                <Text style={styles.optionLabel}>{t('settings.spanish')}</Text>
+                <Switch
+                  value={lang === 'es'}
+                  onValueChange={() => changeLanguage('es')}
+                  thumbColor="#084F52"
+                  trackColor={{ false: '#ccc', true: '#16CDD6' }}
+                />
+              </View>
+              <View style={styles.optionRow}>
+                <Text style={styles.optionLabel}>{t('settings.english')}</Text>
+                <Switch
+                  value={lang === 'en'}
+                  onValueChange={() => changeLanguage('en')}
+                  thumbColor="#084F52"
+                  trackColor={{ false: '#ccc', true: '#16CDD6' }}
+                />
+              </View>
             </View>
 
           </KeyboardAvoidingView>

@@ -20,8 +20,10 @@ import GeneralStyles from '../styles/GeneralStyles';
 import CustomModal from '../components/CustomModal';
 import Button from '../components/Button';
 import InputField from '../components/InputField';
+import { useTranslation } from 'react-i18next';
 
 const CategoryScreen = ({ route, navigation }) => {
+  const { t } = useTranslation();
   const { category } = route.params || {};
   const isEditMode = !!category;
 
@@ -47,12 +49,12 @@ const CategoryScreen = ({ route, navigation }) => {
   const accessoryViewID = 'deleteDaysAccessory';
 
   const orderOptions = [
-    { label: 'Fecha de creación', value: 'DATE_CREATED' },
-    { label: 'Fecha de vencimiento', value: 'DUE_DATE' },
-    { label: 'Prioridad (asc)', value: 'PRIORITY_ASC' },
-    { label: 'Prioridad (desc)', value: 'PRIORITY_DES' },
-    { label: 'Nombre (A-Z)', value: 'NAME_ASC' },
-    { label: 'Nombre (Z-A)', value: 'NAME_DES' },
+    { label: t('category.order.DATE_CREATED'), value: 'DATE_CREATED' },
+    { label: t('category.order.DUE_DATE'), value: 'DUE_DATE' },
+    { label: t('category.order.PRIORITY_ASC'), value: 'PRIORITY_ASC' },
+    { label: t('category.order.PRIORITY_DES'), value: 'PRIORITY_DES' },
+    { label: t('category.order.NAME_ASC'), value: 'NAME_ASC' },
+    { label: t('category.order.NAME_DES'), value: 'NAME_DES' },
   ];
 
   useEffect(() => {
@@ -134,7 +136,7 @@ const CategoryScreen = ({ route, navigation }) => {
     <GeneralTemplate>
       <ScrollView contentContainerStyle={{ padding: 20 }}>
         <Text style={GeneralStyles.title}>
-          {isEditMode ? 'Editar Categoría' : 'Crear Categoría'}
+          {isEditMode ? t('category.title.edit') : t('category.title.create')}
         </Text>
 
         {/* Imagen */}
@@ -153,7 +155,7 @@ const CategoryScreen = ({ route, navigation }) => {
             style={styles.selectImageButton}
             onPress={() => setModalVisible(true)}
           >
-            <Text style={styles.selectImageText}>Seleccionar Imagen</Text>
+            <Text style={styles.selectImageText}>{t('category.selectImage')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -161,13 +163,13 @@ const CategoryScreen = ({ route, navigation }) => {
         <View style={styles.formContainer}>
           <InputField
             style={styles.input}
-            placeholder="Nombre"
+            placeholder={t('category.placeholder.name')}
             value={name}
             onChangeText={setName}
           />
           <InputField
             style={styles.input}
-            placeholder="Descripción"
+            placeholder={t('category.placeholder.description')}
             value={description}
             onChangeText={setDescription}
           />
@@ -180,7 +182,7 @@ const CategoryScreen = ({ route, navigation }) => {
             >
               <Text style={{ fontSize: 16, color: '#0C2527' }}>
                 {orderOptions.find((o) => o.value === orderTasks)?.label ||
-                  'Selecciona orden'}
+                  t('category.order.select')}
               </Text>
             </TouchableOpacity>
             {showOrderOptions && (
@@ -204,7 +206,7 @@ const CategoryScreen = ({ route, navigation }) => {
           {/* Método de estudio */}
           <InputField
             style={styles.input}
-            placeholder="Ej: 1"
+            placeholder={t('category.placeholder.studyMethod')}
             value={studyMethodId ? studyMethodId.toString() : ''}
             onChangeText={(t) => setStudyMethodId(t ? parseInt(t) : null)}
             keyboardType="numeric"
@@ -212,14 +214,14 @@ const CategoryScreen = ({ route, navigation }) => {
 
           {/* Mostrar completadas */}
           <View style={styles.switchContainer}>
-            <Text style={styles.switchLabel}>Mostrar tareas completadas</Text>
+            <Text style={styles.switchLabel}>{t('category.showCompleted')}</Text>
             <Switch value={showComplete} onValueChange={setShowComplete} />
           </View>
 
           {/* Auto‑borrar completadas */}
           <View style={[styles.optionGroup, { marginTop: 20 }]}>
             <View style={styles.switchContainer}>
-              <Text style={styles.switchLabel}>Auto‑borrar completadas</Text>
+              <Text style={styles.switchLabel}>{t('category.autoDeleteCompleted')}</Text>
               <Switch
                 value={autoDeleteComplete}
                 onValueChange={setAutoDeleteComplete}
@@ -229,7 +231,7 @@ const CategoryScreen = ({ route, navigation }) => {
               <>
                 <TextInput
                   style={styles.numberInput}
-                  placeholder="Ej. 7"
+                  placeholder={t('category.placeholder.deleteDays')}
                   value={deleteCompleteDays}
                   onChangeText={setDeleteCompleteDays}
                   keyboardType="number-pad"
@@ -240,7 +242,7 @@ const CategoryScreen = ({ route, navigation }) => {
           </View>
 
           <Button
-            title={isEditMode ? 'Guardar Cambios' : 'Crear Categoría'}
+            title={isEditMode ? t('category.button.save') : t('category.button.create')}
             onPress={handleSave}
           />
         </View>
@@ -248,7 +250,7 @@ const CategoryScreen = ({ route, navigation }) => {
         {/* Modal de imágenes */}
         <CustomModal
           visible={modalVisible}
-          title="Elige un icono"
+          title={t('category.modal.iconTitle')}
           onConfirm={() => setModalVisible(false)}
           onCancel={() => setModalVisible(false)}
           showCancel={false}

@@ -8,8 +8,10 @@ import useValidation from '../hooks/useValidation';
 import Button from '../components/Button';
 import axios from 'axios';
 import GeneralStyles from '../styles/GeneralStyles';
+import { useTranslation } from 'react-i18next';
 
 const RegisterScreen = ({ navigation }) => {
+  const [ t ] = useTranslation();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
@@ -29,7 +31,7 @@ const RegisterScreen = ({ navigation }) => {
         const response = await axios.get(`${BASE_URL}/api/images/list/USER`);
         setImages(response.data);
       } catch (error) {
-        console.error('Error al obtener imágenes', error);
+        console.error(t('register.errorImage'), error);
       }
     };
 
@@ -63,19 +65,19 @@ const RegisterScreen = ({ navigation }) => {
   const handleRegister = async () => {
     try {
       if (password !== confirmPassword) {
-        throw new Error('Las contraseñas no coinciden');
+        throw new Error(t('register.errorPasswordMismatch'));
       }
   
       if (!selectedImageId) {
-        throw new Error('Debes seleccionar una imagen');
+        throw new Error(t('register.errorSelectImage'));
       }
   
       if (!name || !surname || !nickname || !email || !password || !confirmPassword) {
-        throw new Error('Debes completar todos los campos');
+        throw new Error(t('register.errorFillFields'));
       }
 
       if(emailError || passwordError || confirmPasswordError){
-        throw new Error('Corrige los errores antes de continuar.');
+        throw new Error(t('register.errorCorrectErrors'));
       }
   
       const response = await fetch(`${BASE_URL}/api/auth/register`, {
@@ -93,14 +95,14 @@ const RegisterScreen = ({ navigation }) => {
         if (data.errors && Array.isArray(data.errors)) {
           throw new Error(data.errors.join('\n')); // Muestra todos los errores separados por saltos de línea
         }
-        throw new Error(data.message || 'No se pudo completar el registro');
+        throw new Error(data.message || t('register.errorGeneric'));
       }
   
-      Alert.alert('Registro exitoso', 'Tu cuenta ha sido creada con éxito. Inicia sesión para continuar.');
+      Alert.alert(t('register.success'), t('register.successMessage'));
       navigation.navigate('Login');
     } catch (error) {
-      console.error('Error en el registro:', error);
-      Alert.alert('Error', error.message || 'No se pudo completar el registro');
+      console.error(t('register.errorRegister'), error);
+      Alert.alert('Error', error.message || t('register.errorGeneric'));
     }
   };
 
@@ -119,7 +121,7 @@ const RegisterScreen = ({ navigation }) => {
             keyboardShouldPersistTaps="handled"
           >            
           <View style={GeneralStyles.innerContainer}>
-              <Text style={GeneralStyles.title}>Registrate</Text>
+              <Text style={GeneralStyles.title}>{t('register.title')}</Text>
               {/* Círculo con la imagen seleccionada y botón de selección */}
               <View style={styles.imageSelectionContainer}>
                 <View style={styles.imageCircle}>
@@ -130,33 +132,33 @@ const RegisterScreen = ({ navigation }) => {
                   )}
                 </View>
                 <TouchableOpacity style={styles.selectImageButton} onPress={() => setModalVisible(true)}>
-                  <Text style={styles.selectImageText}>Seleccionar Imagen</Text>
+                  <Text style={styles.selectImageText}>{t('register.selectImage')}</Text>
                 </TouchableOpacity>
               </View>
               <View style={GeneralStyles.formContainer}>
-                <InputField placeholder="Nombre" value={name} onChangeText={setName} />
-                <InputField placeholder="Apellido" value={surname} onChangeText={setSurname} />
-                <InputField placeholder="Nombre de Usuario" value={nickname} onChangeText={setNickname} />
+                <InputField placeholder={t('register.firstName')} value={name} onChangeText={setName} />
+                <InputField placeholder={t('register.surname')} value={surname} onChangeText={setSurname} />
+                <InputField placeholder={t('register.nickname')} value={nickname} onChangeText={setNickname} />
 
                 <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail} keyboardType="email-address" />
                 {emailError ? <Text style={GeneralStyles.errorText}>{emailError}</Text> : null}
 
-                <InputField placeholder="Contraseña" value={password} onChangeText={setPassword} secureTextEntry />
+                <InputField placeholder={t('register.email')} value={password} onChangeText={setPassword} secureTextEntry />
                 {passwordError ? <Text style={GeneralStyles.errorText}>{passwordError}</Text> : null}
 
-                <InputField placeholder="Confirmar Contraseña" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
+                <InputField placeholder={t('register.password')} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
                 {confirmPasswordError ? <Text style={GeneralStyles.errorText}>{confirmPasswordError}</Text> : null}
 
-                <Button title="Ingresar" onPress={handleRegister} />
+                <Button title={t('register.registerButton')} onPress={handleRegister} />
                 <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                  <Text style={GeneralStyles.link}>Tienes cuenta, Iniciar Sesión</Text>
+                  <Text style={GeneralStyles.link}>{t('register.haveAccount')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
             {/* Usamos el modal reutilizable */}
             <CustomModal
           visible={modalVisible}
-          title="Elige un icono"
+          title={t('register.modalTitle')}
           onConfirm={() => setModalVisible(false)}
           onCancel={() => setModalVisible(false)}
           showCancel={false}

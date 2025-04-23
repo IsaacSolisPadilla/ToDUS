@@ -11,8 +11,10 @@ import ButtonCancel from '../components/ButtonCancel';
 import GeneralStyles from '../styles/GeneralStyles';
 import axios from 'axios';
 import useValidation from '../hooks/useValidation';
+import { useTranslation } from 'react-i18next';
 
 const ChangePasswordScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -29,17 +31,17 @@ const ChangePasswordScreen = ({ navigation }) => {
   // Validar antes de abrir el modal de confirmación
   const handleSave = () => {
     if (!oldPassword || !newPassword || !confirmNewPassword) {
-      Alert.alert('Error', 'Todos los campos son obligatorios');
+      Alert.alert(t('changePassword.alerts.allFieldsRequired'));
       return;
     }
 
     if (passwordError || confirmPasswordError) {
-      Alert.alert('Error', 'Corrige los errores antes de continuar.');
+      Alert.alert(t('changePassword.alerts.fixErrors'));
       return;
     }
 
     if (newPassword !== confirmNewPassword) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
+      Alert.alert(t('changePassword.alerts.passwordsDoNotMatch'));
       return;
     }
 
@@ -51,7 +53,7 @@ const ChangePasswordScreen = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) {
-        Alert.alert('Error', 'No estás autenticado. Inicia sesión de nuevo.');
+        Alert.alert(t('changePassword.alerts.notAuthenticated'));
         return;
       }
 
@@ -61,14 +63,14 @@ const ChangePasswordScreen = ({ navigation }) => {
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
       );
 
-      Alert.alert('Éxito', 'Contraseña cambiada correctamente', [
+      Alert.alert(t('changePassword.alerts.passwordChanged'), [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
 
       setModalVisible(false);
     } catch (error) {
       console.error('Error al cambiar la contraseña:', error);
-      const errorMessage = error.response?.data?.error || 'No se pudo cambiar la contraseña';
+      const errorMessage = error.response?.data?.error || t('changePassword.alerts.errorChangingPassword');``
       Alert.alert('Error', errorMessage);
     }
   };
@@ -77,13 +79,13 @@ const ChangePasswordScreen = ({ navigation }) => {
     <GeneralTemplate>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={GeneralStyles.keyboardAvoiding}>
         <View style={GeneralStyles.innerContainer}>
-          <Text style={GeneralStyles.title}>Cambiar Contraseña</Text>
+          <Text style={GeneralStyles.title}>{t('changePassword.title')}</Text>
           <View style={GeneralStyles.formContainer}>
 
             {/* Contraseña Actual */}
             <View style={styles.inputContainer}>
               <InputField 
-                placeholder="Contraseña Actual" 
+                placeholder={t('changePassword.placeholder.oldPassword')}
                 value={oldPassword} 
                 onChangeText={setOldPassword} 
                 secureTextEntry={!isOldPasswordVisible} 
@@ -96,7 +98,7 @@ const ChangePasswordScreen = ({ navigation }) => {
             {/* Nueva Contraseña */}
             <View style={styles.inputContainer}>
               <InputField 
-                placeholder="Nueva Contraseña" 
+                placeholder={t('changePassword.placeholder.newPassword')}
                 value={newPassword} 
                 onChangeText={setNewPassword} 
                 secureTextEntry={!isNewPasswordVisible} 
@@ -110,7 +112,7 @@ const ChangePasswordScreen = ({ navigation }) => {
             {/* Confirmar Nueva Contraseña */}
             <View style={styles.inputContainer}>
               <InputField 
-                placeholder="Confirmar Nueva Contraseña" 
+                placeholder={t('changePassword.placeholder.confirmNewPassword')}
                 value={confirmNewPassword} 
                 onChangeText={setConfirmNewPassword} 
                 secureTextEntry={!isConfirmPasswordVisible} 
@@ -121,18 +123,18 @@ const ChangePasswordScreen = ({ navigation }) => {
             </View>
             {confirmPasswordError ? <Text style={GeneralStyles.errorText}>{confirmPasswordError}</Text> : null}
 
-            <Button title="Guardar" onPress={handleSave} />
-            <ButtonCancel title="Cancelar" onPress={() => navigation.goBack()} />
+            <Button title={t('changePassword.button.save')} onPress={handleSave} />
+            <ButtonCancel title={t('changePassword.button.cancel')} onPress={() => navigation.goBack()} />
           </View>
         </View>
 
         <CustomModal
           visible={modalVisible}
-          title="¿Estás seguro?"
+          title={t('changePassword.modal.confirmTitle')}
           onConfirm={confirmChange}
           onCancel={() => setModalVisible(false)}
         >
-          <Text>¿Estás seguro de que quieres cambiar tu contraseña?</Text>
+          <Text>{t('changePassword.modal.confirmMessage')}</Text>
         </CustomModal>
       </KeyboardAvoidingView>
     </GeneralTemplate>

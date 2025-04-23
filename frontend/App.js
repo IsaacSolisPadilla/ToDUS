@@ -4,8 +4,8 @@ import { Alert, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Calendar from 'expo-calendar';
 import AppNavigator from './src/navigation/AppNavigator';
+import './src/i18n'; 
 
-// Show notifications even when app is foregrounded
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,

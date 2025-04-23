@@ -6,8 +6,10 @@ import InputField from '../components/InputField';
 import Button from '../components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import GeneralStyles from '../styles/GeneralStyles';
+import { useTranslation } from 'react-i18next';
 
 const LoginScreen = ({ navigation }) => {
+  const [ t ] = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -22,15 +24,15 @@ const LoginScreen = ({ navigation }) => {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'No se pudo iniciar sesión');
+            throw new Error(t('login.loginErrorFallback'));
         }
 
         await AsyncStorage.setItem('token', data.token);
         navigation.navigate('Tasks');
 
     } catch (error) {
-        console.error('Error al iniciar sesión:', error);
-        Alert.alert('Error', error.message); // Muestra el error en un Alert
+        console.error(t('login.errorTitle'), error);
+        Alert.alert('Error', error.message);
     }
 };
 
@@ -42,13 +44,13 @@ const LoginScreen = ({ navigation }) => {
       >
     
           <View style={GeneralStyles.innerContainer}>
-            <Text style={GeneralStyles.title}>Iniciar Sesión</Text>
+            <Text style={GeneralStyles.title}>{t('login.title')}</Text>
             <View style={GeneralStyles.formContainer}>
-              <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail} keyboardType="email-address"/>
-              <InputField placeholder="Contraseña" value={password} onChangeText={setPassword} secureTextEntry />
-              <Button title="Ingresar" onPress={handleLogin} />
+              <InputField placeholder={t('login.emailPlaceholder')} value={email} onChangeText={setEmail} keyboardType="email-address"/>
+              <InputField placeholder={t('login.passwordPlaceholder')} value={password} onChangeText={setPassword} secureTextEntry />
+              <Button title={t('login.loginButton')} onPress={handleLogin} />
               <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                <Text style={GeneralStyles.link}>¿No tienes cuenta? Regístrate</Text>
+                <Text style={GeneralStyles.link}>{t('login.noAccount')}</Text>
               </TouchableOpacity>
             </View>
           </View>

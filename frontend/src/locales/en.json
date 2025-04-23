@@ -1,0 +1,154 @@
+{
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Configure which elements and behaviors the app will have.",
+      "trashRetentionLabel": "Days until trash deletion",
+      "showCategories": "Show categories",
+      "prioritiesManagement": "Priorities Management",
+      "namePriority": "Priority Name",
+      "createPriority": "Create Priority",
+      "updatePriority": "Update Priority",
+      "from": "From",
+      "to": "To",
+      "days": "Days",
+      "if":"If",
+      "and":"And",
+      "addRule": "Add Rule",
+      "autoPriorityRules": "Auto-Priority Rules",
+      "notifications": "Notifications",
+      "notificationsLabel1": "On Priority Change",
+      "notificationsLabel2": "Due Date Reminder",
+      "notificationsLabel3": "Days Before Due",
+      "saveNotifications": "Save Notifications",
+      "language": "Language",
+      "spanish": "Spanish",
+      "english": "English"
+    },
+    "categories": {
+    "title": "Your Categories",
+    "newCategory": "New Category",
+    "deleteModalTitle": "Delete category?",
+    "deleteModalMessage": "Are you sure you want to delete this category?",
+    "action": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "alertFetchError": "Error fetching categories:",
+    "alertDeleteError": "Could not delete the category"
+  },
+  "category": {
+    "title": {
+      "edit": "Edit Category",
+      "create": "Create Category"
+    },
+    "selectImage": "Select Image",
+    "placeholder": {
+      "name": "Name",
+      "description": "Description",
+      "studyMethod": "E.g. 1",
+      "deleteDays": "E.g. 7"
+    },
+    "order": {
+      "select": "Select order",
+      "DATE_CREATED": "Date created",
+      "DUE_DATE": "Due date",
+      "PRIORITY_ASC": "Priority (asc)",
+      "PRIORITY_DES": "Priority (desc)",
+      "NAME_ASC": "Name (A–Z)",
+      "NAME_DES": "Name (Z–A)"
+    },
+    "showCompleted": "Show completed tasks",
+    "autoDeleteCompleted": "Auto-delete completed",
+    "button": {
+      "save": "Save Changes",
+      "create": "Create Category"
+    },
+    "modal": {
+      "iconTitle": "Choose an icon"
+    }
+  },
+  "changePassword": {
+    "title": "Change Password",
+    "placeholder": {
+      "oldPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password"
+    },
+    "button": {
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "modal": {
+      "confirmTitle": "Are you sure?",
+      "confirmMessage": "Are you sure you want to change your password?"
+    },
+    "alerts": {
+      "allFieldsRequired": "All fields are required",
+      "fixErrors": "Please correct the errors before continuing.",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "notAuthenticated": "You are not authenticated. Please log in again.",
+      "passwordChanged": "Password changed successfully",
+      "errorChangingPassword": "Could not change password"
+    }
+  },
+  "validation": {
+    "invalidEmail": "Invalid email address",
+    "min6Chars": "At least 6 characters",
+    "uppercaseRequired": "Must include at least one uppercase letter",
+    "numberRequired": "Must include at least one number",
+    "passwordsDoNotMatch": "Passwords do not match"
+  },
+  "login": {
+    "title": "Log In",
+    "emailPlaceholder": "Email Address",
+    "passwordPlaceholder": "Password",
+    "loginButton": "Sign In",
+    "noAccount": "Don't have an account? Register",
+    "errorTitle": "Login Error",
+    "loginErrorFallback": "Could not log in"
+  },
+  "profile": {
+    "title": "Profile",
+    "firstNamePlaceholder": "First Name",
+    "surnamePlaceholder": "Last Name",
+    "nicknamePlaceholder": "Username",
+    "emailPlaceholder": "Email Address",
+    "saveChanges": "Save Changes",
+    "changePassword": "Change Password",
+    "chooseIcon": "Choose an icon",
+    "errorTitle": "Error",
+    "loadError": "Could not load profile data.",
+    "invalidEmail": "Please enter a valid email address.",
+    "correctErrors": "Please correct the errors before continuing.",
+    "updatedTitle": "Profile Updated",
+    "updatedEmailPrompt": "Your email changed, please log in again.",
+    "updatedSuccess": "Your data has been updated successfully.",
+    "updateError": "Could not update profile.",
+    "connectionError": "Could not connect to server.",
+    "ok": "OK"
+  },
+  "register": {
+    "title": "Sign Up",
+    "selectImage": "Select Image",
+    "firstName": "First Name",
+    "surname": "Last Name",
+    "nickname": "Username",
+    "email": "Email Address",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "registerButton": "Sign Up",
+    "haveAccount": "Already have an account? Log In",
+    "modalTitle": "Choose an icon",
+    "errorPasswordMismatch": "Passwords do not match",
+    "errorSelectImage": "You must select an image",
+    "errorFillFields": "Please complete all fields",
+    "errorCorrectErrors": "Please correct the errors before continuing.",
+    "errorGeneric": "Could not complete registration",
+    "errorTitle": "Error",
+    "success": "Registration Successful",
+    "successMessage": "Your account has been created successfully. Log in to continue.",
+    "errorImage": "Error getting images",
+    "errorRegister": "Registration error"
+  }
+  }
+  

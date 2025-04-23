@@ -1,0 +1,154 @@
+{
+    "settings": {
+      "title": "Configuración",
+      "subtitle": "Configura qué elementos y comportamientos tendrá la app.",
+      "trashRetentionLabel": "Días hasta eliminar papelera",
+      "showCategories": "Mostrar categorías",
+      "prioritiesManagement": "Gestión de prioridades",
+      "namePriority": "Nombre de prioridad",
+      "createPriority": "Crear prioridad",
+      "updatePriority": "Actualizar prioridad",
+      "from":"De",
+      "to":"A",
+      "days":"Días",
+      "if":"Si",
+      "and":"Y",
+      "addRule":"Agregar regla",
+      "autoPriorityRules": "Reglas auto-prioridad",
+      "notifications": "Notificaciones",
+      "notificationsLabel1": "Al cambiar prioridad",
+      "notificationsLabel2": "Recordatorio por vencimiento",
+      "notificationsLabel3": "Días antes de vencimiento",
+      "saveNotifications": "Guardar notificaciones",
+      "language": "Idioma",
+      "spanish": "Español",
+      "english": "Inglés"
+    },
+    "categories": {
+    "title": "Tus Categorías",
+    "newCategory": "Nueva Categoría",
+    "deleteModalTitle": "¿Eliminar categoría?",
+    "deleteModalMessage": "¿Estás seguro de que quieres eliminar esta categoría?",
+    "action": {
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+    "alertFetchError": "Error al obtener categorías:",
+    "alertDeleteError": "No se pudo eliminar la categoría"
+  },
+  "category": {
+    "title": {
+      "edit": "Editar Categoría",
+      "create": "Crear Categoría"
+    },
+    "selectImage": "Seleccionar Imagen",
+    "placeholder": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "studyMethod": "Ej: 1",
+      "deleteDays": "Ej. 7"
+    },
+    "order": {
+      "select": "Selecciona orden",
+      "DATE_CREATED": "Fecha de creación",
+      "DUE_DATE": "Fecha de vencimiento",
+      "PRIORITY_ASC": "Prioridad (asc)",
+      "PRIORITY_DES": "Prioridad (desc)",
+      "NAME_ASC": "Nombre (A-Z)",
+      "NAME_DES": "Nombre (Z-A)"
+    },
+    "showCompleted": "Mostrar tareas completadas",
+    "autoDeleteCompleted": "Auto-borrar completadas",
+    "button": {
+      "save": "Guardar Cambios",
+      "create": "Crear Categoría"
+    },
+    "modal": {
+      "iconTitle": "Elige un icono"
+    }
+  },
+  "changePassword": {
+    "title": "Cambiar Contraseña",
+    "placeholder": {
+      "oldPassword": "Contraseña Actual",
+      "newPassword": "Nueva Contraseña",
+      "confirmNewPassword": "Confirmar Nueva Contraseña"
+    },
+    "button": {
+      "save": "Guardar",
+      "cancel": "Cancelar"
+    },
+    "modal": {
+      "confirmTitle": "¿Estás seguro?",
+      "confirmMessage": "¿Estás seguro de que quieres cambiar tu contraseña?"
+    },
+    "alerts": {
+      "allFieldsRequired": "Todos los campos son obligatorios",
+      "fixErrors": "Corrige los errores antes de continuar.",
+      "passwordsDoNotMatch": "Las contraseñas no coinciden",
+      "notAuthenticated": "No estás autenticado. Inicia sesión de nuevo.",
+      "passwordChanged": "Contraseña cambiada correctamente",
+      "errorChangingPassword": "No se pudo cambiar la contraseña"
+    }
+  },
+  "validation": {
+    "invalidEmail": "Correo inválido",
+    "min6Chars": "Mínimo 6 caracteres",
+    "uppercaseRequired": "Debe incluir al menos una mayúscula",
+    "numberRequired": "Debe incluir al menos un número",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden"
+  },
+  "login": {
+    "title": "Iniciar Sesión",
+    "emailPlaceholder": "Correo Electrónico",
+    "passwordPlaceholder": "Contraseña",
+    "loginButton": "Ingresar",
+    "noAccount": "¿No tienes cuenta? Regístrate",
+    "errorTitle": "Error al iniciar sesión",
+    "loginErrorFallback": "No se pudo iniciar sesión"
+  },
+  "profile": {
+    "title": "Perfil",
+    "firstNamePlaceholder": "Nombre",
+    "surnamePlaceholder": "Apellido",
+    "nicknamePlaceholder": "Nombre de Usuario",
+    "emailPlaceholder": "Correo Electrónico",
+    "saveChanges": "Guardar Cambios",
+    "changePassword": "Cambiar Contraseña",
+    "chooseIcon": "Elige un icono",
+    "errorTitle": "Error",
+    "loadError": "No se pudieron cargar los datos del perfil.",
+    "invalidEmail": "Por favor ingresa un correo electrónico válido.",
+    "correctErrors": "Corrige los errores antes de continuar.",
+    "updatedTitle": "Perfil actualizado",
+    "updatedEmailPrompt": "Tu email ha cambiado, por favor inicia sesión nuevamente.",
+    "updatedSuccess": "Tus datos han sido actualizados correctamente.",
+    "updateError": "No se pudo actualizar el perfil.",
+    "connectionError": "No se pudo conectar con el servidor.",
+    "ok": "OK"
+  },
+  "register": {
+    "title": "Regístrate",
+    "selectImage": "Seleccionar Imagen",
+    "firstName": "Nombre",
+    "surname": "Apellido",
+    "nickname": "Nombre de Usuario",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "registerButton": "Registrar",
+    "haveAccount": "¿Tienes cuenta? Iniciar Sesión",
+    "modalTitle": "Elige un icono",
+    "errorPasswordMismatch": "Las contraseñas no coinciden",
+    "errorSelectImage": "Debes seleccionar una imagen",
+    "errorFillFields": "Debes completar todos los campos",
+    "errorCorrectErrors": "Corrige los errores antes de continuar.",
+    "errorGeneric": "No se pudo completar el registro",
+    "errorTitle": "Error",
+    "success": "Registro exitoso",
+    "successMessage": "Tu cuenta ha sido creada con éxito. Inicia sesión para continuar.",
+    "errorImage": "Error al obtener imágenes",
+    "errorRegister": "Error en el registro"
+
+  }
+  }
+  

@@ -9,8 +9,10 @@ import GeneralStyles from '../styles/GeneralStyles';
 import CustomModal from '../components/CustomModal';
 import { BASE_URL } from '../config';
 import Button from '../components/Button';
+import { useTranslation } from 'react-i18next';
 
 const CategoriesScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState([]);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
@@ -26,7 +28,7 @@ const CategoriesScreen = ({ navigation }) => {
       });
       setCategories(response.data);
     } catch (error) {
-      console.error('Error al obtener categorías:', error);
+      console.error(t('categories.alertFetchError'), error);
     }
   };
 
@@ -51,27 +53,27 @@ const CategoriesScreen = ({ navigation }) => {
       setCategoryToDelete(null);
       fetchCategories();
     } catch (error) {
-      console.error('Error al eliminar categoría:', error);
-      Alert.alert('Error', 'No se pudo eliminar la categoría');
-    }
+      console.error(t('categories.alertFetchError'), error);
+      Alert.alert(t('categories.alertDeleteError'));    
+  }
   };
 
   const renderLeftActions = () => (
     <View style={styles.leftAction}>
-      <Text style={styles.actionText}>Editar</Text>
+      <Text style={styles.actionText}>{t('categories.action.edit')}</Text>
     </View>
   );
 
   const renderRightActions = () => (
     <View style={styles.rightAction}>
-      <Text style={styles.actionText}>Eliminar</Text>
+      <Text style={styles.actionText}>{t('categories.action.delete')}</Text>
     </View>
   );
 
   return (
     <GeneralTemplate>
       <View>
-        <Text style={GeneralStyles.title}>Tus Categorías</Text>
+        <Text style={GeneralStyles.title}>{t('categories.title')}</Text>
       </View>
       <View style={{ flex: 1, width: screenWidth * 0.8 }}>
         <FlatList
@@ -129,16 +131,16 @@ const CategoriesScreen = ({ navigation }) => {
         />
 
         <View style={{ marginTop: 10, marginBottom: 20, alignItems: 'center' }}>
-          <Button title="Nueva Categoría" onPress={() => navigation.navigate('Category')} />
+          <Button title={t('categories.newCategory')} onPress={() => navigation.navigate('Category')} />
         </View>
 
         <CustomModal
           visible={deleteModalVisible}
-          title="¿Eliminar categoría?"
+          title={t('categories.deleteModalTitle')}
           onConfirm={handleDeleteCategory}
           onCancel={() => setDeleteModalVisible(false)}
         >
-          <Text>¿Estás seguro de que quieres eliminar esta categoría?</Text>
+          <Text>{t('categories.deleteModalMessage')}</Text>
         </CustomModal>
       </View>
     </GeneralTemplate>

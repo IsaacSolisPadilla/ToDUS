@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const useValidation = (password = "", confirmPassword = "", email = null) => {
+  const [ t ] = useTranslation();
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
@@ -9,7 +11,7 @@ const useValidation = (password = "", confirmPassword = "", email = null) => {
   useEffect(() => {
     if (email !== null && email.length > 0) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      setEmailError(emailRegex.test(email) ? '' : 'Correo inválido');
+      setEmailError(emailRegex.test(email) ? '' : t('validation.invalidEmail'));
     } else {
       setEmailError('');
     }
@@ -19,9 +21,9 @@ const useValidation = (password = "", confirmPassword = "", email = null) => {
   useEffect(() => {
     if (password.length > 0) {
       let errorMessage = '';
-      if (password.length < 6) errorMessage = 'Mínimo 6 caracteres';
-      else if (!/[A-Z]/.test(password)) errorMessage = 'Debe incluir al menos una mayúscula';
-      else if (!/\d/.test(password)) errorMessage = 'Debe incluir al menos un número';
+      if (password.length < 6) errorMessage = t('validation.min6Chars');
+      else if (!/[A-Z]/.test(password)) errorMessage = t('validation.uppercaseRequired');
+      else if (!/\d/.test(password)) errorMessage = t('validation.numberRequired');
       
       setPasswordError(errorMessage);
     } else {
@@ -32,7 +34,7 @@ const useValidation = (password = "", confirmPassword = "", email = null) => {
   // Validación de confirmación de contraseña
   useEffect(() => {
     if (confirmPassword.length > 0) {
-      setConfirmPasswordError(password === confirmPassword ? '' : 'Las contraseñas no coinciden');
+      setConfirmPasswordError(password === confirmPassword ? '' : t('validation.passwordsDoNotMatch'));
     } else {
       setConfirmPasswordError('');
     }
