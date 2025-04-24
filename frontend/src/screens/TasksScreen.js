@@ -22,8 +22,10 @@ import GeneralStyles from '../styles/GeneralStyles';
 import CustomModal from '../components/CustomModal';
 import axios from 'axios';
 import * as Notifications from 'expo-notifications';
+import { useTranslation } from 'react-i18next';
 
 const TasksScreen = ({ navigation, route }) => {
+  const { t } = useTranslation();
   const handleBackPress = () => true; // Bloquea el retroceso
 
   useEffect(() => {
@@ -158,9 +160,11 @@ const TasksScreen = ({ navigation, route }) => {
               if (notifyOnPriorityChange && oldP && newP) {
                 await Notifications.scheduleNotificationAsync({
                   content: {
-                    title: 'Prioridad cambiada',
-                    body: `La tarea "${t.name}" cambió de "${oldP.name}" a "${newP.name}".`
-                  },
+                    title: t('tasks.notificationPriorityChangedTitle'),
+                    body: t('tasks.notificationPriorityChangedBody', {
+                      name: t.name, old: oldP.name, new: newP.name
+                    })
+                },
                   trigger: null
                 });
               }
@@ -218,8 +222,11 @@ const TasksScreen = ({ navigation, route }) => {
             if (daysLeft === dueReminderDays) {
               await Notifications.scheduleNotificationAsync({
                 content: {
-                  title: 'Tarea por vencer',
-                  body: `Faltan ${daysLeft} día(s) para que "${t.name}" venza.`
+                    title: t('tasks.notificationDueTitle'),
+                    body: t('tasks.notificationDueBody', {
+                      days: daysLeft,
+                      name: t.name
+                  })
                 },
                 trigger: null
               });
@@ -270,11 +277,11 @@ const TasksScreen = ({ navigation, route }) => {
   );
 
   const handleCreateTask = async () => {
-    if (!taskName.trim()) return Alert.alert('Error', 'El nombre de la tarea es obligatorio');
-    if (!priority) return Alert.alert('Error', 'Selecciona una prioridad');
+    if (!taskName.trim()) return Alert.alert(t('tasks.error'), t('tasks.nameRequired'));
+    if (!priority) return Alert.alert(t('tasks.error'), t('tasks.selectPriority'));
     try {
       const token = await AsyncStorage.getItem('token');
-      if (!token) return Alert.alert('Error', 'No estás autenticado. Inicia sesión de nuevo.');
+      if (!token) return Alert.alert(t('tasks.error'), t('tasks.notAuthenticated'));
       const requestData = {
         name: taskName,
         priorityId: priority.id,
@@ -288,7 +295,7 @@ const TasksScreen = ({ navigation, route }) => {
       fetchTasks();
     } catch (error) {
       console.error('Error al crear la tarea:', error);
-      Alert.alert('Error', error.response?.data?.error || 'No se pudo crear la tarea');
+      Alert.alert('Error', error.response?.data?.error || t('tasks.creationError'));
     }
   };
 
@@ -310,7 +317,7 @@ const TasksScreen = ({ navigation, route }) => {
       fetchTasks();
     } catch (error) {
       console.error('Error al marcar tarea como completada:', error);
-      Alert.alert('Error', 'No se pudo marcar como completada');
+      Alert.alert(t('tasks.error'), t('tasks.markCompleteError'));
     }
   };
 
@@ -324,7 +331,7 @@ const TasksScreen = ({ navigation, route }) => {
       fetchTasks();
     } catch (error) {
       console.error('Error al mover la tarea a la papelera:', error);
-      Alert.alert('Error', 'No se pudo mover la tarea a la papelera');
+      Alert.alert(t('tasks.error'), t('tasks.trashError'));
     }
   };
 
@@ -338,7 +345,7 @@ const TasksScreen = ({ navigation, route }) => {
       fetchTasks();
     } catch (error) {
       console.error('Error al eliminar permanentemente la tarea:', error);
-      Alert.alert('Error', 'No se pudo eliminar permanentemente la tarea');
+      Alert.alert(t('tasks.error'), t('tasks.deleteError'));
     }
   };
 
@@ -356,7 +363,7 @@ const TasksScreen = ({ navigation, route }) => {
       setTaskToDelete(null);
     } catch (error) {
       console.error('Error al procesar la eliminación de la tarea:', error);
-      Alert.alert('Error', 'No se pudo procesar la eliminación de la tarea');
+      Alert.alert(t('tasks.error'), t('tasks.processDeleteError'));
     }
   };
 
@@ -370,20 +377,24 @@ const TasksScreen = ({ navigation, route }) => {
     if (!dueDate) return '';
     const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
     const completedDate = new Date();
+
     if (item.status === 'COMPLETED') {
       if (completedDate < dueDate) {
         const earlyDays = Math.floor((dueDate - completedDate) / (1000 * 60 * 60 * 24));
-        return `✔ ${earlyDays} días antes`;
+        return `✔ ${earlyDays} ${t('tasks.earlyDays')}`;
       } else if (completedDate > dueDate) {
         const lateDays = Math.floor((completedDate - dueDate) / (1000 * 60 * 60 * 24));
-        return `✔ ${lateDays} días tarde`;
+        return `✔ ${lateDays} ${t('tasks.lateDays')}`;
       } else {
-        return '✔ A tiempo';
+        return `✔ ${t('tasks.onTime')}`;
       }
     } else {
-      if (diffDays < 0) return '⚠️ Vencida';
-      if (diffDays === 0) return '⚠️ Vence hoy';
-      if (diffDays > 0 && diffDays <= 7) return `⏳ ${diffDays} días restantes`;
+      if (diffDays < 0)   return `⚠️ ${t('tasks.overdue')}`;
+      if (diffDays === 0) return `⚠️ ${t('tasks.expiresToday')}`;
+      if (diffDays > 0 && diffDays <= 7) {
+        // ⏳ 5 days remaining
+        return `⏳ ${diffDays} ${t('tasks.daysRemaining')}`;
+      }
       return '';
     }
   };
@@ -396,13 +407,13 @@ const TasksScreen = ({ navigation, route }) => {
       }}
       renderLeftActions={() => (
         <View style={styles.leftAction}>
-          <Text style={styles.actionText}>Editar</Text>
+          <Text style={styles.actionText}>{t('tasks.actionEdit')}</Text>
         </View>
       )}
       renderRightActions={() => (
         <View style={styles.rightAction}>
           <Text style={styles.actionText}>
-            {item.trashed ? 'Eliminar permanentemente' : 'Mover a papelera'}
+            {item.trashed ? t('tasks.modalTitleDelete') : t('tasks.actionMoveTrash')}
           </Text>
         </View>
       )}
@@ -439,7 +450,7 @@ const TasksScreen = ({ navigation, route }) => {
   if (selectedCategory) {
     sections = [{ title: selectedCategory.name, data: tasks }];
   } else {
-    sections = [{ title: 'Tus Tareas', data: tasks }];
+    sections = [{ title: t('tasks.sectionAllTasks'), data: tasks }];
     mainCategories.forEach(cat => {
       const catTasks = tasks.filter(task => task.category?.id === cat.id);
       if (catTasks.length > 0) {
@@ -468,7 +479,7 @@ const TasksScreen = ({ navigation, route }) => {
 
           <View style={styles.bottomInputContainer}>
             <TextInput
-              placeholder="Nueva tarea"
+              placeholder={t('tasks.placeholderNewTask')}
               style={styles.taskInput}
               value={taskName}
               onChangeText={setTaskName}
@@ -479,7 +490,7 @@ const TasksScreen = ({ navigation, route }) => {
                 style={styles.selectedPriorityBox}
               >
                 <Text style={[styles.selectedPriorityText, { color: priority?.colorHex }]}>
-                  {priority ? priority.name : 'Sin prioridad'}
+                  {priority ? priority.name : t('tasks.noPriority')}
                 </Text>
                 <Feather
                   name={showPriorityOptions ? 'chevron-up' : 'chevron-down'}
@@ -517,14 +528,14 @@ const TasksScreen = ({ navigation, route }) => {
 
           <CustomModal
             visible={deleteModalVisible}
-            title="Eliminar permanentemente"
+            title={t('tasks.modalTitleDelete')}
             onConfirm={handleTrashOrDeleteTask}
             onCancel={() => setDeleteModalVisible(false)}
           >
             <Text>
               {taskToDelete && taskToDelete.trashed
-                ? "¿Estás seguro de que deseas eliminar permanentemente esta tarea?"
-                : "¿Estás seguro de que deseas mover esta tarea a la papelera?"}
+                ? t('tasks.modalConfirmDelete')
+                : t('tasks.modalConfirmTrash')}
             </Text>
           </CustomModal>
         </View>

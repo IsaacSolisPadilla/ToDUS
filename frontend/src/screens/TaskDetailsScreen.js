@@ -17,8 +17,10 @@ import Button from '../components/Button';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomModal from '../components/CustomModal';
 import { BASE_URL } from '../config';
+import { useTranslation } from 'react-i18next';
 
 const TaskDetailScreen = ({ route, navigation }) => {
+  const { t } = useTranslation();
   const { task } = route.params;
 
   const [name, setName] = useState(task.name);
@@ -64,7 +66,7 @@ const TaskDetailScreen = ({ route, navigation }) => {
       navigation.setParams({ shouldRefresh: true });
     } catch (error) {
       console.error('Error al actualizar tarea:', error);
-      Alert.alert('Error', 'No se pudo guardar la tarea');
+      Alert.alert('Error', t('taskDetail.errorSave'));
     }
   };
 
@@ -87,7 +89,7 @@ const TaskDetailScreen = ({ route, navigation }) => {
     setTempDate(selectedDate);
   
     if (Platform.OS === 'android') {
-      setDueDate(selectedDate.toISOString()); // aquí actualizamos directamente
+      setDueDate(selectedDate.toISOString());
       setShowDatePicker(false);
     }
   };
@@ -123,11 +125,11 @@ const TaskDetailScreen = ({ route, navigation }) => {
           keyboardShouldPersistTaps="handled"
         >
           <View style={GeneralStyles.innerContainer}>
-            <Text style={GeneralStyles.title}>Tarea</Text>
+            <Text style={GeneralStyles.title}>{t('taskDetail.title')}</Text>
 
             <View style={GeneralStyles.formContainer}>
               <InputField
-                label="Nombre de la tarea"
+                label={t('taskDetail.labelName')}
                 value={name}
                 onChangeText={setName}
                 editable={true}
@@ -153,7 +155,7 @@ const TaskDetailScreen = ({ route, navigation }) => {
                   }}
                 >
                   <Text style={{ fontSize: 16, color: priorityId ? '#0C2527' : '#777' }}>
-                    {priorityName || 'Selecciona prioridad'}
+                    {priorityName || t('taskDetail.placeholderSelectPriority')}
                   </Text>
                 </TouchableOpacity>
 
@@ -187,7 +189,7 @@ const TaskDetailScreen = ({ route, navigation }) => {
               </View>
 
               <InputField
-                label="Fecha de creación"
+                label={t('taskDetail.labelDateCreated')}
                 value={formatDatePretty(task.dateCreated)}
                 editable={false}
               />
@@ -195,7 +197,7 @@ const TaskDetailScreen = ({ route, navigation }) => {
               <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                 <View pointerEvents="none">
                   <InputField
-                    label="Fecha de vencimiento"
+                    label={t('taskDetail.labelDueDate')}
                     value={formatDatePretty(dueDate)}
                     editable={false}
                   />
@@ -205,7 +207,7 @@ const TaskDetailScreen = ({ route, navigation }) => {
               {Platform.OS === 'ios' && (
                 <CustomModal
                   visible={showDatePicker}
-                  title="Seleccionar Fecha"
+                  title={t('taskDetail.modalSelectDate')}
                   onConfirm={confirmDate}
                   onCancel={() => setShowDatePicker(false)}
                   modalWidth="90%"
@@ -231,13 +233,13 @@ const TaskDetailScreen = ({ route, navigation }) => {
               )}
 
               <InputField
-                label="Descripción"
+                label={t('taskDetail.labelDescription')}
                 value={description}
                 onChangeText={setDescription}
                 editable={true}
               />
 
-              <Button title="Guardar" onPress={handleGoBack} />
+              <Button title={t('taskDetail.buttonSave')} onPress={handleGoBack} />
               
             </View>
           </View>

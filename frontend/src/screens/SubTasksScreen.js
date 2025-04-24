@@ -19,8 +19,10 @@ import {
   import GeneralTemplate from '../components/GeneralTemplate';
   import GeneralStyles from '../styles/GeneralStyles';
   import InputField from '../components/InputField';
+  import { useTranslation } from 'react-i18next';
 
 const SubTasksScreen = ({ route, navigation }) => {
+  const { t } = useTranslation();
   const { task } = route.params;
   const [subTasks, setSubTasks] = useState([]);
   const [subTaskName, setSubTaskName] = useState('');
@@ -38,7 +40,7 @@ const SubTasksScreen = ({ route, navigation }) => {
       });
       setSubTasks(response.data);
     } catch (error) {
-      console.error('Error al obtener las subtareas:', error);
+      console.error(t('subtasks.errorCreate'), error);
     }
   };
 
@@ -49,7 +51,7 @@ const SubTasksScreen = ({ route, navigation }) => {
   // Función para crear una nueva subtarea
   const handleCreateSubTask = async () => {
     if (!subTaskName.trim()) {
-      return Alert.alert('Error', 'El nombre de la subtarea es obligatorio');
+      return Alert.alert('Error', t('subtasks.errorRequired'));
     }
     try {
       const token = await AsyncStorage.getItem('token');
@@ -63,8 +65,8 @@ const SubTasksScreen = ({ route, navigation }) => {
       setSubTaskName('');
       fetchSubTasks();
     } catch (error) {
-      console.error('Error al crear la subtarea:', error);
-      Alert.alert('Error', error.response?.data || 'No se pudo crear la subtarea');
+      console.error(t('subtasks.errorCreate'), error);
+      Alert.alert('Error', error.response?.data || t('subtasks.errorCreate'));
     }
   };
 
@@ -76,8 +78,8 @@ const SubTasksScreen = ({ route, navigation }) => {
       });
       fetchSubTasks();
     } catch (error) {
-      console.error('Error al actualizar la subtarea:', error);
-      Alert.alert('Error', 'No se pudo actualizar el estado de la subtarea');
+      console.error(t('subtasks.errorUpdate'), error);
+      Alert.alert('Error', t('subtasks.errorUpdate'));
     }
   };
 
@@ -89,14 +91,14 @@ const SubTasksScreen = ({ route, navigation }) => {
       });
       fetchSubTasks();
     } catch (error) {
-      console.error('Error al eliminar la subtarea:', error);
-      Alert.alert('Error', 'No se pudo eliminar la subtarea');
+      console.error(t('subtasks.errorDelete'), error);
+      Alert.alert('Error', t('subtasks.errorDelete'));
     }
   };
 
   const handleUpdateSubTask = async (subTaskId) => {
     if (!editingSubTaskName.trim()) {
-      Alert.alert('Error', 'El nombre no puede estar vacío');
+      Alert.alert('Error', t('subtasks.emptyName'));
       return;
     }
     try {
@@ -111,8 +113,8 @@ const SubTasksScreen = ({ route, navigation }) => {
       setEditingSubTaskName('');
       fetchSubTasks();
     } catch (error) {
-      console.error('Error al actualizar la subtarea:', error);
-      Alert.alert('Error', 'No se pudo actualizar la subtarea');
+      console.error(t('subtasks.errorUpdate'), error);
+      Alert.alert('Error', t('subtasks.errorUpdate'));
     }
   };
 
@@ -124,7 +126,7 @@ const SubTasksScreen = ({ route, navigation }) => {
       }}
       renderLeftActions={() => (
         <View style={styles.leftAction}>
-          <Text style={styles.actionText}>Eliminar</Text>
+          <Text style={styles.actionText}>{t('subtasks.actionDelete')}</Text>
         </View>
       )}
       onSwipeableOpen={() => {
@@ -152,7 +154,6 @@ const SubTasksScreen = ({ route, navigation }) => {
         ) : (
           <TapGestureHandler
             onActivated={() => {
-              // Al detectar doble tap, iniciamos el modo edición
               setEditingSubTaskId(item.id);
               setEditingSubTaskName(item.name);
               setEditingSubTaskStatus(item.status);
@@ -184,36 +185,36 @@ const SubTasksScreen = ({ route, navigation }) => {
           
           <View>
             <InputField
-                label="Nombre de la tarea"
+                label={t('subtasks.labelName')}
                 value={task.name}
                 editable={false}
               />
           </View>
           <View>
             <InputField
-                label="Descripción"
+                label={t('subtasks.labelDescription')}
                 value={task.description}
                 editable={false}
               />
           </View>
           
-          <Text style={styles.subTaskTitle}>Subtareas</Text>
+          <Text style={styles.subTaskTitle}>{t('subtasks.subtasksTitle')}</Text>
           {subTasks.length === 0 ? (
-            <Text style={styles.noSubTasks}>No hay subtareas para esta tarea.</Text>
+            <Text style={styles.noSubTasks}>{t('subtasks.noSubtasks')}</Text>
           ) : (
             <FlatList
                 data={subTasks}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={renderSubTask}
                 style={{ flex: 1 }}
-                contentContainerStyle={{ paddingBottom: 80 }}  // Asegura que haya espacio en la parte inferior
+                contentContainerStyle={{ paddingBottom: 80 }}
                 showsVerticalScrollIndicator={false}
             />
           )}
           
           <View style={styles.bottomInputContainer}>
             <TextInput
-              placeholder="Nueva subtarea"
+              placeholder={t('subtasks.placeholderNew')}
               style={styles.subTaskInput}
               value={subTaskName}
               onChangeText={setSubTaskName}

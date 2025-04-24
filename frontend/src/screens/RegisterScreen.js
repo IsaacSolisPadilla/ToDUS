@@ -11,7 +11,7 @@ import GeneralStyles from '../styles/GeneralStyles';
 import { useTranslation } from 'react-i18next';
 
 const RegisterScreen = ({ navigation }) => {
-  const [ t ] = useTranslation();
+  const  { t }  = useTranslation();
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');

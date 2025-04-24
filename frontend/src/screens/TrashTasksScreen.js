@@ -9,8 +9,10 @@ import GeneralTemplate from '../components/GeneralTemplate';
 import GeneralStyles from '../styles/GeneralStyles';
 import CustomModal from '../components/CustomModal';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 const TrashTasksScreen = ({ navigation, route }) => {
+  const { t } = useTranslation();
   const { category } = route.params;
   const [trashedTasks, setTrashedTasks] = useState([]);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -84,7 +86,7 @@ const TrashTasksScreen = ({ navigation, route }) => {
       fetchTrashedTasks();
     } catch (e) {
       console.error(e);
-      Alert.alert('Error', 'No se pudo recuperar la tarea');
+      Alert.alert('Error', t('trash.recoverTasks'));
     }
   };
 
@@ -101,7 +103,7 @@ const TrashTasksScreen = ({ navigation, route }) => {
       fetchTrashedTasks();
     } catch (e) {
       console.error(e);
-      Alert.alert('Error', 'No se pudo eliminar la tarea');
+      Alert.alert('Error', t('trash.deleteTasks'));
     }
   };
 
@@ -115,28 +117,30 @@ const TrashTasksScreen = ({ navigation, route }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchTrashedTasks();
-      Alert.alert('Éxito', 'Se eliminaron todas las tareas de la papelera');
+      Alert.alert('Éxito', t('trash.emptyTrashSuccess'));
     } catch (e) {
       console.error(e);
-      Alert.alert('Error', 'No se pudo vaciar la papelera');
+      Alert.alert('Error', t('trash.emptyTrash'));
     }
   };
 
   const renderLeftActions = () => (
     <View style={styles.leftAction}>
-      <Text style={styles.actionText}>Recuperar</Text>
+      <Text style={styles.actionText}>{t('trash.recover')}</Text>
     </View>
   );
   const renderRightActions = () => (
     <View style={styles.rightAction}>
-      <Text style={styles.actionText}>Eliminar</Text>
+      <Text style={styles.actionText}>{t('trash.emptyAll')}</Text>
     </View>
   );
 
   return (
     <GeneralTemplate>
       <Text style={GeneralStyles.title}>
-        {category ? `Papelera: ${category.name}` : 'Papelera'}
+      {category
+    ? `${t('trash.title')}: ${category.name}`
+    : t('trash.title')}
       </Text>
       <View style={{ flex:1, width: screenWidth * 0.8 }}>
         <FlatList
@@ -159,7 +163,7 @@ const TrashTasksScreen = ({ navigation, route }) => {
             >
               <View style={[styles.taskItemContainer, { borderLeftColor: item.priority?.colorHex }]}>
                 <Text style={styles.taskName}>{item.name}</Text>
-                <Text style={styles.taskStatusInfo}>En Papelera</Text>
+                <Text style={styles.taskStatusInfo}>{t('trash.inTrash')}</Text>
               </View>
             </Swipeable>
           )}
@@ -168,16 +172,16 @@ const TrashTasksScreen = ({ navigation, route }) => {
 
         <TouchableOpacity style={styles.deleteAllButton} onPress={handleDeleteAll}>
           <Feather name="trash-2" size={20} color="#fff" />
-          <Text style={styles.deleteAllText}>Vaciar papelera</Text>
+          <Text style={styles.deleteAllText}>{t('trash.emptyAll')}</Text>
         </TouchableOpacity>
 
         <CustomModal
           visible={deleteModalVisible}
-          title="Eliminar permanentemente"
+          title={t('trash.delete')}
           onConfirm={handleDeletePermanently}
           onCancel={() => setDeleteModalVisible(false)}
         >
-          <Text>¿Seguro que deseas eliminar esta tarea?</Text>
+          <Text>{t('trash.confirmDelete')}</Text>
         </CustomModal>
       </View>
     </GeneralTemplate>

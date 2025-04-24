@@ -9,7 +9,7 @@ import GeneralStyles from '../styles/GeneralStyles';
 import { useTranslation } from 'react-i18next';
 
 const LoginScreen = ({ navigation }) => {
-  const [ t ] = useTranslation();
+  const  { t }  = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
