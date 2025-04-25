@@ -12,7 +12,8 @@ import {
   Keyboard,
   TextInput,
   TouchableOpacity,
-  InputAccessoryView
+  InputAccessoryView,
+  Dimensions
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -36,25 +37,22 @@ const COLORS = [
 
 const SettingsScreen = ({ navigation }) => {
   const { t, i18n } = useTranslation();
+  const screenWidth = Dimensions.get('window').width;
+  
 
-  // categorías en home
   const [categorySettings, setCategorySettings] = useState([]);
-  // Retención papelera
   const [trashRetentionDays, setTrashRetentionDays] = useState('7');
-  // Prioridades CRUD
   const [prioritiesList, setPrioritiesList] = useState([]);
   const [newPriorityName, setNewPriorityName] = useState('');
   const [newPriorityColor, setNewPriorityColor] = useState(COLORS[0].hex);
   const [editingPriority, setEditingPriority] = useState(null);
   const swipeableRefs = useRef({});
 
-  // Reglas auto‑prioridad
-  const [rules, setRules] = useState([]);      // { fromId, days, toId }
+  const [rules, setRules] = useState([]);
   const [fromId, setFromId] = useState(null);
   const [daysThreshold, setDaysThreshold] = useState('3');
   const [toId, setToId] = useState(null);
 
-  // Notificaciones
   const [notifyOnPriorityChange, setNotifyOnPriorityChange] = useState(false);
   const [notifyDueReminders, setNotifyDueReminders]         = useState(false);
   const [dueReminderDays, setDueReminderDays]               = useState('1');
@@ -83,7 +81,6 @@ const SettingsScreen = ({ navigation }) => {
     await AsyncStorage.setItem('appLanguage', newLang);
   };
 
-  // --- Categorías visibles ---
   const fetchCategories = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -107,7 +104,6 @@ const SettingsScreen = ({ navigation }) => {
     );
   };
 
-  // --- Papelera ---
   const fetchTrashRetention = async () => {
     const s = await AsyncStorage.getItem('trashRetentionDays');
     if (s) setTrashRetentionDays(s);
@@ -120,7 +116,6 @@ const SettingsScreen = ({ navigation }) => {
     Alert.alert('Guardado', `Eliminar tras ${n} días`);
   };
 
-  // --- Prioridades CRUD ---
   const fetchPriorities = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -133,6 +128,7 @@ const SettingsScreen = ({ navigation }) => {
       Alert.alert('Error', 'No se pudieron obtener prioridades');
     }
   };
+
   const createPriority = async () => {
     if (!newPriorityName.trim()) return Alert.alert('Error','Nombre requerido');
     try {
@@ -149,6 +145,7 @@ const SettingsScreen = ({ navigation }) => {
       Alert.alert('Error','No se creó prioridad');
     }
   };
+
   const updatePriority = async () => {
     if (!newPriorityName.trim()) return Alert.alert('Error','Nombre requerido');
     try {
@@ -166,6 +163,7 @@ const SettingsScreen = ({ navigation }) => {
       Alert.alert('Error','No se actualizó prioridad');
     }
   };
+
   const canDeletePriority = async id => {
     try {
       const token = await AsyncStorage.getItem('token');
@@ -177,6 +175,7 @@ const SettingsScreen = ({ navigation }) => {
       return false;
     }
   };
+
   const deletePriority = async id => {
     if (!(await canDeletePriority(id))) {
       return Alert.alert('Error','Prioridad en uso');
@@ -193,15 +192,16 @@ const SettingsScreen = ({ navigation }) => {
     }
   };
 
-  // --- Reglas auto‑prioridad en AsyncStorage ---
   const fetchRules = async () => {
     const s = await AsyncStorage.getItem('priorityRules');
     if (s) setRules(JSON.parse(s));
   };
+
   const saveRules = async rs => {
     await AsyncStorage.setItem('priorityRules', JSON.stringify(rs));
     setRules(rs);
   };
+
   const addRule = () => {
     if (!fromId || !toId) return Alert.alert('Selecciona prioridades');
     const n = parseInt(daysThreshold,10);
@@ -209,9 +209,9 @@ const SettingsScreen = ({ navigation }) => {
     saveRules([...rules,{ fromId, days:n, toId }]);
     setFromId(null); setToId(null); setDaysThreshold('3');
   };
+
   const deleteRule = idx => saveRules(rules.filter((_,i)=>i!==idx));
 
-  // --- Notificaciones ---
   const fetchNotificationSettings = async () => {
     const a = await AsyncStorage.getItem('notifyOnPriorityChange');
     const b = await AsyncStorage.getItem('notifyDueReminders');
@@ -220,6 +220,7 @@ const SettingsScreen = ({ navigation }) => {
     if (b !== null) setNotifyDueReminders(b === 'true');
     if (c !== null) setDueReminderDays(c);
   };
+
   const saveNotificationSettings = async () => {
     await AsyncStorage.setItem('notifyOnPriorityChange', notifyOnPriorityChange.toString());
     await AsyncStorage.setItem('notifyDueReminders',    notifyDueReminders.toString());
@@ -229,6 +230,7 @@ const SettingsScreen = ({ navigation }) => {
 
   return (
     <GeneralTemplate>
+      <View style={{flex:1, width: screenWidth * 0.9}}>
       <ScrollView 
         contentContainerStyle={styles.container} 
         showsVerticalScrollIndicator={false}
@@ -290,10 +292,10 @@ const SettingsScreen = ({ navigation }) => {
                   key={p.id}
                   ref={ref=> swipeableRefs.current[p.id]=ref}
                   renderLeftActions={()=>(
-                    <View style={styles.leftAction}><Text style={styles.actionText}>Editar</Text></View>
+                    <View style={styles.leftAction}><Text style={styles.actionText}>{t('settings.editPriority')}</Text></View>
                   )}
                   renderRightActions={()=>(
-                    <View style={styles.rightAction}><Text style={styles.actionText}>Eliminar</Text></View>
+                    <View style={styles.rightAction}><Text style={styles.actionText}>{t('settings.deletePriority')}</Text></View>
                   )}
                   onSwipeableOpen={dir=>{
                     swipeableRefs.current[p.id]?.close();
@@ -487,6 +489,7 @@ const SettingsScreen = ({ navigation }) => {
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
       </ScrollView>
+      </View>
     </GeneralTemplate>
   );
 };
@@ -536,14 +539,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 10
   },
-  // Prioridades
   prioritiesSection: {
     marginTop: 20
   },
   priorityRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0F8FF',
+    backgroundColor: '#CDF8FA',
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,
@@ -633,7 +635,7 @@ const styles = StyleSheet.create({
   ruleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#E8F6EF',
+    backgroundColor: '#CDF8FA',
     padding: 10,
     borderRadius: 6,
     marginBottom: 6

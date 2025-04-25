@@ -21,10 +21,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomModal from '../components/CustomModal';
 import axios from 'axios';
 import { BASE_URL } from '../config';
+import { useTranslation } from 'react-i18next';
 
 const { width, height } = Dimensions.get('window');
 
 const GeneralTemplate = ({ children }) => {
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -51,7 +53,7 @@ const GeneralTemplate = ({ children }) => {
     });
     const hideSub = Keyboard.addListener('keyboardDidHide', () => {
       Animated.timing(bottomNavAnim, {
-        toValue: 1, // Volver a mostrar
+        toValue: 1,
         duration: 400,
         easing: Easing.inOut(Easing.ease),
         useNativeDriver: true,
@@ -94,11 +96,11 @@ const GeneralTemplate = ({ children }) => {
       setIsLoggedIn(false);
       setUserImage(null);
       setIsLogoutModalVisible(false);
-      Alert.alert('Cierre de sesión', 'Has cerrado sesión correctamente.');
+      Alert.alert(t('general.logout2'), t('general.logoutMessage'));
       navigation.replace('Login');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
-      Alert.alert('Error', 'No se pudo cerrar sesión.');
+      Alert.alert('Error', t('general.logoutError'));
     }
   };
 
@@ -132,14 +134,14 @@ const GeneralTemplate = ({ children }) => {
           <TouchableOpacity style={styles.navItem} onPress={toggleNavbar}>
             <Feather name="menu" size={30} color="#CDF8FA" />
             <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-              <Text style={styles.navText}>Menú</Text>
+              <Text style={styles.navText}>{t('general.nav.menu')}</Text>
             </Animated.View>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Tasks')}>
             <Feather name="home" size={30} color="#CDF8FA" />
             <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-              <Text style={styles.navText}>Inicio</Text>
+              <Text style={styles.navText}>{t('general.nav.home')}</Text>
             </Animated.View>
           </TouchableOpacity>
 
@@ -151,14 +153,14 @@ const GeneralTemplate = ({ children }) => {
                 <Feather name="user" size={30} color="#CDF8FA" />
               )}
               <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-                <Text style={styles.navText}>Perfil</Text>
+                <Text style={styles.navText}>{t('general.nav.profile')}</Text>
               </Animated.View>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Login')}>
               <Image source={require('../../assets/logo_defecto.jpg')} style={styles.avatar} />
               <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-                <Text style={styles.navText}>Iniciar sesión</Text>
+                <Text style={styles.navText}>{t('general.nav.login')}</Text>
               </Animated.View>
             </TouchableOpacity>
           )}
@@ -167,7 +169,7 @@ const GeneralTemplate = ({ children }) => {
             <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Categories')}>
               <Feather name="layers" size={30} color="#CDF8FA" />
               <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-                <Text style={styles.navText}>Categorías</Text>
+                <Text style={styles.navText}>{t('general.nav.categories')}</Text>
               </Animated.View>
             </TouchableOpacity>
           )}
@@ -196,13 +198,11 @@ const GeneralTemplate = ({ children }) => {
             <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Settings')}>
               <Feather name="settings" size={30} color="#CDF8FA" />
               <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-                <Text style={styles.navText}>Configuración</Text>
+                <Text style={styles.navText}>{t('general.nav.settings')}</Text>
               </Animated.View>
             </TouchableOpacity>
           )}
                 
-
-          {/* Contenedor animado que se oculta al aparecer el teclado */}
           <Animated.View
             style={[
               styles.bottomNav,
@@ -219,7 +219,7 @@ const GeneralTemplate = ({ children }) => {
             <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('About')}>
               <Feather name="info" size={25} color="#CDF8FA" />
               <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-                <Text style={styles.navText}>About</Text>
+                <Text style={styles.navText}>{t('general.nav.about')}</Text>
               </Animated.View>
             </TouchableOpacity>
 
@@ -227,7 +227,7 @@ const GeneralTemplate = ({ children }) => {
               <TouchableOpacity style={[styles.navItem, { marginBottom: 20 }]} onPress={handleLogout}>
                 <Feather name="log-out" size={25} color="#CDF8FA" />
                 <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-                  <Text style={styles.navText}>Logout</Text>
+                  <Text style={styles.navText}>{t('general.nav.logout')}</Text>
                 </Animated.View>
               </TouchableOpacity>
             )}
@@ -239,12 +239,12 @@ const GeneralTemplate = ({ children }) => {
 
         <CustomModal
           visible={isLogoutModalVisible}
-          title="Cerrar Sesión"
+          title={t('general.logout.title')}
           onConfirm={handleConfirmLogout}
           onCancel={() => setIsLogoutModalVisible(false)}
           showCancel={true}
         >
-          <Text>¿Estás seguro de que quieres cerrar sesión?</Text>
+          <Text>{t('general.nav.confirm')}</Text>
         </CustomModal>
       </View>
     </TouchableWithoutFeedback>

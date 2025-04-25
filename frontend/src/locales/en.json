@@ -22,7 +22,9 @@
       "saveNotifications": "Save Notifications",
       "language": "Language",
       "spanish": "Spanish",
-      "english": "English"
+      "english": "English",
+      "editPriority": "Edit",
+      "deletePriority": "Delete"
     },
     "categories": {
     "title": "Your Categories",
@@ -218,6 +220,26 @@
     "deleteTasks": "Failed to delete tasks",
     "emptyTrash": "Failed to empty trash",
     "emptyTrashSuccess": "All trash tasks have been deleted"
+  },
+  "general": {
+    "nav": {
+      "menu": "Menu",
+      "home": "Home",
+      "profile": "Profile",
+      "login": "Login",
+      "categories": "Categories",
+      "settings": "Settings",
+      "about": "About",
+      "logout": "Logout"
+    },
+    "logoutModal": {
+      "title": "Logout",
+      "confirm": "Are you sure you want to log out?"
+    }
+  },
+  "modal": {
+    "confirm": "Confirm",
+    "cancel": "Cancel"
   }
   }
   

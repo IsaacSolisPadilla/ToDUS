@@ -22,7 +22,9 @@
       "saveNotifications": "Guardar notificaciones",
       "language": "Idioma",
       "spanish": "Español",
-      "english": "Inglés"
+      "english": "Inglés",
+      "editPriority": "Editar",
+      "deletePriority": "Eliminar"
     },
     "categories": {
     "title": "Tus Categorías",
@@ -217,6 +219,29 @@
     "deleteTasks": "No se puedo eliminar la tareas",
     "emptyTrash": "No se puedo vaciar la papelera",
     "emptyTrashSuccess": "Se eliminaron todas las tareas de la papelera"
-  }
+  },
+  "general": {
+    "nav": {
+      "menu": "Menú",
+      "home": "Inicio",
+      "profile": "Perfil",
+      "login": "Iniciar sesión",
+      "categories": "Categorías",
+      "settings": "Configuración",
+      "about": "Acerca de",
+      "logout": "Cerrar sesión"
+    },
+    "logoutModal": {
+      "title": "Cerrar sesión",
+      "confirm": "¿Estás seguro de que quieres cerrar sesión?",
+      "logout2": "Cierre de sesión",
+      "logoutMessage": "Has cerrado sesión correctamente.",
+      "logoutError": "No se pudo cerrar sesión."
+    }
+    },
+    "modal": {
+      "confirm": "Confirmar",
+      "cancel": "Cancelar"
+    }
   }
   
