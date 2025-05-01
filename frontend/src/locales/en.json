@@ -234,12 +234,32 @@
     },
     "logoutModal": {
       "title": "Logout",
-      "confirm": "Are you sure you want to log out?"
+      "confirm": "Are you sure you want to log out?",
+      "logout2": "Logout",
+      "logoutMessage": "You have successfully logged out.",
+      "logoutError": "Logout failed."
     }
   },
   "modal": {
     "confirm": "Confirm",
     "cancel": "Cancel"
-  }
+  },
+  "about":{
+      "title": "About the application",
+      "description_title": "Description",
+      "description_text": "TodUS is a mobile app designed to help you organize your tasks and subtasks efficiently. With its category system, you can classify and manage all your activities as you need.",
+      "features_title": "Features",
+      "feature_create": "Create, edit and delete tasks and subtasks",
+      "feature_categories": "Organization by customizable categories",
+      "feature_trash": "Trash for recovering deleted items",
+      "feature_auth": "User registration and login",
+      "feature_profile": "Profile management and password changes",
+      "version_title": "Version",
+      "version_text": "1.0.0",
+      "author_title": "Author",
+      "author_text": "Final Degree Project - Isaac Solís Padilla",
+      "contact_title": "Contact",
+      "contact_email": "isaacsolpad@gmail.com"
+    }
   }
   
