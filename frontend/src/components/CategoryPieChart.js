@@ -13,7 +13,6 @@ const heightPie = 220;
  */
 const CategoryPieChart = ({ data, width = widthPie }) => (
   <View style={styles.container}>
-    <Text style={styles.title}>Por Categoría</Text>
     <PieChart
       data={data.map(item => ({
         name: item.category,

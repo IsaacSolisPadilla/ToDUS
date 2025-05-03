@@ -229,7 +229,8 @@
       "categories": "Categorías",
       "settings": "Configuración",
       "about": "Acerca de",
-      "logout": "Cerrar sesión"
+      "logout": "Cerrar sesión",
+      "stats": "Estadísticas"
     },
     "logoutModal": {
       "title": "Cerrar sesión",
@@ -259,6 +260,40 @@
       "author_text": "Proyecto de Fin de Grado - Isaac Solís Padilla",
       "contact_title": "Contacto",
       "contact_email": "isaacsolpad@gmail.com"
+    },
+    "statsScreen": {
+        "title": "Estadísticas",
+      "summary": {
+        "total": "Total",
+        "completed": "Completadas",
+        "streak": "Racha",
+        "rescheduled": "Reprogramadas",
+        "inTrash": "En papelera",
+        "overdue": "Vencidas",
+        "totalSubtasks": "Total subtareas",
+        "completedSubtasks": "Completadas",
+        "day": "{{count}} días"
+      },
+      "charts": {
+        "productivityTitle": "Productividad (últimos 7 días)",
+        "categoryDistributionTitle": "Distribución por Categoría",
+        "priorityTitle": "Tareas por Prioridad",
+        "timeSlotTitle": "Actividad por franjas horarias"
+      },
+      "descriptions": {
+        "total": "Cantidad total de tareas que has creado hasta ahora.",
+        "completed": "Número de tareas que has completado con éxito hasta la fecha.",
+        "rescheduled": "Número de tareas a las que se les ha cambiado la fecha.",
+        "inTrash": "Número de tareas que hay en la papelera.",
+        "overdue": "Número de tareas que han vencido y no han sido completadas.",
+        "totalSubtasks": "Número total de subtareas que has creado hasta ahora.",
+        "completedSubtasks": "Porcentaje de subtareas que has completado con éxito hasta la fecha.",
+        "racha": "Número de días consecutivos en los que has completado al menos una tarea."
+      },
+      "emptyState": {
+        "title": "No hay estadísticas disponibles",
+        "description": "Aún no has creado tareas o no hay datos suficientes para mostrar estadísticas.",
+        "error": "No se pudieron cargar las estadísticas"
+      }
     }
-  }
-  
+}

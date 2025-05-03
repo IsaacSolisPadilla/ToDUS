@@ -19,12 +19,14 @@ import PriorityBarChart from '../components/PriorityBarChart';
 import GeneralStyles from '../styles/GeneralStyles';
 import { ScrollView } from 'react-native-gesture-handler';
 import TimeSlotBarChart from '../components/TimeSlotBarChart';
+import { useTranslation } from 'react-i18next';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 const StatsScreen = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -40,7 +42,7 @@ const StatsScreen = () => {
         setStats(data);
       } catch (error) {
         console.error('Error al cargar estadísticas:', error);
-        Alert.alert('Error', 'No se pudieron cargar las estadísticas');
+        Alert.alert('Error', t('statsScreen.emptyState.error'));
       } finally {
         setLoading(false);
       }
@@ -70,28 +72,30 @@ const StatsScreen = () => {
     <GeneralTemplate>
       <View style={{ flex: 1, width: screenWidth * 0.9 }}>
         <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={GeneralStyles.title}>Estadísticas</Text>
+          <Text style={GeneralStyles.title}>{t('statsScreen.title')}</Text>
 
           {/* Summary Metrics */}
           <View style={styles.summaryRow}>
             <StatsSummaryCard
-              label="Total"
+              label={t('statsScreen.summary.total')}
               value={stats.totalTasks}
               iconName="layers"
+              description={t('statsScreen.descriptions.total')}
               style={styles.summaryCard}
             />
             <StatsSummaryCard
-              label="Completadas"
+              label={t('statsScreen.summary.completed')}
               value={stats.completedTasks}
               percentage={stats.completionRate}
               iconName="check-circle"
+              description={t('statsScreen.descriptions.completed')}
               style={styles.summaryCard}
             />
           </View>
 
           {/* Productivity Chart */}
           <View style={styles.cardWrapper}>
-            <Text style={styles.chartTitle}>Productividad (últimos 7 días)</Text>
+            <Text style={styles.chartTitle}>{t('statsScreen.charts.productivityTitle')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <ProductivityChart data={prodData} width={prodChartWidth} />
             </ScrollView>
@@ -99,13 +103,13 @@ const StatsScreen = () => {
 
           {/* Category Pie Chart */}
           <View style={styles.cardWrapper}>
-            <Text style={styles.chartTitle}>Distribución por Categoría</Text>
+            <Text style={styles.chartTitle}>{t('statsScreen.charts.categoryDistributionTitle')}</Text>
             <CategoryPieChart data={stats.tasksByCategory} width={minChartWidth} />
           </View>
 
           {/* Priority Bar Chart */}
           <View style={styles.cardWrapper}>
-            <Text style={styles.chartTitle}>Tareas por Prioridad</Text>
+            <Text style={styles.chartTitle}>{t('statsScreen.charts.priorityTitle')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <PriorityBarChart data={priData} width={priChartWidth} />
             </ScrollView>
@@ -113,38 +117,43 @@ const StatsScreen = () => {
 
           {/* Other Metrics Grid */}
           <View style={styles.gridRow}>
-            <StatsSummaryCard
-              label="Tiempo medio"
-              value={`${stats.avgCompletionTime.toFixed(1)}h`}
-              iconName="clock-outline"
-              style={styles.gridCard}
-            />
-            <StatsSummaryCard
-              label="Racha"
-              value={`${stats.currentStreak} días`}
-              iconName="fire"
-              style={styles.gridCard}
-            />
+          <StatsSummaryCard
+            label={t('statsScreen.summary.total')}
+            value={stats.totalTasks}
+            iconName="layers"
+            description={t('statsScreen.descriptions.total')}
+            style={styles.summaryCard}
+          />
+          <StatsSummaryCard
+            label={t('statsScreen.summary.streak')}
+            value={t('statsScreen.summary.day', { count: stats.currentStreak })}
+            iconName="fire"
+            description={t('statsScreen.descriptions.streak')} 
+            style={styles.gridCard}
+          />
           </View>
           <View style={styles.gridRow}>
             <StatsSummaryCard
-              label="Reprogramadas"
+              label={t('statsScreen.summary.rescheduled')}
               value={stats.rescheduledCount}
               iconName="calendar-refresh"
+              description={t('statsScreen.descriptions.rescheduled')} 
               style={styles.gridCard}
             />
             <StatsSummaryCard
-              label="En papelera"
+              label={t('statsScreen.summary.inTrash')}
               value={stats.deletedCount}
               iconName="trash-can"
+              description={t('statsScreen.descriptions.inTrash')} 
               style={styles.gridCard}
             />
           </View>
           <View style={styles.gridRow}>
             <StatsSummaryCard
-              label="Vencidas"
+              label={t('statsScreen.summary.overdue')}
               value={stats.overdueCount}
               iconName="alert-circle"
+              description={t('statsScreen.descriptions.overdue')} 
               style={styles.gridCard}
             />
             
@@ -152,21 +161,24 @@ const StatsScreen = () => {
 
           <View style={styles.gridRow}>
             <StatsSummaryCard
-              label="Total subtareas"
+              label={t('statsScreen.summary.totalSubtasks')}
               value={stats.totalSub}
               iconName="layers-outline"
+              description={t('statsScreen.descriptions.totalSubtasks')} 
               style={styles.gridCard}
             />
             <StatsSummaryCard
-              label="Completadas"
+              label={t('statsScreen.summary.completedSubtasks')}
               value={stats.subtaskCompletedCount}
               percentage={stats.subtaskCompletionRate}
               iconName="check-all"
+              description={t('statsScreen.descriptions.completedSubtasks')} 
               style={styles.gridCard}
             />
           </View>
 
           <View style={styles.cardWrapper}>
+            <Text style={styles.chartTitle}>{t('statsScreen.charts.timeSlotTitle')}</Text>
             <TimeSlotBarChart 
             data={stats.tasksByTimeSlot}
             style={styles.gridCard} />
@@ -192,6 +204,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 24,
+    backgroundColor: 'transparent',
   },
   summaryCard: {
     flex: 1,
@@ -216,8 +229,7 @@ const styles = StyleSheet.create({
   },
   gridCard: {
     flex: 1,
-    marginHorizontal: 4,
-    backgroundColor: '#CDF8FA',
+    marginHorizontal: 4
   },
 });
 

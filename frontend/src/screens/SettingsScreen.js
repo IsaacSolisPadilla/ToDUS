@@ -22,6 +22,7 @@ import { BASE_URL } from '../config';
 import GeneralStyles from '../styles/GeneralStyles';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
+import { Picker } from '@react-native-picker/picker';
 
 // Simulamos el enum de Java en un arreglo
 const COLORS = [
@@ -462,27 +463,20 @@ const SettingsScreen = ({ navigation }) => {
               </TouchableOpacity>
             </View>
 
-            <Text style={[GeneralStyles.title, { marginTop: 30 }]}>
-              {t('settings.language')}
-            </Text>
-            <View style={styles.optionGroup}>
-              <View style={styles.optionRow}>
-                <Text style={styles.optionLabel}>{t('settings.spanish')}</Text>
-                <Switch
-                  value={lang === 'es'}
-                  onValueChange={() => changeLanguage('es')}
-                  thumbColor="#084F52"
-                  trackColor={{ false: '#ccc', true: '#16CDD6' }}
-                />
-              </View>
-              <View style={styles.optionRow}>
-                <Text style={styles.optionLabel}>{t('settings.english')}</Text>
-                <Switch
-                  value={lang === 'en'}
-                  onValueChange={() => changeLanguage('en')}
-                  thumbColor="#084F52"
-                  trackColor={{ false: '#ccc', true: '#16CDD6' }}
-                />
+            <Text style={[GeneralStyles.title, { marginTop: 30 }]}>{t('settings.language')}</Text>
+            <View style={[styles.optionGroup, { paddingVertical: 8 }]}>            
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={lang}
+                  onValueChange={value => changeLanguage(value)}
+                  mode="dropdown"
+                >
+                  <Picker.Item label="Español" value="es" />
+                  <Picker.Item label="English" value="en" />
+                  <Picker.Item label="Français" value="fr" />
+                  <Picker.Item label="Deutsch" value="de" />
+                  <Picker.Item label="中文" value="zh" />
+                </Picker>
               </View>
             </View>
 

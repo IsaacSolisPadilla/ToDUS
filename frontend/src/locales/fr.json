@@ -1,0 +1,299 @@
+{
+    "settings": {
+      "title": "Paramètres",
+      "subtitle": "Configurez les éléments et comportements de l'application.",
+      "trashRetentionLabel": "Jours avant suppression de la corbeille",
+      "showCategories": "Afficher les catégories",
+      "prioritiesManagement": "Gestion des priorités",
+      "namePriority": "Nom de la priorité",
+      "createPriority": "Créer une priorité",
+      "updatePriority": "Mettre à jour la priorité",
+      "from": "De",
+      "to": "À",
+      "days": "Jours",
+      "if": "Si",
+      "and": "Et",
+      "addRule": "Ajouter une règle",
+      "autoPriorityRules": "Règles d'auto-priorité",
+      "notifications": "Notifications",
+      "notificationsLabel1": "Au changement de priorité",
+      "notificationsLabel2": "Rappel d'échéance",
+      "notificationsLabel3": "Jours avant l'échéance",
+      "saveNotifications": "Enregistrer les notifications",
+      "language": "Langue",
+      "spanish": "Espagnol",
+      "english": "Anglais",
+      "editPriority": "Modifier",
+      "deletePriority": "Supprimer"
+    },
+    "categories": {
+      "title": "Vos catégories",
+      "newCategory": "Nouvelle catégorie",
+      "deleteModalTitle": "Supprimer la catégorie ?",
+      "deleteModalMessage": "Êtes-vous sûr de vouloir supprimer cette catégorie ?",
+      "action": {
+        "edit": "Modifier",
+        "delete": "Supprimer"
+      },
+      "alertFetchError": "Erreur lors de la récupération des catégories :",
+      "alertDeleteError": "Échec de la suppression de la catégorie"
+    },
+    "category": {
+      "title": {
+        "edit": "Modifier la catégorie",
+        "create": "Créer une catégorie"
+      },
+      "selectImage": "Sélectionner une image",
+      "placeholder": {
+        "name": "Nom",
+        "description": "Description",
+        "studyMethod": "Ex : 1",
+        "deleteDays": "Ex : 7"
+      },
+      "order": {
+        "select": "Sélectionnez l'ordre",
+        "DATE_CREATED": "Date de création",
+        "DUE_DATE": "Date d'échéance",
+        "PRIORITY_ASC": "Priorité (asc)",
+        "PRIORITY_DES": "Priorité (desc)",
+        "NAME_ASC": "Nom (A-Z)",
+        "NAME_DES": "Nom (Z-A)"
+      },
+      "showCompleted": "Afficher les tâches terminées",
+      "autoDeleteCompleted": "Suppression automatique des tâches terminées",
+      "button": {
+        "save": "Enregistrer les modifications",
+        "create": "Créer la catégorie"
+      },
+      "modal": {
+        "iconTitle": "Choisissez une icône"
+      }
+    },
+    "changePassword": {
+      "title": "Changer le mot de passe",
+      "placeholder": {
+        "oldPassword": "Mot de passe actuel",
+        "newPassword": "Nouveau mot de passe",
+        "confirmNewPassword": "Confirmer le nouveau mot de passe"
+      },
+      "button": {
+        "save": "Enregistrer",
+        "cancel": "Annuler"
+      },
+      "modal": {
+        "confirmTitle": "Êtes-vous sûr ?",
+        "confirmMessage": "Êtes-vous sûr de vouloir changer votre mot de passe ?"
+      },
+      "alerts": {
+        "allFieldsRequired": "Tous les champs sont obligatoires",
+        "fixErrors": "Corrigez les erreurs avant de continuer.",
+        "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+        "notAuthenticated": "Vous n'êtes pas authentifié. Veuillez vous reconnecter.",
+        "passwordChanged": "Mot de passe modifié avec succès",
+        "errorChangingPassword": "Impossible de modifier le mot de passe"
+      }
+    },
+    "validation": {
+      "invalidEmail": "Email invalide",
+      "min6Chars": "Au moins 6 caractères",
+      "uppercaseRequired": "Doit inclure une majuscule",
+      "numberRequired": "Doit inclure un chiffre",
+      "passwordsDoNotMatch": "Les mots de passe ne correspondent pas"
+    },
+    "login": {
+      "title": "Connexion",
+      "emailPlaceholder": "Adresse e-mail",
+      "passwordPlaceholder": "Mot de passe",
+      "loginButton": "Se connecter",
+      "noAccount": "Pas de compte ? Inscrivez-vous",
+      "errorTitle": "Erreur de connexion",
+      "loginErrorFallback": "Impossible de se connecter"
+    },
+    "profile": {
+      "title": "Profil",
+      "firstNamePlaceholder": "Prénom",
+      "surnamePlaceholder": "Nom",
+      "nicknamePlaceholder": "Pseudonyme",
+      "emailPlaceholder": "Adresse e-mail",
+      "saveChanges": "Enregistrer les modifications",
+      "changePassword": "Changer le mot de passe",
+      "chooseIcon": "Choisir une icône",
+      "errorTitle": "Erreur",
+      "loadError": "Impossible de charger les données du profil.",
+      "invalidEmail": "Veuillez saisir une adresse e-mail valide.",
+      "correctErrors": "Corrigez les erreurs avant de continuer.",
+      "updatedTitle": "Profil mis à jour",
+      "updatedEmailPrompt": "Votre e-mail a changé, veuillez vous reconnecter.",
+      "updatedSuccess": "Vos informations ont été mises à jour avec succès.",
+      "updateError": "Impossible de mettre à jour le profil.",
+      "connectionError": "Impossible de se connecter au serveur.",
+      "ok": "OK"
+    },
+    "register": {
+      "title": "Inscription",
+      "selectImage": "Sélectionner une image",
+      "firstName": "Prénom",
+      "surname": "Nom",
+      "nickname": "Pseudonyme",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "registerButton": "S'inscrire",
+      "haveAccount": "Vous avez un compte ? Connexion",
+      "modalTitle": "Choisissez une icône",
+      "errorPasswordMismatch": "Les mots de passe ne correspondent pas",
+      "errorSelectImage": "Vous devez sélectionner une image",
+      "errorFillFields": "Vous devez remplir tous les champs",
+      "errorCorrectErrors": "Corrigez les erreurs avant de continuer.",
+      "errorGeneric": "Impossible de compléter l'inscription",
+      "errorTitle": "Erreur",
+      "success": "Inscription réussie",
+      "successMessage": "Votre compte a été créé avec succès. Connectez‑vous pour continuer.",
+      "errorImage": "Erreur lors de la récupération des images",
+      "errorRegister": "Erreur lors de l'inscription"
+    },
+    "subtasks": {
+      "labelName": "Nom de la tâche",
+      "labelDescription": "Description",
+      "title": "{{taskName}}",
+      "subtasksTitle": "Sous‑tâches",
+      "noSubtasks": "Il n'y a pas de sous‑tâches pour cette tâche.",
+      "placeholderNew": "Nouvelle sous‑tâche",
+      "errorRequired": "Le nom de la sous‑tâche est obligatoire",
+      "errorCreate": "Impossible de créer la sous‑tâche",
+      "errorUpdate": "Impossible de mettre à jour l'état de la sous‑tâche",
+      "errorDelete": "Impossible de supprimer la sous‑tâche",
+      "actionDelete": "Supprimer",
+      "emptyName": "Le nom de la sous‑tâche ne peut pas être vide"
+    },
+    "taskDetail": {
+      "title": "Tâche",
+      "labelName": "Nom de la tâche",
+      "labelPriority": "Priorité",
+      "placeholderSelectPriority": "Sélectionnez une priorité",
+      "labelDateCreated": "Date de création",
+      "labelDueDate": "Date d'échéance",
+      "modalSelectDate": "Sélectionner une date",
+      "labelDescription": "Description",
+      "buttonSave": "Enregistrer",
+      "errorSave": "Impossible d'enregistrer la tâche"
+    },
+    "tasks": {
+      "error": "Erreur",
+      "nameRequired": "Le nom de la tâche est obligatoire",
+      "selectPriority": "Sélectionnez une priorité",
+      "notAuthenticated": "Vous n'êtes pas authentifié. Veuillez vous reconnecter.",
+      "creationError": "Impossible de créer la tâche",
+      "markCompleteError": "Impossible de marquer comme terminé",
+      "trashError": "Impossible de déplacer la tâche vers la corbeille",
+      "deleteError": "Impossible de supprimer définitivement la tâche",
+      "processDeleteError": "Impossible de traiter la suppression de la tâche",
+      "sectionAllTasks": "Vos tâches",
+      "placeholderNewTask": "Nouvelle tâche",
+      "noPriority": "Pas de priorité",
+      "modalTitleDelete": "Supprimer définitivement",
+      "modalConfirmDelete": "Êtes-vous sûr de vouloir supprimer définitivement cette tâche ?",
+      "modalConfirmTrash": "Êtes-vous sûr de vouloir déplacer cette tâche vers la corbeille ?",
+      "actionEdit": "Modifier",
+      "actionMoveTrash": "Déplacer vers la corbeille",
+      "actionDeletePermanent": "Supprimer définitivement",
+      "notificationPriorityChangedTitle": "Priorité modifiée",
+      "notificationPriorityChangedBody": "La tâche « {{name}} » est passée de « {{old}} » à « {{new}} ».",
+      "notificationDueTitle": "Tâche à échéance",
+      "notificationDueBody": "Il reste {{days}} jour(s) avant l’échéance de « {{name}} ».",
+      "earlyDays": "jours avant",
+      "lateDays": "jours de retard",
+      "onTime": "À l'heure",
+      "overdue": "En retard",
+      "expiresToday": "Échéance aujourd'hui",
+      "daysRemaining": "jours restants"
+    },
+    "trash": {
+      "title": "Corbeille",
+      "titleWithCategory": "Corbeille : {{categoryName}}",
+      "recover": "Récupérer",
+      "delete": "Supprimer",
+      "emptyAll": "Vider la corbeille",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette tâche ?",
+      "inTrash": "Dans la corbeille",
+      "recoverTasks": "Impossible de récupérer les tâches",
+      "deleteTasks": "Impossible de supprimer les tâches",
+      "emptyTrash": "Impossible de vider la corbeille",
+      "emptyTrashSuccess": "Toutes les tâches de la corbeille ont été supprimées"
+    },
+    "general": {
+      "nav": {
+        "menu": "Menu",
+        "home": "Accueil",
+        "profile": "Profil",
+        "login": "Connexion",
+        "categories": "Catégories",
+        "settings": "Paramètres",
+        "about": "À propos",
+        "logout": "Déconnexion",
+        "stats": "Statistiques"
+      },
+      "logoutModal": {
+        "title": "Déconnexion",
+        "confirm": "Êtes-vous sûr de vouloir vous déconnecter ?",
+        "logout2": "Se déconnecter",
+        "logoutMessage": "Vous vous êtes déconnecté avec succès.",
+        "logoutError": "Impossible de se déconnecter."
+      }
+    },
+    "modal": {
+      "confirm": "Confirmer",
+      "cancel": "Annuler"
+    },
+    "about": {
+      "title": "À propos de l'application",
+      "description_title": "Description",
+      "description_text": "TodUS est une application mobile conçue pour vous aider à organiser efficacement vos tâches et sous‑tâches. Grâce à son système de catégories, vous pouvez classer et gérer toutes vos activités selon vos besoins.",
+      "features_title": "Fonctionnalités",
+      "feature_create": "Créer, modifier et supprimer des tâches et sous‑tâches",
+      "feature_categories": "Organisation par catégories personnalisables",
+      "feature_trash": "Corbeille pour récupérer les éléments supprimés",
+      "feature_auth": "Inscription et connexion utilisateur",
+      "feature_profile": "Gestion du profil et changement de mot de passe",
+      "version_title": "Version",
+      "version_text": "1.0.0",
+      "author_title": "Auteur",
+      "author_text": "Projet de Fin d’Études – Isaac Solís Padilla",
+      "contact_title": "Contact",
+      "contact_email": "isaacsolpad@gmail.com"
+    },
+    "statsScreen": {
+      "title": "Statistiques",
+      "summary": {
+        "total": "Total",
+        "completed": "Terminées",
+        "streak": "Rangée",
+        "rescheduled": "Replanifiées",
+        "inTrash": "Dans la corbeille",
+        "overdue": "En retard",
+        "totalSubtasks": "Total des sous‑tâches",
+        "completedSubtasks": "Sous‑tâches terminées",
+        "day": "{{count}} jours"
+      },
+      "charts": {
+        "productivityTitle": "Productivité (7 derniers jours)",
+        "categoryDistributionTitle": "Répartition par catégorie",
+        "priorityTitle": "Tâches par priorité",
+        "timeSlotTitle": "Activité par tranche horaire"
+      },
+      "descriptions": {
+        "total": "Nombre total de tâches que vous avez créées jusqu'à présent.",
+        "completed": "Nombre de tâches que vous avez terminées avec succès à ce jour.",
+        "rescheduled": "Nombre de tâches dont vous avez modifié la date.",
+        "inTrash": "Nombre de tâches présentes dans la corbeille.",
+        "overdue": "Nombre de tâches dont la date d’échéance est dépassée.",
+        "totalSubtasks": "Nombre total de sous‑tâches que vous avez créées jusqu'à présent.",
+        "completedSubtasks": "Pourcentage de sous‑tâches que vous avez terminées avec succès.",
+        "racha": "Nombre de jours consécutifs pendant lesquels vous avez terminé au moins une tâche."
+      },
+      "emptyState": {
+        "title": "Aucune statistique disponible",
+        "description": "Vous n'avez pas encore créé de tâches ou il n’y a pas assez de données pour afficher des statistiques.",
+        "error": "Impossible de charger les statistiques"
+      }
+    }
+  }  

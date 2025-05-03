@@ -1,0 +1,299 @@
+{
+    "settings": {
+      "title": "Einstellungen",
+      "subtitle": "Konfiguriere, welche Elemente und Verhaltensweisen die App haben soll.",
+      "trashRetentionLabel": "Tage bis zur Löschung des Papierkorbs",
+      "showCategories": "Kategorien anzeigen",
+      "prioritiesManagement": "Prioritätenverwaltung",
+      "namePriority": "Prioritätsname",
+      "createPriority": "Priorität erstellen",
+      "updatePriority": "Priorität aktualisieren",
+      "from": "Von",
+      "to": "Bis",
+      "days": "Tage",
+      "if": "Wenn",
+      "and": "Und",
+      "addRule": "Regel hinzufügen",
+      "autoPriorityRules": "Auto-Prioritätsregeln",
+      "notifications": "Benachrichtigungen",
+      "notificationsLabel1": "Bei Prioritätsänderung",
+      "notificationsLabel2": "Fälligkeitserinnerung",
+      "notificationsLabel3": "Tage vor Fälligkeit",
+      "saveNotifications": "Benachrichtigungen speichern",
+      "language": "Sprache",
+      "spanish": "Spanisch",
+      "english": "Englisch",
+      "editPriority": "Bearbeiten",
+      "deletePriority": "Löschen"
+    },
+    "categories": {
+      "title": "Deine Kategorien",
+      "newCategory": "Neue Kategorie",
+      "deleteModalTitle": "Kategorie löschen?",
+      "deleteModalMessage": "Möchtest du diese Kategorie wirklich löschen?",
+      "action": {
+        "edit": "Bearbeiten",
+        "delete": "Löschen"
+      },
+      "alertFetchError": "Fehler beim Abrufen der Kategorien:",
+      "alertDeleteError": "Kategorie konnte nicht gelöscht werden"
+    },
+    "category": {
+      "title": {
+        "edit": "Kategorie bearbeiten",
+        "create": "Kategorie erstellen"
+      },
+      "selectImage": "Bild auswählen",
+      "placeholder": {
+        "name": "Name",
+        "description": "Beschreibung",
+        "studyMethod": "Z. B. 1",
+        "deleteDays": "Z. B. 7"
+      },
+      "order": {
+        "select": "Sortierreihenfolge wählen",
+        "DATE_CREATED": "Erstellungsdatum",
+        "DUE_DATE": "Fälligkeitsdatum",
+        "PRIORITY_ASC": "Priorität (aufsteigend)",
+        "PRIORITY_DES": "Priorität (absteigend)",
+        "NAME_ASC": "Name (A‑Z)",
+        "NAME_DES": "Name (Z‑A)"
+      },
+      "showCompleted": "Abgeschlossene Aufgaben anzeigen",
+      "autoDeleteCompleted": "Abgeschlossene automatisch löschen",
+      "button": {
+        "save": "Änderungen speichern",
+        "create": "Kategorie erstellen"
+      },
+      "modal": {
+        "iconTitle": "Symbol wählen"
+      }
+    },
+    "changePassword": {
+      "title": "Passwort ändern",
+      "placeholder": {
+        "oldPassword": "Aktuelles Passwort",
+        "newPassword": "Neues Passwort",
+        "confirmNewPassword": "Neues Passwort bestätigen"
+      },
+      "button": {
+        "save": "Speichern",
+        "cancel": "Abbrechen"
+      },
+      "modal": {
+        "confirmTitle": "Bist du sicher?",
+        "confirmMessage": "Möchtest du dein Passwort wirklich ändern?"
+      },
+      "alerts": {
+        "allFieldsRequired": "Alle Felder sind erforderlich",
+        "fixErrors": "Korrigiere die Fehler, bevor du fortfährst.",
+        "passwordsDoNotMatch": "Passwörter stimmen nicht überein",
+        "notAuthenticated": "Du bist nicht authentifiziert. Bitte melde dich erneut an.",
+        "passwordChanged": "Passwort erfolgreich geändert",
+        "errorChangingPassword": "Passwort konnte nicht geändert werden"
+      }
+    },
+    "validation": {
+      "invalidEmail": "Ungültige E‑Mail",
+      "min6Chars": "Mindestens 6 Zeichen",
+      "uppercaseRequired": "Muss mindestens einen Großbuchstaben enthalten",
+      "numberRequired": "Muss mindestens eine Zahl enthalten",
+      "passwordsDoNotMatch": "Passwörter stimmen nicht überein"
+    },
+    "login": {
+      "title": "Anmelden",
+      "emailPlaceholder": "E‑Mail",
+      "passwordPlaceholder": "Passwort",
+      "loginButton": "Einloggen",
+      "noAccount": "Noch kein Konto? Registrieren",
+      "errorTitle": "Anmeldefehler",
+      "loginErrorFallback": "Anmeldung fehlgeschlagen"
+    },
+    "profile": {
+      "title": "Profil",
+      "firstNamePlaceholder": "Vorname",
+      "surnamePlaceholder": "Nachname",
+      "nicknamePlaceholder": "Benutzername",
+      "emailPlaceholder": "E‑Mail",
+      "saveChanges": "Änderungen speichern",
+      "changePassword": "Passwort ändern",
+      "chooseIcon": "Symbol wählen",
+      "errorTitle": "Fehler",
+      "loadError": "Profil konnte nicht geladen werden.",
+      "invalidEmail": "Bitte gib eine gültige E‑Mail ein.",
+      "correctErrors": "Korrigiere die Fehler, bevor du fortfährst.",
+      "updatedTitle": "Profil aktualisiert",
+      "updatedEmailPrompt": "Deine E‑Mail hat sich geändert, bitte melde dich erneut an.",
+      "updatedSuccess": "Deine Daten wurden erfolgreich aktualisiert.",
+      "updateError": "Profil konnte nicht aktualisiert werden.",
+      "connectionError": "Verbindung zum Server fehlgeschlagen.",
+      "ok": "OK"
+    },
+    "register": {
+      "title": "Registrieren",
+      "selectImage": "Bild auswählen",
+      "firstName": "Vorname",
+      "surname": "Nachname",
+      "nickname": "Benutzername",
+      "email": "E‑Mail",
+      "password": "Passwort",
+      "registerButton": "Registrieren",
+      "haveAccount": "Hast du schon ein Konto? Anmelden",
+      "modalTitle": "Symbol wählen",
+      "errorPasswordMismatch": "Passwörter stimmen nicht überein",
+      "errorSelectImage": "Bitte wähle ein Bild aus",
+      "errorFillFields": "Bitte fülle alle Felder aus",
+      "errorCorrectErrors": "Korrigiere die Fehler, bevor du fortfährst.",
+      "errorGeneric": "Registrierung fehlgeschlagen",
+      "errorTitle": "Fehler",
+      "success": "Registrierung erfolgreich",
+      "successMessage": "Dein Konto wurde erfolgreich erstellt. Bitte melde dich an.",
+      "errorImage": "Fehler beim Laden der Bilder",
+      "errorRegister": "Fehler bei der Registrierung"
+    },
+    "subtasks": {
+      "labelName": "Aufgabenname",
+      "labelDescription": "Beschreibung",
+      "title": "{{taskName}}",
+      "subtasksTitle": "Unteraufgaben",
+      "noSubtasks": "Für diese Aufgabe gibt es keine Unteraufgaben.",
+      "placeholderNew": "Neue Unteraufgabe",
+      "errorRequired": "Name der Unteraufgabe ist erforderlich",
+      "errorCreate": "Unteraufgabe konnte nicht erstellt werden",
+      "errorUpdate": "Status der Unteraufgabe konnte nicht aktualisiert werden",
+      "errorDelete": "Unteraufgabe konnte nicht gelöscht werden",
+      "actionDelete": "Löschen",
+      "emptyName": "Der Name der Unteraufgabe darf nicht leer sein"
+    },
+    "taskDetail": {
+      "title": "Aufgabe",
+      "labelName": "Aufgabenname",
+      "labelPriority": "Priorität",
+      "placeholderSelectPriority": "Priorität auswählen",
+      "labelDateCreated": "Erstellungsdatum",
+      "labelDueDate": "Fälligkeitsdatum",
+      "modalSelectDate": "Datum auswählen",
+      "labelDescription": "Beschreibung",
+      "buttonSave": "Speichern",
+      "errorSave": "Aufgabe konnte nicht gespeichert werden"
+    },
+    "tasks": {
+      "error": "Fehler",
+      "nameRequired": "Aufgabenname ist erforderlich",
+      "selectPriority": "Bitte wähle eine Priorität",
+      "notAuthenticated": "Du bist nicht authentifiziert. Bitte melde dich erneut an.",
+      "creationError": "Aufgabe konnte nicht erstellt werden",
+      "markCompleteError": "Konnte nicht als abgeschlossen markiert werden",
+      "trashError": "Konnte nicht in den Papierkorb verschoben werden",
+      "deleteError": "Konnte nicht dauerhaft gelöscht werden",
+      "processDeleteError": "Fehler beim Verarbeiten der Löschung",
+      "sectionAllTasks": "Deine Aufgaben",
+      "placeholderNewTask": "Neue Aufgabe",
+      "noPriority": "Keine Priorität",
+      "modalTitleDelete": "Endgültig löschen",
+      "modalConfirmDelete": "Bist du sicher, dass du diese Aufgabe endgültig löschen möchtest?",
+      "modalConfirmTrash": "Bist du sicher, dass du diese Aufgabe in den Papierkorb verschieben möchtest?",
+      "actionEdit": "Bearbeiten",
+      "actionMoveTrash": "In den Papierkorb verschieben",
+      "actionDeletePermanent": "Endgültig löschen",
+      "notificationPriorityChangedTitle": "Priorität geändert",
+      "notificationPriorityChangedBody": "Die Aufgabe \"{{name}}\" wurde von \"{{old}}\" zu \"{{new}}\" geändert.",
+      "notificationDueTitle": "Aufgabe fällig",
+      "notificationDueBody": "Noch {{days}} Tag(e), bis \"{{name}}\" fällig ist.",
+      "earlyDays": "Tage vorher",
+      "lateDays": "Tage verspätet",
+      "onTime": "Pünktlich",
+      "overdue": "Überfällig",
+      "expiresToday": "Läuft heute ab",
+      "daysRemaining": "verbleibende Tage"
+    },
+    "trash": {
+      "title": "Papierkorb",
+      "titleWithCategory": "Papierkorb: {{categoryName}}",
+      "recover": "Wiederherstellen",
+      "delete": "Löschen",
+      "emptyAll": "Papierkorb leeren",
+      "confirmDelete": "Möchtest du diese Aufgabe wirklich löschen?",
+      "inTrash": "Im Papierkorb",
+      "recoverTasks": "Aufgaben konnten nicht wiederhergestellt werden",
+      "deleteTasks": "Aufgaben konnten nicht gelöscht werden",
+      "emptyTrash": "Papierkorb konnte nicht geleert werden",
+      "emptyTrashSuccess": "Alle Aufgaben im Papierkorb wurden gelöscht"
+    },
+    "general": {
+      "nav": {
+        "menu": "Menü",
+        "home": "Start",
+        "profile": "Profil",
+        "login": "Anmelden",
+        "categories": "Kategorien",
+        "settings": "Einstellungen",
+        "about": "Über",
+        "logout": "Abmelden",
+        "stats": "Statistiken"
+      },
+      "logoutModal": {
+        "title": "Abmelden",
+        "confirm": "Bist du sicher, dass du dich abmelden möchtest?",
+        "logout2": "Abmelden",
+        "logoutMessage": "Du wurdest erfolgreich abgemeldet.",
+        "logoutError": "Abmeldung fehlgeschlagen."
+      }
+    },
+    "modal": {
+      "confirm": "Bestätigen",
+      "cancel": "Abbrechen"
+    },
+    "about": {
+      "title": "Über die App",
+      "description_title": "Beschreibung",
+      "description_text": "TodUS ist eine mobile App, die dir hilft, deine Aufgaben und Unteraufgaben effizient zu organisieren. Dank des Kategoriensystems kannst du all deine Aktivitäten nach Bedarf klassifizieren und verwalten.",
+      "features_title": "Funktionen",
+      "feature_create": "Aufgaben und Unteraufgaben erstellen, bearbeiten und löschen",
+      "feature_categories": "Organisation durch anpassbare Kategorien",
+      "feature_trash": "Papierkorb zur Wiederherstellung gelöschter Elemente",
+      "feature_auth": "Benutzerregistrierung und -anmeldung",
+      "feature_profile": "Profilverwaltung und Passwortänderung",
+      "version_title": "Version",
+      "version_text": "1.0.0",
+      "author_title": "Autor",
+      "author_text": "Abschlussprojekt – Isaac Solís Padilla",
+      "contact_title": "Kontakt",
+      "contact_email": "isaacsolpad@gmail.com"
+    },
+    "statsScreen": {
+      "title": "Statistiken",
+      "summary": {
+        "total": "Gesamt",
+        "completed": "Abgeschlossen",
+        "streak": "Serie",
+        "rescheduled": "Ungelagen",
+        "inTrash": "Im Papierkorb",
+        "overdue": "Überfällig",
+        "totalSubtasks": "Gesamtunteraufgaben",
+        "completedSubtasks": "Abgeschlossene Unteraufgaben",
+        "day": "{{count}} Tage"
+      },
+      "charts": {
+        "productivityTitle": "Produktivität (letzte 7 Tage)",
+        "categoryDistributionTitle": "Kategorieverteilung",
+        "priorityTitle": "Aufgaben nach Priorität",
+        "timeSlotTitle": "Aktivität nach Zeitfenster"
+      },
+      "descriptions": {
+        "total": "Gesamtzahl der bisher erstellten Aufgaben.",
+        "completed": "Anzahl der bisher erfolgreich abgeschlossenen Aufgaben.",
+        "rescheduled": "Anzahl der Aufgaben, deren Datum du geändert hast.",
+        "inTrash": "Anzahl der Aufgaben im Papierkorb.",
+        "overdue": "Anzahl der Aufgaben, deren Fälligkeitsdatum überschritten wurde.",
+        "totalSubtasks": "Gesamtzahl der bisher erstellten Unteraufgaben.",
+        "completedSubtasks": "Prozentsatz der erfolgreich abgeschlossenen Unteraufgaben.",
+        "racha": "Anzahl der aufeinanderfolgenden Tage, an denen du mindestens eine Aufgabe abgeschlossen hast."
+      },
+      "emptyState": {
+        "title": "Keine Statistiken verfügbar",
+        "description": "Du hast noch keine Aufgaben erstellt oder es gibt nicht genügend Daten, um Statistiken anzuzeigen.",
+        "error": "Statistiken konnten nicht geladen werden"
+      }
+    }
+  }  

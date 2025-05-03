@@ -205,9 +205,9 @@ const GeneralTemplate = ({ children }) => {
 
           {isLoggedIn && (
             <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Stats')}>
-              <Feather name="settings" size={30} color="#CDF8FA" />
+              <Feather name="bar-chart-2" size={30} color="#CDF8FA" />
               <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
-                <Text style={styles.navText}>Stats</Text>
+                <Text style={styles.navText}>{t('general.nav.stats')}</Text>
               </Animated.View>
             </TouchableOpacity>
           )}

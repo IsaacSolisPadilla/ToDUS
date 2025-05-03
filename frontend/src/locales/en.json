@@ -230,7 +230,8 @@
       "categories": "Categories",
       "settings": "Settings",
       "about": "About",
-      "logout": "Logout"
+      "logout": "Logout",
+      "stats": "Statistics"
     },
     "logoutModal": {
       "title": "Logout",
@@ -260,6 +261,42 @@
       "author_text": "Final Degree Project - Isaac Solís Padilla",
       "contact_title": "Contact",
       "contact_email": "isaacsolpad@gmail.com"
+    },
+      "statsScreen": {
+    "title": "Statistics",
+    "summary": {
+      "total": "Total",
+      "completed": "Completed",
+      "streak": "Streak",
+      "rescheduled": "Rescheduled",
+      "inTrash": "In Trash",
+      "overdue": "Overdue",
+      "totalSubtasks": "Total Subtasks",
+      "completedSubtasks": "Completed Subtasks",
+      "day": "{{count}} days"
+    },
+    "charts": {
+      "productivityTitle": "Productivity (last 7 days)",
+      "categoryDistributionTitle": "Category Distribution",
+      "priorityTitle": "Tasks by Priority",
+      "timeSlotTitle": "Activity by Time Slot"
+    },
+    "descriptions": {
+      "total": "Total number of tasks you have created so far.",
+      "completed": "Number of tasks you have successfully completed to date.",
+      "rescheduled": "Number of tasks whose dates you have changed.",
+      "inTrash": "Number of tasks currently in the trash.",
+      "overdue": "Number of tasks that have passed their due date without being completed.",
+      "totalSubtasks": "Total number of subtasks you have created so far.",
+      "completedSubtasks": "Percentage of subtasks you have successfully completed to date.",
+      "streak": "Number of consecutive days you have completed tasks."
+    },
+    "emptyState": {
+      "title": "No statistics available",
+      "description": "You haven’t created any tasks yet or there isn’t enough data to display statistics.",
+      "error": "Unable to load statistics"
     }
+  }
+      
   }
   

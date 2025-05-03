@@ -21,7 +21,6 @@ const TimeSlotBarChart = ({ data }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Actividad por franjas horarias</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <BarChart
           data={{ labels, datasets: [{ data: values }] }}

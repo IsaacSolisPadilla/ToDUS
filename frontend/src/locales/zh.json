@@ -1,0 +1,299 @@
+{
+    "settings": {
+      "title": "设置",
+      "subtitle": "配置应用的各项功能和行为。",
+      "trashRetentionLabel": "保留回收站天数",
+      "showCategories": "显示分类",
+      "prioritiesManagement": "优先级管理",
+      "namePriority": "优先级名称",
+      "createPriority": "创建优先级",
+      "updatePriority": "更新优先级",
+      "from": "从",
+      "to": "到",
+      "days": "天",
+      "if": "如果",
+      "and": "且",
+      "addRule": "添加规则",
+      "autoPriorityRules": "自动优先级规则",
+      "notifications": "通知",
+      "notificationsLabel1": "更改优先级时",
+      "notificationsLabel2": "到期提醒",
+      "notificationsLabel3": "到期前天数",
+      "saveNotifications": "保存通知设置",
+      "language": "语言",
+      "spanish": "西班牙语",
+      "english": "英语",
+      "editPriority": "编辑",
+      "deletePriority": "删除"
+    },
+    "categories": {
+      "title": "您的分类",
+      "newCategory": "新建分类",
+      "deleteModalTitle": "删除分类？",
+      "deleteModalMessage": "您确定要删除此分类吗？",
+      "action": {
+        "edit": "编辑",
+        "delete": "删除"
+      },
+      "alertFetchError": "获取分类出错：",
+      "alertDeleteError": "无法删除分类"
+    },
+    "category": {
+      "title": {
+        "edit": "编辑分类",
+        "create": "创建分类"
+      },
+      "selectImage": "选择图片",
+      "placeholder": {
+        "name": "名称",
+        "description": "描述",
+        "studyMethod": "例如：1",
+        "deleteDays": "例如：7"
+      },
+      "order": {
+        "select": "选择排序方式",
+        "DATE_CREATED": "创建日期",
+        "DUE_DATE": "截止日期",
+        "PRIORITY_ASC": "优先级（升序）",
+        "PRIORITY_DES": "优先级（降序）",
+        "NAME_ASC": "名称（A-Z）",
+        "NAME_DES": "名称（Z-A）"
+      },
+      "showCompleted": "显示已完成任务",
+      "autoDeleteCompleted": "自动删除已完成",
+      "button": {
+        "save": "保存更改",
+        "create": "创建分类"
+      },
+      "modal": {
+        "iconTitle": "选择图标"
+      }
+    },
+    "changePassword": {
+      "title": "更改密码",
+      "placeholder": {
+        "oldPassword": "当前密码",
+        "newPassword": "新密码",
+        "confirmNewPassword": "确认新密码"
+      },
+      "button": {
+        "save": "保存",
+        "cancel": "取消"
+      },
+      "modal": {
+        "confirmTitle": "确认操作？",
+        "confirmMessage": "您确定要更改密码吗？"
+      },
+      "alerts": {
+        "allFieldsRequired": "所有字段均为必填项",
+        "fixErrors": "请修正错误后再继续。",
+        "passwordsDoNotMatch": "两次输入的密码不匹配",
+        "notAuthenticated": "您尚未登录，请重新登录。",
+        "passwordChanged": "密码已成功更改",
+        "errorChangingPassword": "无法更改密码"
+      }
+    },
+    "validation": {
+      "invalidEmail": "无效的邮箱地址",
+      "min6Chars": "至少 6 个字符",
+      "uppercaseRequired": "至少包含一个大写字母",
+      "numberRequired": "至少包含一个数字",
+      "passwordsDoNotMatch": "两次输入的密码不匹配"
+    },
+    "login": {
+      "title": "登录",
+      "emailPlaceholder": "邮箱地址",
+      "passwordPlaceholder": "密码",
+      "loginButton": "登录",
+      "noAccount": "没有账号？注册",
+      "errorTitle": "登录错误",
+      "loginErrorFallback": "无法登录"
+    },
+    "profile": {
+      "title": "个人资料",
+      "firstNamePlaceholder": "名字",
+      "surnamePlaceholder": "姓氏",
+      "nicknamePlaceholder": "昵称",
+      "emailPlaceholder": "邮箱地址",
+      "saveChanges": "保存更改",
+      "changePassword": "更改密码",
+      "chooseIcon": "选择图标",
+      "errorTitle": "错误",
+      "loadError": "无法加载个人资料。",
+      "invalidEmail": "请输入有效的邮箱地址。",
+      "correctErrors": "请修正错误后再继续。",
+      "updatedTitle": "资料已更新",
+      "updatedEmailPrompt": "您的邮箱已更改，请重新登录。",
+      "updatedSuccess": "资料已成功更新。",
+      "updateError": "无法更新个人资料。",
+      "connectionError": "无法连接服务器。",
+      "ok": "确定"
+    },
+    "register": {
+      "title": "注册",
+      "selectImage": "选择图片",
+      "firstName": "名字",
+      "surname": "姓氏",
+      "nickname": "昵称",
+      "email": "邮箱地址",
+      "password": "密码",
+      "registerButton": "注册",
+      "haveAccount": "已有账号？登录",
+      "modalTitle": "选择图标",
+      "errorPasswordMismatch": "两次输入的密码不匹配",
+      "errorSelectImage": "请先选择图片",
+      "errorFillFields": "请填写所有字段",
+      "errorCorrectErrors": "请修正错误后再继续。",
+      "errorGeneric": "注册失败",
+      "errorTitle": "错误",
+      "success": "注册成功",
+      "successMessage": "您的账号已创建，请登录继续。",
+      "errorImage": "获取图片失败",
+      "errorRegister": "注册出错"
+    },
+    "subtasks": {
+      "labelName": "任务名称",
+      "labelDescription": "描述",
+      "title": "{{taskName}}",
+      "subtasksTitle": "子任务",
+      "noSubtasks": "此任务暂无子任务。",
+      "placeholderNew": "新子任务",
+      "errorRequired": "子任务名称为必填项",
+      "errorCreate": "无法创建子任务",
+      "errorUpdate": "无法更新子任务状态",
+      "errorDelete": "无法删除子任务",
+      "actionDelete": "删除",
+      "emptyName": "子任务名称不能为空"
+    },
+    "taskDetail": {
+      "title": "任务详情",
+      "labelName": "任务名称",
+      "labelPriority": "优先级",
+      "placeholderSelectPriority": "请选择优先级",
+      "labelDateCreated": "创建日期",
+      "labelDueDate": "截止日期",
+      "modalSelectDate": "选择日期",
+      "labelDescription": "描述",
+      "buttonSave": "保存",
+      "errorSave": "无法保存任务"
+    },
+    "tasks": {
+      "error": "错误",
+      "nameRequired": "任务名称为必填项",
+      "selectPriority": "请选择优先级",
+      "notAuthenticated": "您尚未登录，请重新登录。",
+      "creationError": "无法创建任务",
+      "markCompleteError": "无法标记为完成",
+      "trashError": "无法移至回收站",
+      "deleteError": "无法永久删除",
+      "processDeleteError": "处理删除时出错",
+      "sectionAllTasks": "您的任务",
+      "placeholderNewTask": "新任务",
+      "noPriority": "无优先级",
+      "modalTitleDelete": "永久删除",
+      "modalConfirmDelete": "确定要永久删除此任务吗？",
+      "modalConfirmTrash": "确定要将此任务移至回收站吗？",
+      "actionEdit": "编辑",
+      "actionMoveTrash": "移至回收站",
+      "actionDeletePermanent": "永久删除",
+      "notificationPriorityChangedTitle": "优先级已更改",
+      "notificationPriorityChangedBody": "任务“{{name}}”的优先级已从“{{old}}”更改为“{{new}}”。",
+      "notificationDueTitle": "任务即将到期",
+      "notificationDueBody": "距离“{{name}}”到期还有 {{days}} 天。",
+      "earlyDays": "提前 天",
+      "lateDays": "延迟 天",
+      "onTime": "准时",
+      "overdue": "已过期",
+      "expiresToday": "今日到期",
+      "daysRemaining": "剩余 天"
+    },
+    "trash": {
+      "title": "回收站",
+      "titleWithCategory": "回收站：{{categoryName}}",
+      "recover": "恢复",
+      "delete": "删除",
+      "emptyAll": "清空回收站",
+      "confirmDelete": "确定要删除此任务吗？",
+      "inTrash": "在回收站中",
+      "recoverTasks": "无法恢复任务",
+      "deleteTasks": "无法删除任务",
+      "emptyTrash": "无法清空回收站",
+      "emptyTrashSuccess": "已清空回收站中的所有任务"
+    },
+    "general": {
+      "nav": {
+        "menu": "菜单",
+        "home": "首页",
+        "profile": "个人资料",
+        "login": "登录",
+        "categories": "分类",
+        "settings": "设置",
+        "about": "关于",
+        "logout": "退出登录",
+        "stats": "统计"
+      },
+      "logoutModal": {
+        "title": "退出登录",
+        "confirm": "确定要退出吗？",
+        "logout2": "退出登录",
+        "logoutMessage": "您已成功退出。",
+        "logoutError": "退出失败。"
+      }
+    },
+    "modal": {
+      "confirm": "确认",
+      "cancel": "取消"
+    },
+    "about": {
+      "title": "关于本应用",
+      "description_title": "描述",
+      "description_text": "TodUS 是一款帮助您高效组织任务和子任务的移动应用。通过分类系统，您可以根据需要对所有活动进行分类和管理。",
+      "features_title": "功能",
+      "feature_create": "创建、编辑与删除任务和子任务",
+      "feature_categories": "可自定义分类管理",
+      "feature_trash": "回收站以恢复已删除项目",
+      "feature_auth": "用户注册与登录",
+      "feature_profile": "个人资料管理与密码修改",
+      "version_title": "版本",
+      "version_text": "1.0.0",
+      "author_title": "作者",
+      "author_text": "本科毕业设计 – Isaac Solís Padilla",
+      "contact_title": "联系方式",
+      "contact_email": "isaacsolpad@gmail.com"
+    },
+    "statsScreen": {
+      "title": "统计",
+      "summary": {
+        "total": "总数",
+        "completed": "已完成",
+        "streak": "连胜",
+        "rescheduled": "已重排",
+        "inTrash": "回收站中",
+        "overdue": "已过期",
+        "totalSubtasks": "子任务总数",
+        "completedSubtasks": "已完成子任务",
+        "day": "{{count}} 天"
+      },
+      "charts": {
+        "productivityTitle": "生产力（最近 7 天）",
+        "categoryDistributionTitle": "分类分布",
+        "priorityTitle": "按优先级统计",
+        "timeSlotTitle": "按时间段活动"
+      },
+      "descriptions": {
+        "total": "您迄今创建的任务总数。",
+        "completed": "您已成功完成的任务数量。",
+        "rescheduled": "您更改了日期的任务数量。",
+        "inTrash": "回收站中的任务数量。",
+        "overdue": "截止日期已过未完成的任务数量。",
+        "totalSubtasks": "您迄今创建的子任务总数。",
+        "completedSubtasks": "您已成功完成的子任务百分比。",
+        "racha": "您连续完成至少一项任务的天数。"
+      },
+      "emptyState": {
+        "title": "暂无统计数据",
+        "description": "您尚未创建任务或数据不足以显示统计信息。",
+        "error": "无法加载统计数据"
+      }
+    }
+  }
