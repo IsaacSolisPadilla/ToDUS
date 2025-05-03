@@ -96,11 +96,11 @@ const GeneralTemplate = ({ children }) => {
       setIsLoggedIn(false);
       setUserImage(null);
       setIsLogoutModalVisible(false);
-      Alert.alert(t('general.logout2'), t('general.logoutMessage'));
+      Alert.alert(t('general.logoutModal.logout2'), t('general.logoutModal.logoutMessage'));
       navigation.replace('Login');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
-      Alert.alert('Error', t('general.logoutError'));
+      Alert.alert('Error', t('general.logoutModal.logoutError'));
     }
   };
 
@@ -202,6 +202,15 @@ const GeneralTemplate = ({ children }) => {
               </Animated.View>
             </TouchableOpacity>
           )}
+
+          {isLoggedIn && (
+            <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Stats')}>
+              <Feather name="settings" size={30} color="#CDF8FA" />
+              <Animated.View style={[styles.textContainer, { opacity: textOpacity }]}>
+                <Text style={styles.navText}>Stats</Text>
+              </Animated.View>
+            </TouchableOpacity>
+          )}
                 
           <Animated.View
             style={[
@@ -239,12 +248,12 @@ const GeneralTemplate = ({ children }) => {
 
         <CustomModal
           visible={isLogoutModalVisible}
-          title={t('general.logout.title')}
+          title={t('general.logoutModal.title')}
           onConfirm={handleConfirmLogout}
           onCancel={() => setIsLogoutModalVisible(false)}
           showCancel={true}
         >
-          <Text>{t('general.nav.confirm')}</Text>
+          <Text>{t('general.logoutModal.confirm')}</Text>
         </CustomModal>
       </View>
     </TouchableWithoutFeedback>

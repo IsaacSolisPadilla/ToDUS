@@ -2,7 +2,6 @@ import React from 'react';
 import { Modal, View, Text, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-const { t } = useTranslation();
 
 const CustomModal = ({ 
   visible, 
@@ -12,7 +11,10 @@ const CustomModal = ({
   onCancel, 
   showCancel = true, // Prop para mostrar u ocultar el botón "Cancelar"
   modalWidth = '80%' // Prop para personalizar el ancho del modal
+  
 }) => {
+  const { t } = useTranslation();
+
   return (
     <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onCancel}>
       <View style={styles.modalOverlay}>

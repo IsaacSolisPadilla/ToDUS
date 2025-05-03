@@ -55,6 +55,7 @@ public class SecurityConfig {
                 .requestMatchers("api/priorities/create").authenticated()
                 .requestMatchers("api/priorities/update/**").authenticated()
                 .requestMatchers("api/priorities/delete/**").authenticated()
+                .requestMatchers("/api/users/stats").authenticated()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

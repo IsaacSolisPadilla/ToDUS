@@ -118,7 +118,11 @@ public class TaskService {
     
         task.setName(taskRequest.getName());
         task.setDescription(taskRequest.getDescription());
-    
+        
+        if (taskRequest!= null && !taskRequest.getDueDate().equals(task.getDueDate())) {
+            task.setRescheduled(true);
+        }
+
         if (taskRequest.getDueDate() == null) {
             task.setDueDate(null);
         } else {
@@ -136,6 +140,8 @@ public class TaskService {
                     .orElse(null); // categoría opcional
             task.setCategory(category);
         }
+
+        
     
         taskRepository.save(task);
         return Map.of("message", "Tarea actualizada con éxito");
