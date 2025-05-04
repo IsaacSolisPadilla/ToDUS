@@ -369,25 +369,28 @@ const styles = StyleSheet.create({
     color: '#0C2527',
   },
   switchContainer: {
+    width: 300,
+    height: 50,
+    padding: 10,
+    marginVertical: 10,
+    borderColor: '#084F52',
+    borderRadius: 8,
+    backgroundColor: '#CDF8FA',
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 15,
-    backgroundColor: '#CDF8FA',
-    paddingHorizontal: 7,
-    borderRadius: 8,
-    borderColor: '#084F52',
+    justifyContent: 'space-between',
   },
+
   switchLabel: {
-    fontSize: 18,
-    marginRight: 10,
+    fontSize: 16,
     color: '#084F52',
     fontWeight: 'bold',
   },
   /* NUEVOS ESTILOS */
   optionGroup: {
     backgroundColor: '#CDF8FA',
-    padding: 12,
     borderRadius: 8,
+    alignItems: 'center',
   },
   retentionContainer: {
     flexDirection: 'row',
@@ -408,6 +411,8 @@ const styles = StyleSheet.create({
     color: '#084F52',
     width: 80,
     textAlign: 'center',
+    marginTop: -15,
+    marginBottom: 10,
   },
   modalContent: {
     flexDirection: 'row',

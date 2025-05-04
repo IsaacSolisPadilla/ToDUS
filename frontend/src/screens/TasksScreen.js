@@ -262,8 +262,12 @@ const TasksScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-
+    // Captura la suscripción
+    const backHandlerSub = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackPress
+    );
+  
     const initialize = async () => {
       try {
         setLoading(true);
@@ -277,10 +281,9 @@ const TasksScreen = ({ navigation, route }) => {
         setLoading(false);
       }
     };
-
+  
     initialize();
-
-    return () => BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+    return () => backHandlerSub.remove();
   }, [selectedCategory]);
 
   useFocusEffect(useCallback(() => {
@@ -550,19 +553,6 @@ if (selectedCategory) {
               value={taskName}
               onChangeText={setTaskName}
             />
-            <TouchableOpacity onPress={async () => {
-              if (!await ensurePermissions()) return;
-              await Notifications.scheduleNotificationAsync({
-                content: {
-                  title: '¡Notificación de prueba!',
-                  body: 'Si ves esto, las notificaciones locales funcionan.',
-                },
-                trigger: { seconds: 5 }, // dispara tras 5 s
-              });
-              Alert.alert('✅', 'Notificación programada para dentro de 5 segundos');
-            }}>
-              <Text>Probar notificación local</Text>
-            </TouchableOpacity>
             <View style={styles.customDropdownContainer}>
               <TouchableOpacity
                 onPress={() => setShowPriorityOptions(!showPriorityOptions)}
