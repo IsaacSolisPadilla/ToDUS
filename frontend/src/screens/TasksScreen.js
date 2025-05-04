@@ -471,31 +471,29 @@ const TasksScreen = ({ navigation, route }) => {
       : tasks.filter(t => t.status !== 'COMPLETED'))
   : tasks;
 
-// 2) extrae IDs de categorías ancladas a la pantalla principal
+// 2) Saca los IDs de las categorías ancladas:
 const mainCatIds = mainCategories.map(cat => cat.id);
 
-// 3) separa tareas globales (no pertenecientes a ninguna mainCategory)
+// 3) Las tareas “globales” son las que NO pertenecen a ninguna anclada:
 const globalTasks = filteredTasks.filter(
   t => !t.category || !mainCatIds.includes(t.category.id)
 );
 
-// 4) arma las secciones
+// 4) Monta las secciones:
 let sections = [];
-
 if (selectedCategory) {
-  // Vista de categoría concreta
+  // Vista de categoría: sólo una sección, con tus tasks filtradas
   sections = [
     { title: selectedCategory.name, data: filteredTasks }
   ];
 } else {
-  // Vista global
-  // 4.1) Sección "Todas las tareas" solo con globalTasks
+  // Vista global:
+  //   A) “Todas las tareas” ← sólo globalTasks
   sections.push({
     title: t('tasks.sectionAllTasks'),
     data: globalTasks
   });
-
-  // 4.2) Una sección por cada mainCategory (solo si tiene al menos 1 tarea)
+  //   B) Una sección para cada categoría anclada SI tiene tareas
   mainCategories.forEach(cat => {
     const catTasks = filteredTasks.filter(t => t.category?.id === cat.id);
     if (catTasks.length > 0) {
@@ -508,20 +506,20 @@ if (selectedCategory) {
   return (
     <GeneralTemplate>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Text style={GeneralStyles.title}>
-          { selectedCategory
-              ? selectedCategory.name
-              : t('tasks.sectionAllTasks') /* "Tus Tareas" */}
-        </Text>
-        { selectedCategory && typeof selectedCategory.showComplete !== 'undefined'  && !showCompletedTasks && (
-          <TouchableOpacity onPress={() => setShowCompletedTasks(!showCompletedTasks)}>
-            <Feather
-              name={showCompletedTasks ? 'eye-off' : 'eye'}
-              size={24}
-              color="#CDF8FA"
-            />
-          </TouchableOpacity>
-        )}
+      <Text style={GeneralStyles.title}>
+          { selectedCategory ? selectedCategory.name : t('tasks.sectionAllTasks') }
+      </Text>
+
+      {/* ojo sólo en vista de categoría */}
+      { selectedCategory && typeof selectedCategory.showComplete !== 'undefined' && (
+        <TouchableOpacity onPress={() => setShowCompletedTasks(!showCompletedTasks)}>
+          <Feather
+            name={showCompletedTasks ? 'eye-off' : 'eye'}
+            size={24}
+            color="#CDF8FA"
+          />
+        </TouchableOpacity>
+      )}
       </View>
       <KeyboardAvoidingView
         style={GeneralStyles.keyboardAvoiding}
@@ -552,6 +550,19 @@ if (selectedCategory) {
               value={taskName}
               onChangeText={setTaskName}
             />
+            <TouchableOpacity onPress={async () => {
+              if (!await ensurePermissions()) return;
+              await Notifications.scheduleNotificationAsync({
+                content: {
+                  title: '¡Notificación de prueba!',
+                  body: 'Si ves esto, las notificaciones locales funcionan.',
+                },
+                trigger: { seconds: 5 }, // dispara tras 5 s
+              });
+              Alert.alert('✅', 'Notificación programada para dentro de 5 segundos');
+            }}>
+              <Text>Probar notificación local</Text>
+            </TouchableOpacity>
             <View style={styles.customDropdownContainer}>
               <TouchableOpacity
                 onPress={() => setShowPriorityOptions(!showPriorityOptions)}
