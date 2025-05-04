@@ -24,7 +24,8 @@
       "spanish": "西班牙语",
       "english": "英语",
       "editPriority": "编辑",
-      "deletePriority": "删除"
+      "deletePriority": "删除",
+      "cannotDeletePriority": "无法删除优先级，因为它正在使用中"
     },
     "categories": {
       "title": "您的分类",
@@ -52,6 +53,8 @@
       },
       "order": {
         "select": "选择排序方式",
+        "selectLabel": "选择排序",
+        "studyMethod": "学习方法",
         "DATE_CREATED": "创建日期",
         "DUE_DATE": "截止日期",
         "PRIORITY_ASC": "优先级（升序）",
@@ -218,7 +221,8 @@
       "recoverTasks": "无法恢复任务",
       "deleteTasks": "无法删除任务",
       "emptyTrash": "无法清空回收站",
-      "emptyTrashSuccess": "已清空回收站中的所有任务"
+      "emptyTrashSuccess": "已清空回收站中的所有任务",
+      "confirmEmptyAll": "确定要清空回收站吗？"
     },
     "general": {
       "nav": {
@@ -263,6 +267,7 @@
     },
     "statsScreen": {
       "title": "统计",
+      "loading": "加载中...",
       "summary": {
         "total": "总数",
         "completed": "已完成",

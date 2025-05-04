@@ -16,6 +16,7 @@ const TrashTasksScreen = ({ navigation, route }) => {
   const { category } = route.params;
   const [trashedTasks, setTrashedTasks] = useState([]);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteAllModalVisible, setDeleteAllModalVisible] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const swipeableRefs = useRef({});
   const screenWidth = Dimensions.get('window').width;
@@ -117,7 +118,8 @@ const TrashTasksScreen = ({ navigation, route }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchTrashedTasks();
-      Alert.alert('Éxito', t('trash.emptyTrashSuccess'));
+      setDeleteAllModalVisible(false);
+      Alert.alert(t('trash.emptyTrashSuccess'));
     } catch (e) {
       console.error(e);
       Alert.alert('Error', t('trash.emptyTrash'));
@@ -170,7 +172,10 @@ const TrashTasksScreen = ({ navigation, route }) => {
           showsVerticalScrollIndicator={false}
         />
 
-        <TouchableOpacity style={styles.deleteAllButton} onPress={handleDeleteAll}>
+      <TouchableOpacity
+          style={styles.deleteAllButton}
+          onPress={() => setDeleteAllModalVisible(true)}
+        >
           <Feather name="trash-2" size={20} color="#fff" />
           <Text style={styles.deleteAllText}>{t('trash.emptyAll')}</Text>
         </TouchableOpacity>
@@ -182,6 +187,14 @@ const TrashTasksScreen = ({ navigation, route }) => {
           onCancel={() => setDeleteModalVisible(false)}
         >
           <Text>{t('trash.confirmDelete')}</Text>
+        </CustomModal>
+        <CustomModal
+          visible={deleteAllModalVisible}
+          title={t('trash.emptyAll')}
+          onConfirm={handleDeleteAll}
+          onCancel={() => setDeleteAllModalVisible(false)}
+        >
+          <Text>{t('trash.confirmEmptyAll')}</Text>
         </CustomModal>
       </View>
     </GeneralTemplate>
@@ -198,15 +211,36 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  taskName: { fontSize: 16, fontWeight: 'bold', color: '#721C24' },
-  taskStatusInfo: { fontSize: 12, fontStyle: 'italic', color: '#721C24' },
+  taskName: { 
+    fontSize: 16, 
+    fontWeight: 'bold', 
+    color: '#721C24' 
+  },
+  taskStatusInfo: { 
+    fontSize: 12, 
+    fontStyle: 'italic', 
+    color: '#721C24' 
+  },
   leftAction: {
-    backgroundColor: '#28A745', justifyContent: 'center', paddingHorizontal: 20, flex: 1, borderRadius: 8,
+    backgroundColor: '#28A745', 
+    justifyContent: 'center', 
+    paddingHorizontal: 20, 
+    flex: 1, 
+    borderRadius: 8,
   },
   rightAction: {
-    backgroundColor: '#DC3545', justifyContent: 'center', paddingHorizontal: 20, flex: 1, borderRadius: 8,
+    backgroundColor: '#DC3545', 
+    justifyContent: 'center', 
+    paddingHorizontal: 20,
+    alignItems: 'flex-end',
+    flex: 1, 
+    borderRadius: 8,
   },
-  actionText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
+  actionText: { 
+    color: 'white', 
+    fontWeight: 'bold', 
+    fontSize: 16 
+  },
   deleteAllButton: {
     backgroundColor: '#DC3545',
     flexDirection: 'row',
@@ -216,7 +250,11 @@ const styles = {
     borderRadius: 8,
     marginVertical: 20,
   },
-  deleteAllText: { color: 'white', fontSize: 16, marginLeft: 8 },
+  deleteAllText: { 
+    color: 'white', 
+    fontSize: 16, 
+    marginLeft: 8 
+  },
 };
 
 export default TrashTasksScreen;

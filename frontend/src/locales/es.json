@@ -24,7 +24,8 @@
       "spanish": "Español",
       "english": "Inglés",
       "editPriority": "Editar",
-      "deletePriority": "Eliminar"
+      "deletePriority": "Eliminar",
+      "cannotDeletePriority": "No se puede eliminar la prioridad porque está en uso"
     },
     "categories": {
     "title": "Tus Categorías",
@@ -52,6 +53,8 @@
     },
     "order": {
       "select": "Selecciona orden",
+      "selectLabel": "Selecciona orden",
+      "studyMethod": "Método de estudio",
       "DATE_CREATED": "Fecha de creación",
       "DUE_DATE": "Fecha de vencimiento",
       "PRIORITY_ASC": "Prioridad (asc)",
@@ -218,7 +221,8 @@
     "recoverTasks": "No se puedo recuperar la tareas",
     "deleteTasks": "No se puedo eliminar la tareas",
     "emptyTrash": "No se puedo vaciar la papelera",
-    "emptyTrashSuccess": "Se eliminaron todas las tareas de la papelera"
+    "emptyTrashSuccess": "Se eliminaron todas las tareas de la papelera",
+    "confirmEmptyAll": "¿Seguro que deseas vaciar la papelera?"
   },
   "general": {
     "nav": {
@@ -262,7 +266,8 @@
       "contact_email": "isaacsolpad@gmail.com"
     },
     "statsScreen": {
-        "title": "Estadísticas",
+      "title": "Estadísticas",
+      "loading": "Cargando ...",
       "summary": {
         "total": "Total",
         "completed": "Completadas",

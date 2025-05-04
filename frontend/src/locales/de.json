@@ -24,7 +24,8 @@
       "spanish": "Spanisch",
       "english": "Englisch",
       "editPriority": "Bearbeiten",
-      "deletePriority": "Löschen"
+      "deletePriority": "Löschen",
+      "cannotDeletePriority": "Priorität kann nicht gelöscht werden, da sie verwendet wird"
     },
     "categories": {
       "title": "Deine Kategorien",
@@ -52,6 +53,8 @@
       },
       "order": {
         "select": "Sortierreihenfolge wählen",
+        "selectLabel": "Reihenfolge auswählen",
+        "studyMethod": "Studienmethode",
         "DATE_CREATED": "Erstellungsdatum",
         "DUE_DATE": "Fälligkeitsdatum",
         "PRIORITY_ASC": "Priorität (aufsteigend)",
@@ -218,7 +221,8 @@
       "recoverTasks": "Aufgaben konnten nicht wiederhergestellt werden",
       "deleteTasks": "Aufgaben konnten nicht gelöscht werden",
       "emptyTrash": "Papierkorb konnte nicht geleert werden",
-      "emptyTrashSuccess": "Alle Aufgaben im Papierkorb wurden gelöscht"
+      "emptyTrashSuccess": "Alle Aufgaben im Papierkorb wurden gelöscht",
+      "confirmEmptyAll": "Möchtest du alle Aufgaben im Papierkorb wirklich löschen?"
     },
     "general": {
       "nav": {
@@ -263,6 +267,7 @@
     },
     "statsScreen": {
       "title": "Statistiken",
+      "loading": "Lade ...",
       "summary": {
         "total": "Gesamt",
         "completed": "Abgeschlossen",

@@ -124,9 +124,10 @@ const SubTasksScreen = ({ route, navigation }) => {
       ref={(ref) => {
         if (ref && item.id) swipeableRefs.current[item.id] = ref;
       }}
-      renderLeftActions={() => (
-        <View style={styles.leftAction}>
-          <Text style={styles.actionText}>{t('subtasks.actionDelete')}</Text>
+      renderRightActions={() => (
+        <View style={styles.rightAction}>
+          <Text style={styles.actionText}>
+            {t('subtasks.actionDelete')}</Text>
         </View>
       )}
       onSwipeableOpen={() => {
@@ -271,6 +272,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       backgroundColor: '#CDF8FA',
       padding: 12,
+      marginVertical: 5,
       borderRadius: 8,
       marginBottom: 8,
     },
@@ -333,9 +335,10 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'center',
     },
-    leftAction: {
+    rightAction: {
       backgroundColor: '#FF4C4C',
       justifyContent: 'center',
+      alignItems: 'flex-end',
       paddingHorizontal: 20,
       flex: 1,
       borderRadius: 8,

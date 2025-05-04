@@ -10,6 +10,8 @@ import Button from '../components/Button';
 import GeneralStyles from '../styles/GeneralStyles';
 import useValidation from '../hooks/useValidation';
 import { useTranslation } from 'react-i18next'; // Importa el hook useTranslation
+import LoadingOverlay from '../components/LoadingOverlay';
+import logo from '../../assets/icono.png';
 
 
 const ProfileScreen = ({ navigation }) => {
@@ -22,11 +24,9 @@ const ProfileScreen = ({ navigation }) => {
   const [selectedImageUrl, setSelectedImageUrl] = useState(null);
   const [images, setImages] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const {emailError} = useValidation("", "", email);
 
-  useEffect(() => {
-    fetchUserData();
-    fetchImages();
-  }, []);
 
   // Obtener datos del usuario
   const fetchUserData = async () => {
@@ -58,6 +58,31 @@ const ProfileScreen = ({ navigation }) => {
       console.error('Error al obtener imágenes', error);
     }
   };
+
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        setLoading(true);
+        await fetchUserData();
+        await fetchImages();
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    initialize();
+  }, []);
+
+  if (loading) {
+    return (
+      <LoadingOverlay
+        visible
+        text={t('profile.loading')}
+        logoSource={logo}
+      />
+    );
+  }
 
 
   const handleProfileUpdate = async () => {
@@ -110,10 +135,10 @@ const ProfileScreen = ({ navigation }) => {
           Alert.alert('Error', t('profile.connectionError'));
         }
       }
-    
   };
 
-  const {emailError} = useValidation("", "", email);
+  
+
   return (
     <GeneralTemplate>
       <KeyboardAvoidingView
@@ -142,10 +167,10 @@ const ProfileScreen = ({ navigation }) => {
           </View>
 
           <View style={GeneralStyles.formContainer}>
-            <InputField placeholder={t('profile.firstNamePlaceholder')} value={name} onChangeText={setName} />
-            <InputField placeholder={t('profile.surnamePlaceholder')} value={surname} onChangeText={setSurname} />
-            <InputField placeholder={t('profile.nicknamePlaceholder')} value={nickname} onChangeText={setNickname} />
-            <InputField placeholder={t('profile.emailPlaceholder')} value={email} onChangeText={setEmail} keyboardType="email-address"/>
+            <InputField label = {t('profile.firstNamePlaceholder')} placeholder={t('profile.firstNamePlaceholder')} value={name} onChangeText={setName} />
+            <InputField label = {t('profile.surnamePlaceholder')} placeholder={t('profile.surnamePlaceholder')} value={surname} onChangeText={setSurname} />
+            <InputField label = {t('profile.nicknamePlaceholder')} placeholder={t('profile.nicknamePlaceholder')} value={nickname} onChangeText={setNickname} />
+            <InputField label = {t('profile.emailPlaceholder')} placeholder={t('profile.emailPlaceholder')} value={email} onChangeText={setEmail} keyboardType="email-address"/>
             {emailError ? <Text style={GeneralStyles.errorText}>{emailError}</Text> : null}
 
             <Button title={t('profile.saveChanges')} onPress={handleProfileUpdate} />

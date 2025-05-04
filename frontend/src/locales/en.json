@@ -24,7 +24,8 @@
       "spanish": "Spanish",
       "english": "English",
       "editPriority": "Edit",
-      "deletePriority": "Delete"
+      "deletePriority": "Delete",
+      "cannotDeletePriority": "Cannot delete the priority because it is in use"
     },
     "categories": {
     "title": "Your Categories",
@@ -52,7 +53,9 @@
     },
     "order": {
       "select": "Select order",
+      "studyMethod": "Study method",
       "DATE_CREATED": "Date created",
+      "selectLabel": "Select order",
       "DUE_DATE": "Due date",
       "PRIORITY_ASC": "Priority (asc)",
       "PRIORITY_DES": "Priority (desc)",
@@ -219,7 +222,8 @@
     "recoverTasks": "Failed to recover tasks",
     "deleteTasks": "Failed to delete tasks",
     "emptyTrash": "Failed to empty trash",
-    "emptyTrashSuccess": "All trash tasks have been deleted"
+    "emptyTrashSuccess": "All trash tasks have been deleted",
+    "confirmEmptyAll": "Are you sure you want to empty the trash?"
   },
   "general": {
     "nav": {
@@ -264,6 +268,7 @@
     },
       "statsScreen": {
     "title": "Statistics",
+    "loading": "Loading...",
     "summary": {
       "total": "Total",
       "completed": "Completed",

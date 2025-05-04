@@ -18,6 +18,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import CustomModal from '../components/CustomModal';
 import { BASE_URL } from '../config';
 import { useTranslation } from 'react-i18next';
+import LoadingOverlay from '../components/LoadingOverlay';
+import logo from '../../assets/icono.png';
 
 const TaskDetailScreen = ({ route, navigation }) => {
   const { t } = useTranslation();
@@ -32,9 +34,20 @@ const TaskDetailScreen = ({ route, navigation }) => {
   const [showPriorityOptions, setShowPriorityOptions] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [tempDate, setTempDate] = useState(dueDate ? new Date(dueDate) : new Date());
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchPriorities();
+    const initialize = async () => {
+      try {
+        setLoading(true);
+        await fetchPriorities();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    initialize();
   }, []);
 
   const fetchPriorities = async () => {
@@ -112,6 +125,16 @@ const TaskDetailScreen = ({ route, navigation }) => {
 
     navigation.goBack();
   };
+
+  if (loading) {
+    return (
+      <LoadingOverlay
+        visible
+        text={t('taskDetail.loading')}
+        logoSource={logo}
+      />
+    );
+  }
 
   return (
     <GeneralTemplate>

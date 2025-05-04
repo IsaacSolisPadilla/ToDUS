@@ -20,6 +20,8 @@ import GeneralStyles from '../styles/GeneralStyles';
 import { ScrollView } from 'react-native-gesture-handler';
 import TimeSlotBarChart from '../components/TimeSlotBarChart';
 import { useTranslation } from 'react-i18next';
+import LoadingOverlay from '../components/LoadingOverlay';
+import logo from '../../assets/icono.png';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -50,11 +52,13 @@ const StatsScreen = () => {
     fetchStats();
   }, []);
 
-  if (loading || !stats) {
+  if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" />
-      </View>
+      <LoadingOverlay
+        visible={true}
+        text={t('statsScreen.loading')}
+        logoSource={logo}
+      />
     );
   }
 

@@ -85,6 +85,7 @@ const ChangePasswordScreen = ({ navigation }) => {
             {/* Contraseña Actual */}
             <View style={styles.inputContainer}>
               <InputField 
+                label={t('changePassword.placeholder.oldPassword')}
                 placeholder={t('changePassword.placeholder.oldPassword')}
                 value={oldPassword} 
                 onChangeText={setOldPassword} 
@@ -98,6 +99,7 @@ const ChangePasswordScreen = ({ navigation }) => {
             {/* Nueva Contraseña */}
             <View style={styles.inputContainer}>
               <InputField 
+                label={t('changePassword.placeholder.newPassword')}
                 placeholder={t('changePassword.placeholder.newPassword')}
                 value={newPassword} 
                 onChangeText={setNewPassword} 
@@ -112,6 +114,7 @@ const ChangePasswordScreen = ({ navigation }) => {
             {/* Confirmar Nueva Contraseña */}
             <View style={styles.inputContainer}>
               <InputField 
+                label={t('changePassword.placeholder.confirmNewPassword')}
                 placeholder={t('changePassword.placeholder.confirmNewPassword')}
                 value={confirmNewPassword} 
                 onChangeText={setConfirmNewPassword} 

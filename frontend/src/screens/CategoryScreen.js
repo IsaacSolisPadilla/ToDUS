@@ -162,12 +162,14 @@ const CategoryScreen = ({ route, navigation }) => {
         {/* Formulario */}
         <View style={styles.formContainer}>
           <InputField
+            label={t('category.placeholder.name')}
             style={styles.input}
             placeholder={t('category.placeholder.name')}
             value={name}
             onChangeText={setName}
           />
           <InputField
+            label={t('category.placeholder.description')}
             style={styles.input}
             placeholder={t('category.placeholder.description')}
             value={description}
@@ -176,6 +178,9 @@ const CategoryScreen = ({ route, navigation }) => {
 
           {/* Orden */}
           <View style={{ marginBottom: 12 }}>
+          <Text style={styles.label}>
+            {t('category.order.selectLabel') /* o el literal que quieras */}
+          </Text>
             <TouchableOpacity
               onPress={() => setShowOrderOptions(!showOrderOptions)}
               style={styles.orderButton}
@@ -206,6 +211,7 @@ const CategoryScreen = ({ route, navigation }) => {
           {/* Método de estudio */}
           <InputField
             style={styles.input}
+            label={t('category.order.studyMethod')}
             placeholder={t('category.placeholder.studyMethod')}
             value={studyMethodId ? studyMethodId.toString() : ''}
             onChangeText={(t) => setStudyMethodId(t ? parseInt(t) : null)}
@@ -442,6 +448,12 @@ const styles = StyleSheet.create({
   },
   modalScrollView: {
     maxHeight: 280,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#CDF8FA',
+    marginLeft: 4,
   },
 });
 

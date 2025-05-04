@@ -10,6 +10,8 @@ import CustomModal from '../components/CustomModal';
 import { BASE_URL } from '../config';
 import Button from '../components/Button';
 import { useTranslation } from 'react-i18next';
+import LoadingOverlay from '../components/LoadingOverlay';
+import logo from '../../assets/icono.png';
 
 const CategoriesScreen = ({ navigation }) => {
   const { t } = useTranslation();
@@ -18,6 +20,7 @@ const CategoriesScreen = ({ navigation }) => {
   const [categoryToDelete, setCategoryToDelete] = useState(null);
   const swipeableRefs = useRef({});
   const screenWidth = Dimensions.get('window').width;
+  const [loading, setLoading] = useState(true);
 
   const fetchCategories = async () => {
     try {
@@ -33,9 +36,20 @@ const CategoriesScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    fetchCategories();
+    const initialize = async () => {
+      try {
+        setLoading(true);
+        await fetchCategories();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    initialize();
   }, []);
 
+  // Refrescar al ganar foco
   useFocusEffect(
     useCallback(() => {
       fetchCategories();
@@ -70,6 +84,16 @@ const CategoriesScreen = ({ navigation }) => {
     </View>
   );
 
+  if (loading) {
+    return (
+      <LoadingOverlay
+        visible
+        text={t('statsScreen.loading')}
+        logoSource={logo}
+      />
+    );
+  }
+
   return (
     <GeneralTemplate>
       <View>
@@ -78,6 +102,7 @@ const CategoriesScreen = ({ navigation }) => {
       <View style={{ flex: 1, width: screenWidth * 0.8 }}>
         <FlatList
           data={categories}
+          showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={{ paddingBottom: 100 }}
           renderItem={({ item }) => (

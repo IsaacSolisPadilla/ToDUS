@@ -23,6 +23,8 @@ import GeneralStyles from '../styles/GeneralStyles';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 import { Picker } from '@react-native-picker/picker';
+import LoadingOverlay from '../components/LoadingOverlay';
+import logo from '../../assets/icono.png';
 
 // Simulamos el enum de Java en un arreglo
 const COLORS = [
@@ -60,21 +62,7 @@ const SettingsScreen = ({ navigation }) => {
   const accessoryID = 'daysAccessory';
 
   const [lang, setLang] = useState(i18n.language);
-
-  useEffect(() => {
-    AsyncStorage.getItem('appLanguage').then(saved => {
-      if (saved && saved !== i18n.language) {
-        i18n.changeLanguage(saved);
-        setLang(saved);
-      }
-    });
-
-    fetchCategories();
-    fetchTrashRetention();
-    fetchPriorities();
-    fetchRules();
-    fetchNotificationSettings();
-  }, []);
+  const [loading, setLoading] = useState(true);
 
   const changeLanguage = async newLang => {
     await i18n.changeLanguage(newLang);
@@ -179,7 +167,7 @@ const SettingsScreen = ({ navigation }) => {
 
   const deletePriority = async id => {
     if (!(await canDeletePriority(id))) {
-      return Alert.alert('Error','Prioridad en uso');
+      return Alert.alert('Error',t('settings.cannotDeletePriority'));
     }
     try {
       const token = await AsyncStorage.getItem('token');
@@ -228,6 +216,42 @@ const SettingsScreen = ({ navigation }) => {
     await AsyncStorage.setItem('dueReminderDays',        dueReminderDays);
     Alert.alert('Configuración de notificaciones guardada');
   };
+
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        setLoading(true);
+        // intento cargar idioma guardado
+        const savedLang = await AsyncStorage.getItem('appLanguage');
+        if (savedLang && savedLang !== i18n.language) {
+          await i18n.changeLanguage(savedLang);
+          setLang(savedLang);
+        }
+        // fetch de datos
+        await fetchCategories();
+        await fetchTrashRetention();
+        await fetchPriorities();
+        await fetchRules();
+        await fetchNotificationSettings();
+      } catch (err) {
+        console.error(err);
+        Alert.alert(t('settings.error'), t('settings.loadError'));
+      } finally {
+        setLoading(false);
+      }
+    };
+    initialize();
+  }, []);
+
+  if (loading) {
+    return (
+      <LoadingOverlay 
+        visible 
+        text={t('settings.loading')} 
+        logoSource={logo}
+      />
+    );
+  }
 
   return (
     <GeneralTemplate>
@@ -543,7 +567,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,
-    marginBottom: 10
+    marginTop: 5,
+    marginBottom: 5
   },
   priorityColorBox: {
     width: 20,
@@ -566,6 +591,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF4C4C',
     justifyContent: 'center',
     paddingHorizontal: 20,
+    alignItems: 'flex-end',
     flex: 1,
     borderRadius: 8
   },

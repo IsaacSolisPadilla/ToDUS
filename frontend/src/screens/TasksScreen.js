@@ -23,15 +23,12 @@ import CustomModal from '../components/CustomModal';
 import axios from 'axios';
 import * as Notifications from 'expo-notifications';
 import { useTranslation } from 'react-i18next';
+import LoadingOverlay from '../components/LoadingOverlay';
+import logo from '../../assets/icono.png';
 
 const TasksScreen = ({ navigation, route }) => {
   const { t } = useTranslation();
   const handleBackPress = () => true; // Bloquea el retroceso
-
-  useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-    return () => BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
-  }, []);
 
   const selectedCategory = route?.params?.category || null;
 
@@ -56,6 +53,7 @@ const TasksScreen = ({ navigation, route }) => {
   const [notifyOnPriorityChange, setNotifyOnPriorityChange] = useState(false);
   const [notifyDueReminders, setNotifyDueReminders] = useState(false);
   const [dueReminderDays, setDueReminderDays] = useState(1);
+  const [loading, setLoading] = useState(true);
 
   // load notification prefs once
   useEffect(() => {
@@ -264,17 +262,40 @@ const TasksScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    fetchPriorities();
-    fetchTasks();
-    fetchRules();
-    fetchMainCategories();
-  }, []);
+    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchTasks();
-    }, [selectedCategory])
-  );
+    const initialize = async () => {
+      try {
+        setLoading(true);
+        await fetchPriorities();
+        await fetchTasks();
+        await fetchRules();
+        await fetchMainCategories();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initialize();
+
+    return () => BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+  }, [selectedCategory]);
+
+  useFocusEffect(useCallback(() => {
+    fetchTasks();
+  }, [selectedCategory]));
+
+  if (loading) {
+    return (
+      <LoadingOverlay
+        visible
+        text={t('statsScreen.loading')}
+        logoSource={logo}
+      />
+    );
+  }
 
   const handleCreateTask = async () => {
     if (!taskName.trim()) return Alert.alert(t('tasks.error'), t('tasks.nameRequired'));
@@ -422,8 +443,7 @@ const TasksScreen = ({ navigation, route }) => {
         if (direction === 'left') {
           navigation.navigate('TaskDetails', { task: item });
         } else if (direction === 'right') {
-          setTaskToDelete(item);
-          setDeleteModalVisible(true);
+          handleTrashTask(item.id);
         }
       }}
     >
@@ -445,37 +465,85 @@ const TasksScreen = ({ navigation, route }) => {
     </Swipeable>
   );
 
+  const filteredTasks = selectedCategory
+  ? (showCompletedTasks
+      ? tasks
+      : tasks.filter(t => t.status !== 'COMPLETED'))
+  : tasks;
 
-  let sections = [];
-  if (selectedCategory) {
-    sections = [{ title: selectedCategory.name, data: tasks }];
-  } else {
-    sections = [{ title: t('tasks.sectionAllTasks'), data: tasks }];
-    mainCategories.forEach(cat => {
-      const catTasks = tasks.filter(task => task.category?.id === cat.id);
-      if (catTasks.length > 0) {
-        sections.push({ title: cat.name, data: catTasks });
-      }
-    });
-  }
+// 2) extrae IDs de categorías ancladas a la pantalla principal
+const mainCatIds = mainCategories.map(cat => cat.id);
+
+// 3) separa tareas globales (no pertenecientes a ninguna mainCategory)
+const globalTasks = filteredTasks.filter(
+  t => !t.category || !mainCatIds.includes(t.category.id)
+);
+
+// 4) arma las secciones
+let sections = [];
+
+if (selectedCategory) {
+  // Vista de categoría concreta
+  sections = [
+    { title: selectedCategory.name, data: filteredTasks }
+  ];
+} else {
+  // Vista global
+  // 4.1) Sección "Todas las tareas" solo con globalTasks
+  sections.push({
+    title: t('tasks.sectionAllTasks'),
+    data: globalTasks
+  });
+
+  // 4.2) Una sección por cada mainCategory (solo si tiene al menos 1 tarea)
+  mainCategories.forEach(cat => {
+    const catTasks = filteredTasks.filter(t => t.category?.id === cat.id);
+    if (catTasks.length > 0) {
+      sections.push({ title: cat.name, data: catTasks });
+    }
+  });
+}
+    
 
   return (
     <GeneralTemplate>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={GeneralStyles.title}>
+          { selectedCategory
+              ? selectedCategory.name
+              : t('tasks.sectionAllTasks') /* "Tus Tareas" */}
+        </Text>
+        { selectedCategory && typeof selectedCategory.showComplete !== 'undefined'  && !showCompletedTasks && (
+          <TouchableOpacity onPress={() => setShowCompletedTasks(!showCompletedTasks)}>
+            <Feather
+              name={showCompletedTasks ? 'eye-off' : 'eye'}
+              size={24}
+              color="#CDF8FA"
+            />
+          </TouchableOpacity>
+        )}
+      </View>
       <KeyboardAvoidingView
         style={GeneralStyles.keyboardAvoiding}
         behavior={Platform.OS === 'ios' ? 'padding' : ''}
       >
         <View style={{ flex: 1, width: screenWidth * 0.8 }}>
-          <SectionList
-            sections={sections}
-            keyExtractor={item => item.id.toString()}
-            renderItem={({ item }) => renderTaskItem({ item })}
-            renderSectionHeader={({ section: { title } }) => (
-              <Text style={[GeneralStyles.title, styles.sectionHeader]}>{title}</Text>
-            )}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 100 }}
-          />
+        <SectionList
+          sections={sections}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) => renderTaskItem({ item })}
+          renderSectionHeader={({ section: { title } }) => {
+            if (selectedCategory) return null;
+            if (title === t('tasks.sectionAllTasks')) return null;
+            return (
+              <Text style={[GeneralStyles.title, styles.sectionHeader]}>
+                {title}
+              </Text>
+            );
+          }}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 100 }}
+        />
 
           <View style={styles.bottomInputContainer}>
             <TextInput
@@ -526,18 +594,6 @@ const TasksScreen = ({ navigation, route }) => {
             </TouchableOpacity>
           </View>
 
-          <CustomModal
-            visible={deleteModalVisible}
-            title={t('tasks.modalTitleDelete')}
-            onConfirm={handleTrashOrDeleteTask}
-            onCancel={() => setDeleteModalVisible(false)}
-          >
-            <Text>
-              {taskToDelete && taskToDelete.trashed
-                ? t('tasks.modalConfirmDelete')
-                : t('tasks.modalConfirmTrash')}
-            </Text>
-          </CustomModal>
         </View>
       </KeyboardAvoidingView>
     </GeneralTemplate>
@@ -656,6 +712,7 @@ const styles = {
   rightAction: {
     backgroundColor: '#FF4C4C',
     justifyContent: 'center',
+    alignItems: 'flex-end',
     paddingHorizontal: 20,
     flex: 1,
     borderRadius: 8,
