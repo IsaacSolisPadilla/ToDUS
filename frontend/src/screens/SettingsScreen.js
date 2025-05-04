@@ -317,10 +317,10 @@ const SettingsScreen = ({ navigation }) => {
                   key={p.id}
                   ref={ref=> swipeableRefs.current[p.id]=ref}
                   renderLeftActions={()=>(
-                    <View style={styles.leftAction}><Text style={styles.actionText}>{t('settings.editPriority')}</Text></View>
+                    <View style={GeneralStyles.leftAction}><Text style={styles.actionText}>{t('settings.editPriority')}</Text></View>
                   )}
                   renderRightActions={()=>(
-                    <View style={styles.rightAction}><Text style={styles.actionText}>{t('settings.deletePriority')}</Text></View>
+                    <View style={GeneralStyles.rightAction}><Text style={styles.actionText}>{t('settings.deletePriority')}</Text></View>
                   )}
                   onSwipeableOpen={dir=>{
                     swipeableRefs.current[p.id]?.close();

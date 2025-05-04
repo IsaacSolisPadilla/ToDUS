@@ -10,10 +10,12 @@ import GeneralStyles from '../styles/GeneralStyles';
 import CustomModal from '../components/CustomModal';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
+import { NativeViewGestureHandler } from 'react-native-gesture-handler';
 
 const TrashTasksScreen = ({ navigation, route }) => {
   const { t } = useTranslation();
   const { category } = route.params;
+  const listRef = useRef(null);
   const [trashedTasks, setTrashedTasks] = useState([]);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [deleteAllModalVisible, setDeleteAllModalVisible] = useState(false);
@@ -127,12 +129,12 @@ const TrashTasksScreen = ({ navigation, route }) => {
   };
 
   const renderLeftActions = () => (
-    <View style={styles.leftAction}>
+    <View style={GeneralStyles.leftAction}>
       <Text style={styles.actionText}>{t('trash.recover')}</Text>
     </View>
   );
   const renderRightActions = () => (
-    <View style={styles.rightAction}>
+    <View style={GeneralStyles.rightAction}>
       <Text style={styles.actionText}>{t('trash.emptyAll')}</Text>
     </View>
   );
@@ -140,46 +142,69 @@ const TrashTasksScreen = ({ navigation, route }) => {
   return (
     <GeneralTemplate>
       <Text style={GeneralStyles.title}>
-      {category
-    ? `${t('trash.title')}: ${category.name}`
-    : t('trash.title')}
+        {category
+          ? `${t('trash.title')}: ${category.name}`
+          : t('trash.title')}
       </Text>
-      <View style={{ flex:1, width: screenWidth * 0.8 }}>
-        <FlatList
-          data={trashedTasks}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={{ paddingBottom: screenWidth * 0.5 }}
-          renderItem={({ item }) => (
-            <Swipeable
-              ref={ref => { if (ref) swipeableRefs.current[item.id] = ref }}
-              renderLeftActions={renderLeftActions}
-              renderRightActions={renderRightActions}
-              onSwipeableOpen={dir => {
-                swipeableRefs.current[item.id]?.close();
-                if (dir === 'left') handleRecoverTask(item.id);
-                else {
-                  setTaskToDelete(item);
-                  setDeleteModalVisible(true);
-                }
-              }}
-            >
-              <View style={[styles.taskItemContainer, { borderLeftColor: item.priority?.colorHex }]}>
-                <Text style={styles.taskName}>{item.name}</Text>
-                <Text style={styles.taskStatusInfo}>{t('trash.inTrash')}</Text>
-              </View>
-            </Swipeable>
-          )}
-          showsVerticalScrollIndicator={false}
-        />
-
-      <TouchableOpacity
+      <View style={{ flex: 1, width: screenWidth * 0.8, alignSelf: 'center' }}>
+        {/* Envolvemos la lista para permitir gestos simultáneos */}
+        <NativeViewGestureHandler ref={listRef} disallowInterruption>
+          <FlatList
+            ref={ref => (listRef.current = ref)}
+            data={trashedTasks}
+            keyExtractor={item => item.id.toString()}
+            renderItem={({ item }) => (
+              <Swipeable
+                ref={ref => (swipeableRefs.current[item.id] = ref)}
+                simultaneousHandlers={listRef}
+                activeOffsetX={[-30, 30]}
+                failOffsetY={[-15, 15]}
+                renderLeftActions={renderLeftActions}
+                renderRightActions={renderRightActions}
+                onSwipeableOpen={dir => {
+                  swipeableRefs.current[item.id]?.close();
+                  if (dir === 'left') {
+                    handleRecoverTask(item.id);
+                  } else {
+                    setTaskToDelete(item);
+                    setDeleteModalVisible(true);
+                  }
+                }}
+              >
+                <TouchableOpacity
+                >
+                <View
+                  style={[
+                    styles.taskItemContainer,
+                    { borderLeftColor: item.priority?.colorHex },
+                  ]}
+                >
+                  <Text style={styles.taskName}>{item.name}</Text>
+                  <Text style={styles.taskStatusInfo}>
+                    {t('trash.inTrash')}
+                  </Text>
+                </View>
+                </TouchableOpacity>
+              </Swipeable>
+            )}
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{
+              paddingBottom: screenWidth * 0.5,
+              flexGrow: 1,
+            }}
+          />
+        </NativeViewGestureHandler>
+  
+        <TouchableOpacity
           style={styles.deleteAllButton}
           onPress={() => setDeleteAllModalVisible(true)}
         >
           <Feather name="trash-2" size={20} color="#fff" />
           <Text style={styles.deleteAllText}>{t('trash.emptyAll')}</Text>
         </TouchableOpacity>
-
+  
         <CustomModal
           visible={deleteModalVisible}
           title={t('trash.delete')}
@@ -199,6 +224,7 @@ const TrashTasksScreen = ({ navigation, route }) => {
       </View>
     </GeneralTemplate>
   );
+  
 };
 
 const styles = {
@@ -221,28 +247,13 @@ const styles = {
     fontStyle: 'italic', 
     color: '#721C24' 
   },
-  leftAction: {
-    backgroundColor: '#28A745', 
-    justifyContent: 'center', 
-    paddingHorizontal: 20, 
-    flex: 1, 
-    borderRadius: 8,
-  },
-  rightAction: {
-    backgroundColor: '#DC3545', 
-    justifyContent: 'center', 
-    paddingHorizontal: 20,
-    alignItems: 'flex-end',
-    flex: 1, 
-    borderRadius: 8,
-  },
   actionText: { 
     color: 'white', 
     fontWeight: 'bold', 
     fontSize: 16 
   },
   deleteAllButton: {
-    backgroundColor: '#DC3545',
+    backgroundColor: '#C8494B',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

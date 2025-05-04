@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#084F52',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   homeButton: {

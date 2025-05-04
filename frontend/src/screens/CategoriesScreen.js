@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, Alert, FlatList, Dimensions, Image } from 'react-native';
+import { View, Text, Alert, FlatList, Dimensions, Image, TouchableOpacity } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Swipeable } from 'react-native-gesture-handler';
+import { Swipeable, NativeViewGestureHandler } from 'react-native-gesture-handler';
 import axios from 'axios';
 import GeneralTemplate from '../components/GeneralTemplate';
 import GeneralStyles from '../styles/GeneralStyles';
@@ -19,6 +19,7 @@ const CategoriesScreen = ({ navigation }) => {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
   const swipeableRefs = useRef({});
+  const listRef = useRef(null);
   const screenWidth = Dimensions.get('window').width;
   const [loading, setLoading] = useState(true);
 
@@ -73,13 +74,13 @@ const CategoriesScreen = ({ navigation }) => {
   };
 
   const renderLeftActions = () => (
-    <View style={styles.leftAction}>
+    <View style={GeneralStyles.leftAction}>
       <Text style={styles.actionText}>{t('categories.action.edit')}</Text>
     </View>
   );
 
   const renderRightActions = () => (
-    <View style={styles.rightAction}>
+    <View style={GeneralStyles.rightAction}>
       <Text style={styles.actionText}>{t('categories.action.delete')}</Text>
     </View>
   );
@@ -100,61 +101,62 @@ const CategoriesScreen = ({ navigation }) => {
         <Text style={GeneralStyles.title}>{t('categories.title')}</Text>
       </View>
       <View style={{ flex: 1, width: screenWidth * 0.8 }}>
-        <FlatList
+      <NativeViewGestureHandler ref={listRef} disallowInterruption>
+      <FlatList
           data={categories}
-          showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ paddingBottom: 100 }}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true}
           renderItem={({ item }) => (
             <Swipeable
-              ref={(ref) => {
-                if (ref && item.id) swipeableRefs.current[item.id] = ref;
-              }}
+              ref={(ref) => { if (ref) swipeableRefs.current[item.id] = ref; }}
+              activeOffsetX={[-30, 30]}
+              failOffsetY={[-15, 15]}
               renderLeftActions={renderLeftActions}
               renderRightActions={renderRightActions}
               onSwipeableOpen={(direction) => {
                 swipeableRefs.current[item.id]?.close();
                 if (direction === 'left') {
                   navigation.navigate('Category', { category: item });
-                } else if (direction === 'right') {
+                } else {
                   setCategoryToDelete(item);
                   setDeleteModalVisible(true);
                 }
               }}
             >
-              <View style={styles.categoryItemContainer}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={styles.imageBox}>
-                    {/* Fondo extra que se muestra detrás de la imagen */}
-                    <View style={styles.enlargedBackground} />
-                    <Image
-                      source={{ uri: `${BASE_URL}/api/images/${item.image.imageUrl}` }}
-                      style={styles.image}
-                      resizeMode="contain"
-                    />
-                  </View>
-                  <View>
-                    <Text
-                      style={[styles.categoryName, { width: screenWidth * 0.6 }]}
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                    >
-                      {item.name}
-                    </Text>
-                    <Text
-                      style={[styles.categoryDescription, { width: screenWidth * 0.6 }]}
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                    >
-                      {item.description}
-                    </Text>
-                  </View>
+              <TouchableOpacity
+                style={styles.categoryItemContainer}
+              >
+                <View style={styles.imageBox}>
+                  <View style={styles.enlargedBackground} />
+                  <Image
+                    source={{ uri: `${BASE_URL}/api/images/${item.image.imageUrl}` }}
+                    style={styles.image}
+                    resizeMode="contain"
+                  />
                 </View>
-              </View>
+                <View style={styles.textContainer}>
+                  <Text
+                    style={[styles.categoryName, { width: screenWidth * 0.6 }]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {item.name}
+                  </Text>
+                  <Text
+                    style={[styles.categoryDescription, { width: screenWidth * 0.6 }]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {item.description}
+                  </Text>
+                </View>
+              </TouchableOpacity>
             </Swipeable>
           )}
         />
-
+        </NativeViewGestureHandler>
         <View style={{ marginTop: 10, marginBottom: 20, alignItems: 'center' }}>
           <Button title={t('categories.newCategory')} onPress={() => navigation.navigate('Category')} />
         </View>

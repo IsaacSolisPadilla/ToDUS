@@ -1,25 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-    View,
-    Text,
-    FlatList,
-    TouchableOpacity,
-    TextInput,
-    KeyboardAvoidingView,
-    Dimensions,
-    Alert,
-    StyleSheet,
-    Platform,
-  } from 'react-native';
-  import AsyncStorage from '@react-native-async-storage/async-storage';
-  import axios from 'axios';
-  import { BASE_URL } from '../config';
-  import { Feather, FontAwesome } from '@expo/vector-icons';
-  import { Swipeable, TapGestureHandler } from 'react-native-gesture-handler';
-  import GeneralTemplate from '../components/GeneralTemplate';
-  import GeneralStyles from '../styles/GeneralStyles';
-  import InputField from '../components/InputField';
-  import { useTranslation } from 'react-i18next';
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  TextInput,
+  KeyboardAvoidingView,
+  Dimensions,
+  Alert,
+  StyleSheet,
+  Platform,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { BASE_URL } from '../config';
+import { Feather, FontAwesome } from '@expo/vector-icons';
+import { Swipeable } from 'react-native-gesture-handler';
+import GeneralTemplate from '../components/GeneralTemplate';
+import GeneralStyles from '../styles/GeneralStyles';
+import InputField from '../components/InputField';
+import { useTranslation } from 'react-i18next';
 
 const SubTasksScreen = ({ route, navigation }) => {
   const { t } = useTranslation();
@@ -29,15 +29,23 @@ const SubTasksScreen = ({ route, navigation }) => {
   const [editingSubTaskId, setEditingSubTaskId] = useState(null);
   const [editingSubTaskName, setEditingSubTaskName] = useState('');
   const [editingSubTaskStatus, setEditingSubTaskStatus] = useState(null);
-  const screenWidth = Dimensions.get('window').width;
+  // New state to track bottom input focus
+  const [bottomInputFocused, setBottomInputFocused] = useState(false);
+
+  const MAX_TITLE_CHARS = 7;
+  const displayTitle =
+    task.name.length > MAX_TITLE_CHARS
+      ? task.name.slice(0, MAX_TITLE_CHARS) + '…'
+      : task.name;
   const swipeableRefs = useRef({});
 
   const fetchSubTasks = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axios.get(`${BASE_URL}/api/subtasks/task/${task.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `${BASE_URL}/api/subtasks/task/${task.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setSubTasks(response.data);
     } catch (error) {
       console.error(t('subtasks.errorCreate'), error);
@@ -48,20 +56,18 @@ const SubTasksScreen = ({ route, navigation }) => {
     fetchSubTasks();
   }, []);
 
-  // Función para crear una nueva subtarea
   const handleCreateSubTask = async () => {
     if (!subTaskName.trim()) {
       return Alert.alert('Error', t('subtasks.errorRequired'));
     }
     try {
       const token = await AsyncStorage.getItem('token');
-      const requestData = {
-        name: subTaskName,
-        status: 'PENDENT'
-      };
-      await axios.post(`${BASE_URL}/api/subtasks/create/${task.id}`, requestData, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      });
+      const requestData = { name: subTaskName, status: 'PENDENT' };
+      await axios.post(
+        `${BASE_URL}/api/subtasks/create/${task.id}`,
+        requestData,
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+      );
       setSubTaskName('');
       fetchSubTasks();
     } catch (error) {
@@ -70,12 +76,14 @@ const SubTasksScreen = ({ route, navigation }) => {
     }
   };
 
-  const handleToggleCompleteSubTask = async (subTaskId) => {
+  const handleToggleCompleteSubTask = async id => {
     try {
       const token = await AsyncStorage.getItem('token');
-      await axios.put(`${BASE_URL}/api/subtasks/complete/${subTaskId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.put(
+        `${BASE_URL}/api/subtasks/complete/${id}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       fetchSubTasks();
     } catch (error) {
       console.error(t('subtasks.errorUpdate'), error);
@@ -83,12 +91,13 @@ const SubTasksScreen = ({ route, navigation }) => {
     }
   };
 
-  const handleDeleteSubTask = async (subTaskId) => {
+  const handleDeleteSubTask = async id => {
     try {
       const token = await AsyncStorage.getItem('token');
-      await axios.delete(`${BASE_URL}/api/subtasks/delete/${subTaskId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(
+        `${BASE_URL}/api/subtasks/delete/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       fetchSubTasks();
     } catch (error) {
       console.error(t('subtasks.errorDelete'), error);
@@ -96,17 +105,16 @@ const SubTasksScreen = ({ route, navigation }) => {
     }
   };
 
-  const handleUpdateSubTask = async (subTaskId) => {
+  const handleUpdateSubTask = async id => {
     if (!editingSubTaskName.trim()) {
       Alert.alert('Error', t('subtasks.emptyName'));
       return;
     }
     try {
       const token = await AsyncStorage.getItem('token');
-      await axios.put(`${BASE_URL}/api/subtasks/update/${subTaskId}`, 
-        { name: editingSubTaskName,
-            status: editingSubTaskStatus
-         },
+      await axios.put(
+        `${BASE_URL}/api/subtasks/update/${id}`,
+        { name: editingSubTaskName, status: editingSubTaskStatus },
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
       );
       setEditingSubTaskId(null);
@@ -120,14 +128,12 @@ const SubTasksScreen = ({ route, navigation }) => {
 
   const renderSubTask = ({ item }) => (
     <Swipeable
-      activeOffsetX={[-10, 10]}
-      ref={(ref) => {
-        if (ref && item.id) swipeableRefs.current[item.id] = ref;
-      }}
+      activeOffsetX={[-30, 30]}
+      failOffsetY={[-15, 15]}
+      ref={ref => { if (ref) swipeableRefs.current[item.id] = ref; }}
       renderRightActions={() => (
-        <View style={styles.rightAction}>
-          <Text style={styles.actionText}>
-            {t('subtasks.actionDelete')}</Text>
+        <View style={GeneralStyles.rightAction}>
+          <Text style={styles.actionText}>{t('subtasks.actionDelete')}</Text>
         </View>
       )}
       onSwipeableOpen={() => {
@@ -138,9 +144,7 @@ const SubTasksScreen = ({ route, navigation }) => {
       <View style={styles.subTaskItem}>
         <TouchableOpacity onPress={() => handleToggleCompleteSubTask(item.id)} style={styles.checkWrapper}>
           <View style={styles.checkCircle}>
-            {item.status === 'COMPLETED' && (
-              <FontAwesome name="check" size={18} color="#0C2527" />
-            )}
+            {item.status === 'COMPLETED' && <FontAwesome name="check" size={18} color="#0C2527" />}
           </View>
         </TouchableOpacity>
         {editingSubTaskId === item.id ? (
@@ -153,16 +157,21 @@ const SubTasksScreen = ({ route, navigation }) => {
             autoFocus
           />
         ) : (
-          <TapGestureHandler
-            onActivated={() => {
+          <TouchableOpacity
+            onPress={() => {
               setEditingSubTaskId(item.id);
               setEditingSubTaskName(item.name);
               setEditingSubTaskStatus(item.status);
             }}
-            numberOfTaps={2}
+            onLongPress={() => {
+              setEditingSubTaskId(item.id);
+              setEditingSubTaskName(item.name);
+              setEditingSubTaskStatus(item.status);
+            }}
+            style={{ flex: 1 }}
           >
             <Text style={styles.subTaskName}>{item.name}</Text>
-          </TapGestureHandler>
+          </TouchableOpacity>
         )}
         <Text style={styles.subTaskStatus}>{item.status}</Text>
       </View>
@@ -171,57 +180,44 @@ const SubTasksScreen = ({ route, navigation }) => {
 
   return (
     <GeneralTemplate>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={GeneralStyles.keyboardAvoiding}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} // Usar padding para iOS y height para Android
+        behavior={Platform.OS === 'ios' ? 'padding' : (bottomInputFocused ? 'padding' : '')}
       >
         <View style={styles.container}>
-          <Text
-            style={[GeneralStyles.title]}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {task.name}
+          <Text style={[GeneralStyles.title, { flexShrink: 1 }]} numberOfLines={1} ellipsizeMode="tail">
+            {displayTitle}
           </Text>
-          
-          <View>
-            <InputField
-                label={t('subtasks.labelName')}
-                value={task.name}
-                editable={false}
-              />
-          </View>
-          <View>
-            <InputField
-                label={t('subtasks.labelDescription')}
-                value={task.description}
-                editable={false}
-              />
-          </View>
-          
+
+          <InputField label={t('subtasks.labelName')} value={task.name} editable={false} />
+          <InputField label={t('subtasks.labelDescription')} value={task.description} editable={false} />
+
           <Text style={styles.subTaskTitle}>{t('subtasks.subtasksTitle')}</Text>
+
           {subTasks.length === 0 ? (
             <Text style={styles.noSubTasks}>{t('subtasks.noSubtasks')}</Text>
           ) : (
             <FlatList
-                data={subTasks}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderSubTask}
-                style={{ flex: 1 }}
-                contentContainerStyle={{ paddingBottom: 80 }}
-                showsVerticalScrollIndicator={false}
+              data={subTasks}
+              keyExtractor={item => item.id.toString()}
+              renderItem={renderSubTask}
+              style={{ flex: 1 }}
+              contentContainerStyle={{ paddingBottom: 80 }}
+              showsVerticalScrollIndicator={false}
             />
           )}
-          
+
           <View style={styles.bottomInputContainer}>
             <TextInput
               placeholder={t('subtasks.placeholderNew')}
               style={styles.subTaskInput}
               value={subTaskName}
               onChangeText={setSubTaskName}
+              onFocus={() => setBottomInputFocused(true)}
+              onBlur={() => setBottomInputFocused(false)}
             />
             <TouchableOpacity onPress={handleCreateSubTask} style={styles.sendButton}>
-              <Feather name={'plus'} size={15} color="white" />
+              <Feather name="plus" size={15} color="white" />
             </TouchableOpacity>
           </View>
         </View>

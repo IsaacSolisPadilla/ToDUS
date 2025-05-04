@@ -35,6 +35,21 @@ const GeneralStyles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5
   },
+  leftAction: {
+    backgroundColor: '#328060',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    flex: 1,
+    borderRadius: 8,
+  },
+  rightAction: {
+    backgroundColor: '#C8494B',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    paddingHorizontal: 20,
+    flex: 1,
+    borderRadius: 8,
+  },
 });
 
 export default GeneralStyles;

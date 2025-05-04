@@ -430,12 +430,12 @@ const TasksScreen = ({ navigation, route }) => {
         if (ref && item.id) swipeableRefs.current[item.id] = ref;
       }}
       renderLeftActions={() => (
-        <View style={styles.leftAction}>
+        <View style={GeneralStyles.leftAction}>
           <Text style={styles.actionText}>{t('tasks.actionEdit')}</Text>
         </View>
       )}
       renderRightActions={() => (
-        <View style={styles.rightAction}>
+        <View style={GeneralStyles.rightAction}>
           <Text style={styles.actionText}>
             {item.trashed ? t('tasks.modalTitleDelete') : t('tasks.actionMoveTrash')}
           </Text>
@@ -704,14 +704,14 @@ const styles = {
     justifyContent: 'center',
   },
   leftAction: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#328060',
     justifyContent: 'center',
     paddingHorizontal: 20,
     flex: 1,
     borderRadius: 8,
   },
   rightAction: {
-    backgroundColor: '#FF4C4C',
+    backgroundColor: '#C8494B',
     justifyContent: 'center',
     alignItems: 'flex-end',
     paddingHorizontal: 20,
