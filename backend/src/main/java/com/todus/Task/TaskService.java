@@ -14,6 +14,7 @@ import com.todus.priority.PriorityRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -119,7 +120,7 @@ public class TaskService {
         task.setName(taskRequest.getName());
         task.setDescription(taskRequest.getDescription());
         
-        if (taskRequest!= null && !taskRequest.getDueDate().equals(task.getDueDate())) {
+        if (task.getDueDate() != null && !Objects.equals(taskRequest.getDueDate(), task.getDueDate())) {
             task.setRescheduled(true);
         }
 

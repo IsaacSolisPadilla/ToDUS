@@ -48,7 +48,7 @@
       "placeholder": {
         "name": "Nom",
         "description": "Description",
-        "studyMethod": "Ex : 1",
+        "studyMethod": "Bientôt disponible",
         "deleteDays": "Ex : 7"
       },
       "order": {
@@ -208,7 +208,8 @@
       "onTime": "À l'heure",
       "overdue": "En retard",
       "expiresToday": "Échéance aujourd'hui",
-      "daysRemaining": "jours restants"
+      "daysRemaining": "jours restants",
+      "noCategory": "Aucune catégorie"
     },
     "trash": {
       "title": "Corbeille",

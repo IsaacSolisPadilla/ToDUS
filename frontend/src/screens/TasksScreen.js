@@ -11,7 +11,7 @@ import {
   Platform, 
   BackHandler,
   SectionList,
-  StyleSheet
+  ScrollView
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { BASE_URL } from '../config';
@@ -55,6 +55,12 @@ const TasksScreen = ({ navigation, route }) => {
   const [dueReminderDays, setDueReminderDays] = useState(1);
   const [loading, setLoading] = useState(true);
 
+  // junto a los useState existentes
+  const [allCategories, setAllCategories] = useState([]);
+  const [moveModalVisible, setMoveModalVisible] = useState(false);
+  const [taskToMove, setTaskToMove] = useState(null);
+
+
   // load notification prefs once
   useEffect(() => {
     (async () => {
@@ -82,6 +88,22 @@ const TasksScreen = ({ navigation, route }) => {
       console.error('Error al obtener prioridades:', error);
     }
   };
+
+  const fetchAllCategories = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const { data } = await axios.get(`${BASE_URL}/api/categories/all`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setAllCategories(data);
+    } catch (err) {
+      console.error('Error al cargar categorías:', err);
+    }
+  };
+  
+  useEffect(() => {
+    fetchAllCategories();
+  }, []);
 
 
   const fetchTasks = async () => {
@@ -423,50 +445,90 @@ const TasksScreen = ({ navigation, route }) => {
     }
   };
 
-  const renderTaskItem = ({ item }) => (
-    <Swipeable
-      activeOffsetX={[-10, 10]}
-      ref={(ref) => {
-        if (ref && item.id) swipeableRefs.current[item.id] = ref;
-      }}
-      renderLeftActions={() => (
-        <View style={GeneralStyles.leftAction}>
-          <Text style={styles.actionText}>{t('tasks.actionEdit')}</Text>
-        </View>
-      )}
-      renderRightActions={() => (
-        <View style={GeneralStyles.rightAction}>
-          <Text style={styles.actionText}>
-            {item.trashed ? t('tasks.modalTitleDelete') : t('tasks.actionMoveTrash')}
-          </Text>
-        </View>
-      )}
-      onSwipeableOpen={(direction) => {
-        swipeableRefs.current[item.id]?.close();
-        if (direction === 'left') {
-          navigation.navigate('TaskDetails', { task: item });
-        } else if (direction === 'right') {
-          handleTrashTask(item.id);
-        }
-      }}
-    >
-      <TouchableOpacity onPress={() => handleTaskPress(item)}>
-        <View style={[styles.taskItemContainer, { borderLeftColor: item.priority?.colorHex, flexDirection: 'row', justifyContent: 'space-between' }]}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-            <TouchableOpacity onPress={() => handleCompleteTask(item.id)} style={styles.checkWrapper}>
-              <View style={styles.checkCircle}>
-                {item.status === 'COMPLETED' && (
-                  <FontAwesome name="check" size={18} color="#0C2527" />
-                )}
-              </View>
-            </TouchableOpacity>
-            <Text style={styles.taskName}>{item.name}</Text>
+  const renderTaskItem = ({ item }) => {
+    // Genera un color pastel único según el id de la categoría
+    const hue = item.category ? (item.category.id * 47) % 360 : 200;
+    const bgColor = `hsl(${hue}, 70%, 90%)`;   // fondo suave
+    const textColor = `hsl(${hue}, 70%, 30%)`; // texto oscuro
+  
+    return (
+      <View style={styles.taskContainerWrapper}>
+        {/* Pestaña con la categoría */}
+        <TouchableOpacity
+          onPress={() => openMoveModal(item)}
+          activeOpacity={0.8}
+        >
+          <View style={[
+            styles.categoryPill,
+            { backgroundColor: bgColor }
+          ]}>
+            <Text style={[styles.categoryPillText, { color: textColor }]}>
+              {item.category?.name || t('tasks.noCategory')}
+            </Text>
           </View>
-          <Text style={styles.taskStatusInfo}>{getTaskStatusInfo(item)}</Text>
-        </View>
-      </TouchableOpacity>
-    </Swipeable>
-  );
+        </TouchableOpacity>
+  
+        <Swipeable
+          activeOffsetX={[-10, 10]}
+          ref={(ref) => {
+            if (ref && item.id) swipeableRefs.current[item.id] = ref;
+          }}
+          renderLeftActions={() => (
+            <View style={GeneralStyles.leftAction}>
+              <Text style={styles.actionText}>{t('tasks.actionEdit')}</Text>
+            </View>
+          )}
+          renderRightActions={() => (
+            <View style={GeneralStyles.rightAction}>
+              <Text style={styles.actionText}>
+                {item.trashed ? t('tasks.modalTitleDelete') : t('tasks.actionMoveTrash')}
+              </Text>
+            </View>
+          )}
+          onSwipeableOpen={(direction) => {
+            swipeableRefs.current[item.id]?.close();
+            if (direction === 'left') {
+              navigation.navigate('TaskDetails', { task: item });
+            } else if (direction === 'right') {
+              handleTrashTask(item.id);
+            }
+          }}
+        >
+          <TouchableOpacity onPress={() => handleTaskPress(item)}>
+            <View
+              style={[
+                styles.taskItemContainer,
+                {
+                  borderLeftColor: item.priority?.colorHex,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between'
+                }
+              ]}
+            >
+              {/* Izquierda: checkbox + nombre */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                {/* Marcar completada */}
+                <TouchableOpacity onPress={() => handleCompleteTask(item.id)} style={styles.checkWrapper}>
+                  <View style={styles.checkCircle}>
+                    {item.status === 'COMPLETED' && (
+                      <FontAwesome name="check" size={18} color="#0C2527" />
+                    )}
+                  </View>
+                </TouchableOpacity>
+  
+                {/* Nombre de la tarea */}
+                <Text style={styles.taskName}>{item.name}</Text>
+              </View>
+  
+              {/* Derecha: info de estado */}
+              <Text style={styles.taskStatusInfo}>{getTaskStatusInfo(item)}</Text>
+            </View>
+          </TouchableOpacity>
+        </Swipeable>
+      </View>
+    );
+  };
+  
 
   const filteredTasks = selectedCategory
   ? (showCompletedTasks
@@ -504,6 +566,33 @@ if (selectedCategory) {
     }
   });
 }
+
+const openMoveModal = (task) => {
+  setTaskToMove(task);
+  setMoveModalVisible(true);
+};
+
+const handleMove = async (categoryId) => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    await axios.put(
+      `${BASE_URL}/api/tasks/update/${taskToMove.id}`,
+      {
+        name: taskToMove.name,
+        description: taskToMove.description,
+        dueDate: taskToMove.dueDate,
+        priorityId: taskToMove.priority?.id,
+        categoryId: categoryId,            // <-- aquí reasignas
+      },
+      { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+    );
+    setMoveModalVisible(false);
+    setTaskToMove(null);
+    fetchTasks();
+  } catch (err) {
+    console.error('Error moviendo tarea:', err);
+  }
+};
     
 
   return (
@@ -514,21 +603,21 @@ if (selectedCategory) {
       </Text>
 
       {/* ojo sólo en vista de categoría */}
-      { selectedCategory && typeof selectedCategory.showComplete !== 'undefined' && (
-        <TouchableOpacity onPress={() => setShowCompletedTasks(!showCompletedTasks)}>
-          <Feather
-            name={showCompletedTasks ? 'eye-off' : 'eye'}
-            size={24}
-            color="#CDF8FA"
-          />
-        </TouchableOpacity>
+      { selectedCategory && !selectedCategory.showComplete && (
+      <TouchableOpacity onPress={() => setShowCompletedTasks(!showCompletedTasks)}>
+        <Feather
+          name={showCompletedTasks ? 'eye-off' : 'eye'}
+          size={24}
+          color="#CDF8FA"
+        />
+      </TouchableOpacity>
       )}
       </View>
       <KeyboardAvoidingView
-        style={GeneralStyles.keyboardAvoiding}
-        behavior={Platform.OS === 'ios' ? 'padding' : ''}
-      >
-        <View style={{ flex: 1, width: screenWidth * 0.8 }}>
+      style={GeneralStyles.keyboardAvoiding}
+      behavior={Platform.OS === 'ios' ? 'padding' : ''}
+    >
+      <View style={{ flex: 1, width: screenWidth * 0.8 }}>
         <SectionList
           sections={sections}
           keyExtractor={item => item.id.toString()}
@@ -546,59 +635,88 @@ if (selectedCategory) {
           contentContainerStyle={{ paddingBottom: 100 }}
         />
 
-          <View style={styles.bottomInputContainer}>
-            <TextInput
-              placeholder={t('tasks.placeholderNewTask')}
-              style={styles.taskInput}
-              value={taskName}
-              onChangeText={setTaskName}
-            />
-            <View style={styles.customDropdownContainer}>
-              <TouchableOpacity
-                onPress={() => setShowPriorityOptions(!showPriorityOptions)}
-                style={styles.selectedPriorityBox}
-              >
-                <Text style={[styles.selectedPriorityText, { color: priority?.colorHex }]}>
-                  {priority ? priority.name : t('tasks.noPriority')}
-                </Text>
-                <Feather
-                  name={showPriorityOptions ? 'chevron-up' : 'chevron-down'}
-                  size={18}
-                  color="#333"
-                />
-              </TouchableOpacity>
-              {showPriorityOptions && (
-                <View style={styles.dropdownOptionsListAbove}>
-                  {priorities.map(p => (
-                    <TouchableOpacity
-                      key={p.id}
-                      onPress={() => {
-                        setPriority(p);
-                        setShowPriorityOptions(false);
-                      }}
-                      style={styles.priorityOption}
-                    >
-                      <Text style={[styles.priorityOptionText, { color: p.colorHex }]}>
-                        ● {p.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-            <TouchableOpacity onPress={handleAddButtonPress} style={styles.sendButton}>
-              {taskName.trim() === '' ? (
-                <Feather name="trash" size={15} color="white" />
-              ) : (
-                <Feather name="plus" size={15} color="white" />
-              )}
+        {/* Input + botón de añadir / papelera */}
+        <View style={styles.bottomInputContainer}>
+          <TextInput
+            placeholder={t('tasks.placeholderNewTask')}
+            style={styles.taskInput}
+            value={taskName}
+            onChangeText={setTaskName}
+          />
+          <View style={styles.customDropdownContainer}>
+            <TouchableOpacity
+              onPress={() => setShowPriorityOptions(!showPriorityOptions)}
+              style={styles.selectedPriorityBox}
+            >
+              <Text style={[styles.selectedPriorityText, { color: priority?.colorHex }]}>
+                {priority ? priority.name : t('tasks.noPriority')}
+              </Text>
+              <Feather
+                name={showPriorityOptions ? 'chevron-up' : 'chevron-down'}
+                size={18}
+                color="#333"
+              />
             </TouchableOpacity>
+            {showPriorityOptions && (
+              <View style={styles.dropdownOptionsListAbove}>
+                {priorities.map(p => (
+                  <TouchableOpacity
+                    key={p.id}
+                    onPress={() => {
+                      setPriority(p);
+                      setShowPriorityOptions(false);
+                    }}
+                    style={styles.priorityOption}
+                  >
+                    <Text style={[styles.priorityOptionText, { color: p.colorHex }]}>
+                      ● {p.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
-
+          <TouchableOpacity onPress={handleAddButtonPress} style={styles.sendButton}>
+            {taskName.trim() === '' ? (
+              <Feather name="trash" size={15} color="white" />
+            ) : (
+              <Feather name="plus" size={15} color="white" />
+            )}
+          </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
-    </GeneralTemplate>
-  );
+      </View>
+    </KeyboardAvoidingView>
+
+    {/* Modal para mover de categoría */}
+    <CustomModal
+      visible={moveModalVisible}
+      onClose={() => setMoveModalVisible(false)}
+    >
+      <View style={{ padding: 20, maxHeight: '80%' }}>
+        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>
+          {t('tasks.selectCategory')}
+        </Text>
+        <ScrollView>
+          <TouchableOpacity
+            onPress={() => handleMove(null)}
+            style={styles.modalOption}
+          >
+            <Text>{t('tasks.noCategory')}</Text>
+          </TouchableOpacity>
+          {allCategories.map(cat => (
+            <TouchableOpacity
+              key={cat.id}
+              onPress={() => handleMove(cat.id)}
+              style={styles.modalOption}
+            >
+              <Text>{cat.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+    </CustomModal>
+  </GeneralTemplate>
+);
 };
 
 const styles = {
@@ -731,7 +849,55 @@ const styles = {
     color: '#084F52',
     fontWeight: '600',
     marginBottom: 10,
-  }
+  },
+  taskContainerWrapper: {
+    marginBottom: 16,
+  },
+  categoryPill: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
+    borderBottomLeftRadius: 6,
+    marginLeft: 10,
+    marginBottom: -8,
+    zIndex: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 2,
+    transform: [{ rotate: '-2deg' }],
+  },
+  categoryPillText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  pillHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '50%',
+    height: '100%',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    transform: [{ translateX: -10 }, { rotate: '-10deg' }],
+  },
+  categoryPillText: {
+    color: '#CDF8FA',
+    fontSize: 13,
+    fontWeight: '700',
+    textShadowColor: 'rgba(0,0,0,0.25)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
+  },
+  taskItemContainer: {
+    backgroundColor: '#CDF8FA',
+    padding: 20,
+    borderRadius: 8,
+    borderLeftWidth: 10,
+  },
 };
 
 export default TasksScreen;

@@ -48,7 +48,7 @@
       "placeholder": {
         "name": "Name",
         "description": "Beschreibung",
-        "studyMethod": "Z. B. 1",
+        "studyMethod": "Bald er",
         "deleteDays": "Z. B. 7"
       },
       "order": {
@@ -208,7 +208,8 @@
       "onTime": "Pünktlich",
       "overdue": "Überfällig",
       "expiresToday": "Läuft heute ab",
-      "daysRemaining": "verbleibende Tage"
+      "daysRemaining": "verbleibende Tage",
+      "noCategory": "Keine Kategorie"
     },
     "trash": {
       "title": "Papierkorb",

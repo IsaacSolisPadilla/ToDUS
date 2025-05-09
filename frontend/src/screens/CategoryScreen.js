@@ -215,6 +215,7 @@ const CategoryScreen = ({ route, navigation }) => {
             placeholder={t('category.placeholder.studyMethod')}
             value={studyMethodId ? studyMethodId.toString() : ''}
             onChangeText={(t) => setStudyMethodId(t ? parseInt(t) : null)}
+            editable={false}
             keyboardType="numeric"
           />
 

@@ -48,7 +48,7 @@
     "placeholder": {
       "name": "Nombre",
       "description": "Descripción",
-      "studyMethod": "Ej: 1",
+      "studyMethod": "Comming soon",
       "deleteDays": "Ej. 7"
     },
     "order": {
@@ -208,7 +208,8 @@
     "onTime": "A tiempo",
     "overdue": "Vencida",
     "expiresToday": "Vence hoy",
-    "daysRemaining": "días restantes"
+    "daysRemaining": "días restantes",
+    "noCategory": "Sin categoría"
   },
   "trash": {
     "title": "Papelera",

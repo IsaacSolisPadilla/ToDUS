@@ -48,7 +48,7 @@
       "placeholder": {
         "name": "名称",
         "description": "描述",
-        "studyMethod": "例如：1",
+        "studyMethod": "即将",
         "deleteDays": "例如：7"
       },
       "order": {
@@ -208,7 +208,8 @@
       "onTime": "准时",
       "overdue": "已过期",
       "expiresToday": "今日到期",
-      "daysRemaining": "剩余 天"
+      "daysRemaining": "剩余 天",
+      "noCategory": "无分类"
     },
     "trash": {
       "title": "回收站",

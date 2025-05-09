@@ -48,7 +48,7 @@
     "placeholder": {
       "name": "Name",
       "description": "Description",
-      "studyMethod": "E.g. 1",
+      "studyMethod": "Próximamente",
       "deleteDays": "E.g. 7"
     },
     "order": {
@@ -209,7 +209,8 @@
     "onTime": "On time",
     "overdue": "Overdue",
     "expiresToday": "Expires today",
-    "daysRemaining": "days remaining"
+    "daysRemaining": "days remaining",
+    "noCategory": "Without category"
   },
   "trash": {
     "title": "Trash",

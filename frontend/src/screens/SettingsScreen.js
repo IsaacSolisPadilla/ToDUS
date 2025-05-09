@@ -77,7 +77,7 @@ const SettingsScreen = ({ navigation }) => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const cats = await Promise.all(resp.data.map(async c => {
-        const s = await AsyncStorage.getItem(`showCategory_${c.id}`);
+        const s = await AsyncStorage.getItem(`showCategoryCompleted_${c.id}`);
         return { ...c, show: s === 'true' };
       }));
       setCategorySettings(cats);
@@ -87,7 +87,7 @@ const SettingsScreen = ({ navigation }) => {
     }
   };
   const toggleCategoryOption = async (id, val) => {
-    await AsyncStorage.setItem(`showCategory_${id}`, val.toString());
+    await AsyncStorage.setItem(`showCategoryCompleted_${id}`, val.toString());
     setCategorySettings(cs =>
       cs.map(c => c.id === id ? { ...c, show: val } : c)
     );
