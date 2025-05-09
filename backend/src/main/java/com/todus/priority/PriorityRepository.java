@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface PriorityRepository extends JpaRepository<Priority, Long> {
     Optional<Priority> findById(Long id);
     List<Priority> findAll();
+    List<Priority> findByUserId(Long userId);
 
     
 }

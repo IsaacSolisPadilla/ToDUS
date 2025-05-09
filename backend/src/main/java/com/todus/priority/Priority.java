@@ -2,7 +2,12 @@ package com.todus.priority;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import com.todus.enums.Color;
+import com.todus.user.User;
 
 
 @Entity
@@ -15,7 +20,7 @@ public class Priority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -29,4 +34,8 @@ public class Priority {
     public String getColorHex() {
         return color.getHex();
     }
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

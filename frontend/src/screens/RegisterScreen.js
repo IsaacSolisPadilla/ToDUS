@@ -140,10 +140,10 @@ const RegisterScreen = ({ navigation }) => {
                 <InputField placeholder={t('register.surname')} value={surname} onChangeText={setSurname} />
                 <InputField placeholder={t('register.nickname')} value={nickname} onChangeText={setNickname} />
 
-                <InputField placeholder="Correo Electrónico" value={email} onChangeText={setEmail} keyboardType="email-address" />
+                <InputField placeholder={t('register.email')} value={email} onChangeText={setEmail} keyboardType="email-address" />
                 {emailError ? <Text style={GeneralStyles.errorText}>{emailError}</Text> : null}
 
-                <InputField placeholder={t('register.email')} value={password} onChangeText={setPassword} secureTextEntry />
+                <InputField placeholder={t('register.password')} value={password} onChangeText={setPassword} secureTextEntry />
                 {passwordError ? <Text style={GeneralStyles.errorText}>{passwordError}</Text> : null}
 
                 <InputField placeholder={t('register.password')} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />

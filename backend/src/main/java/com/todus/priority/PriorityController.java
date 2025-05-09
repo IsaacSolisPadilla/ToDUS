@@ -3,6 +3,10 @@ package com.todus.priority;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.todus.user.AuthService;
+import com.todus.user.User;
+
 import java.util.List;
 
 @RestController
@@ -14,6 +18,9 @@ public class PriorityController {
 
     @Autowired
     private PriorityRepository priorityRepository;
+
+    @Autowired
+    private AuthService userService;
 
     @GetMapping("/all")
     public List<Priority> getAllPriorities() {
@@ -43,5 +50,12 @@ public class PriorityController {
         }
         priorityRepository.deleteById(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/by-user")
+    public ResponseEntity<List<Priority>> listByUser(@RequestHeader("Authorization") String token) {
+        User user = userService.getAuthenticatedUser(token);
+        List<Priority> priorities = priorityService.getPrioritiesByUser(user);
+        return ResponseEntity.ok(priorities);
     }
 }

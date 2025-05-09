@@ -52,7 +52,13 @@ const TaskDetailScreen = ({ route, navigation }) => {
 
   const fetchPriorities = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/api/priorities/all`);
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.get(`${BASE_URL}/api/priorities/by-user`,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       setPriorities(response.data);
     } catch (error) {
       console.error('Error al obtener prioridades:', error);

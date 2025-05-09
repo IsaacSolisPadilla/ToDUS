@@ -108,7 +108,7 @@ const SettingsScreen = ({ navigation }) => {
   const fetchPriorities = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const resp = await axios.get(`${BASE_URL}/api/priorities/all`, {
+      const resp = await axios.get(`${BASE_URL}/api/priorities/by-user`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPrioritiesList(resp.data);

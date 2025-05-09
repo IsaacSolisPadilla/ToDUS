@@ -1,13 +1,17 @@
 package com.todus.user;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.todus.enums.Color;
 import com.todus.image.Image;
 import com.todus.image.ImageRepository;
+import com.todus.priority.Priority;
+import com.todus.priority.PriorityRepository;
 import com.todus.util.JwtUtil;
 
 @Service
@@ -20,6 +24,9 @@ public class AuthService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private PriorityRepository priorityRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -50,7 +57,27 @@ public class AuthService {
             user.setImage(image);
         }
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        List<Priority> defaults = List.of(
+            createPriority("Baja", 4, Color.PINK, user),
+            createPriority("Media", 3, Color.YELLOW, user),
+            createPriority("Alta", 2, Color.ORANGE, user),
+            createPriority("Crítica", 1, Color.RED, user)
+        );
+        // Salvar todas de golpe
+        priorityRepository.saveAll(defaults);
+
+        return user;
+    }
+
+    private Priority createPriority(String name, Integer level, Color color, User u) {
+        Priority p = new Priority();
+        p.setName(name);
+        p.setLevel(level);
+        p.setColor(color);
+        p.setUser(u);
+        return p;
     }
 
     public User getAuthenticatedUser(String token) {
