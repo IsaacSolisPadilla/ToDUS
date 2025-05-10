@@ -209,7 +209,8 @@
       "overdue": "已过期",
       "expiresToday": "今日到期",
       "daysRemaining": "剩余 天",
-      "noCategory": "无分类"
+      "noCategory": "无分类",
+      "selectCategory": "选择分类"
     },
     "trash": {
       "title": "回收站",
@@ -301,5 +302,12 @@
         "description": "您尚未创建任务或数据不足以显示统计信息。",
         "error": "无法加载统计数据"
       }
+    },
+    "idioms": {
+      "es": "西班牙语",
+      "en": "英语",
+      "fr": "法语",
+      "de": "德语",
+      "zh": "中文"
     }
   }

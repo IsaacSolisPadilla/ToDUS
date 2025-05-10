@@ -190,7 +190,13 @@ const SubTasksScreen = ({ route, navigation }) => {
           </Text>
 
           <InputField label={t('subtasks.labelName')} value={task.name} editable={false} />
-          <InputField label={t('subtasks.labelDescription')} value={task.description} editable={false} />
+          <InputField 
+          label={t('subtasks.labelDescription')} 
+          value={task.description} 
+          editable={false}
+          multiline={true}
+          maxLines={4}
+           />
 
           <Text style={styles.subTaskTitle}>{t('subtasks.subtasksTitle')}</Text>
 

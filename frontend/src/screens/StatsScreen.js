@@ -1,8 +1,7 @@
 // src/screens/StatsScreen.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
-  ActivityIndicator,
   Alert,
   StyleSheet,
   Dimensions,
@@ -16,18 +15,25 @@ import StatsSummaryCard from '../components/StatsSummaryCard';
 import ProductivityChart from '../components/ProductivityChart';
 import CategoryPieChart from '../components/CategoryPieChart';
 import PriorityBarChart from '../components/PriorityBarChart';
-import GeneralStyles from '../styles/GeneralStyles';
-import { ScrollView } from 'react-native-gesture-handler';
 import TimeSlotBarChart from '../components/TimeSlotBarChart';
-import { useTranslation } from 'react-i18next';
+import GeneralStyles from '../styles/GeneralStyles';
 import LoadingOverlay from '../components/LoadingOverlay';
 import logo from '../../assets/icono.png';
+import { useTranslation } from 'react-i18next';
+
+// Gesture Handler imports
+import {
+  GestureHandlerRootView,
+  ScrollView as GHScrollView,
+  PanGestureHandler
+} from 'react-native-gesture-handler';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 const StatsScreen = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const verticalRef = useRef(null);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -44,7 +50,7 @@ const StatsScreen = () => {
         setStats(data);
       } catch (error) {
         console.error('Error al cargar estadísticas:', error);
-        Alert.alert('Error', t('statsScreen.emptyState.error'));
+        Alert.alert('Error', GeneralStyles.emptyStateError || 'No se pudieron cargar las estadísticas');
       } finally {
         setLoading(false);
       }
@@ -55,8 +61,8 @@ const StatsScreen = () => {
   if (loading) {
     return (
       <LoadingOverlay
-        visible={true}
-        text={t('statsScreen.loading')}
+        visible
+        text={GeneralStyles.loadingText || 'Cargando estadísticas...'}
         logoSource={logo}
       />
     );
@@ -73,124 +79,150 @@ const StatsScreen = () => {
   const priChartWidth = Math.max(minChartWidth, priData.length * perBarWidth);
 
   return (
-    <GeneralTemplate>
-      <View style={{ flex: 1, width: screenWidth * 0.9 }}>
-        <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-          <Text style={GeneralStyles.title}>{t('statsScreen.title')}</Text>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <GeneralTemplate>
+        <View style={{ flex: 1, width: screenWidth * 0.9 }}>
+          <GHScrollView
+            ref={verticalRef}
+            contentContainerStyle={styles.container}
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled
+            directionalLockEnabled
+          >
 
-          {/* Summary Metrics */}
-          <View style={styles.summaryRow}>
-            <StatsSummaryCard
-              label={t('statsScreen.summary.total')}
-              value={stats.totalTasks}
-              iconName="layers"
-              description={t('statsScreen.descriptions.total')}
-              style={styles.summaryCard}
-            />
-            <StatsSummaryCard
-              label={t('statsScreen.summary.completed')}
-              value={stats.completedTasks}
-              percentage={stats.completionRate}
-              iconName="check-circle"
-              description={t('statsScreen.descriptions.completed')}
-              style={styles.summaryCard}
-            />
-          </View>
+            <Text style={GeneralStyles.title}>{GeneralStyles.statsTitle || t('statsScreen.title')}</Text>
 
-          {/* Productivity Chart */}
-          <View style={styles.cardWrapper}>
-            <Text style={styles.chartTitle}>{t('statsScreen.charts.productivityTitle')}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <ProductivityChart data={prodData} width={prodChartWidth} />
-            </ScrollView>
-          </View>
+            {/* Summary Metrics */}
+            <View style={styles.summaryRow}>
+              <StatsSummaryCard
+                label={t('statsScreen.summary.total')}
+                value={stats.totalTasks}
+                iconName="layers"
+                style={styles.summaryCard}
+              />
+              <StatsSummaryCard
+                label={t('statsScreen.summary.completed')}
+                value={stats.completedTasks}
+                percentage={stats.completionRate}
+                iconName="check-circle"
+                style={styles.summaryCard}
+              />
+            </View>
 
-          {/* Category Pie Chart */}
-          <View style={styles.cardWrapper}>
-            <Text style={styles.chartTitle}>{t('statsScreen.charts.categoryDistributionTitle')}</Text>
-            <CategoryPieChart data={stats.tasksByCategory} width={minChartWidth} />
-          </View>
+            {/* Productivity Chart */}
+            <View style={styles.cardWrapper}>
+              <Text style={styles.chartTitle}>{t('statsScreen.charts.productivityTitle')}</Text>
+              <PanGestureHandler simultaneousHandlers={verticalRef}>
+                <GHScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  nestedScrollEnabled
+                  simultaneousHandlers={verticalRef}
+                  contentContainerStyle={{ width: prodChartWidth }}
+                  style={{ flexGrow: 0 }}
+                >
+                  <View pointerEvents="none" style={{ width: prodChartWidth }}>
+                    <ProductivityChart data={prodData} width={prodChartWidth} />
+                  </View>
+                </GHScrollView>
+              </PanGestureHandler>
+            </View>
 
-          {/* Priority Bar Chart */}
-          <View style={styles.cardWrapper}>
-            <Text style={styles.chartTitle}>{t('statsScreen.charts.priorityTitle')}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <PriorityBarChart data={priData} width={priChartWidth} />
-            </ScrollView>
-          </View>
+            {/* Category Pie Chart */}
+            <View style={styles.cardWrapper}>
+              <Text style={styles.chartTitle}>{t('statsScreen.charts.categoryDistributionTitle')}</Text>
+              <View pointerEvents="none" style={{ width: minChartWidth }}>
+                <CategoryPieChart data={stats.tasksByCategory} width={minChartWidth} />
+              </View>
+            </View>
 
-          {/* Other Metrics Grid */}
-          <View style={styles.gridRow}>
-          <StatsSummaryCard
-            label={t('statsScreen.summary.total')}
-            value={stats.totalTasks}
-            iconName="layers"
-            description={t('statsScreen.descriptions.total')}
-            style={styles.summaryCard}
-          />
-          <StatsSummaryCard
-            label={t('statsScreen.summary.streak')}
-            value={t('statsScreen.summary.day', { count: stats.currentStreak })}
-            iconName="fire"
-            description={t('statsScreen.descriptions.streak')} 
-            style={styles.gridCard}
-          />
-          </View>
-          <View style={styles.gridRow}>
-            <StatsSummaryCard
-              label={t('statsScreen.summary.rescheduled')}
-              value={stats.rescheduledCount}
-              iconName="calendar-refresh"
-              description={t('statsScreen.descriptions.rescheduled')} 
-              style={styles.gridCard}
-            />
-            <StatsSummaryCard
-              label={t('statsScreen.summary.inTrash')}
-              value={stats.deletedCount}
-              iconName="trash-can"
-              description={t('statsScreen.descriptions.inTrash')} 
-              style={styles.gridCard}
-            />
-          </View>
-          <View style={styles.gridRow}>
-            <StatsSummaryCard
-              label={t('statsScreen.summary.overdue')}
-              value={stats.overdueCount}
-              iconName="alert-circle"
-              description={t('statsScreen.descriptions.overdue')} 
-              style={styles.gridCard}
-            />
-            
-          </View>
+            {/* Priority Bar Chart */}
+            <View style={styles.cardWrapper}>
+              <Text style={styles.chartTitle}>{t('statsScreen.charts.priorityTitle')}</Text>
+              <PanGestureHandler simultaneousHandlers={verticalRef}>
+                <GHScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  nestedScrollEnabled
+                  simultaneousHandlers={verticalRef}
+                  contentContainerStyle={{ width: priChartWidth }}
+                  style={{ flexGrow: 0 }}
+                >
+                  <View pointerEvents="none" style={{ width: priChartWidth }}>
+                    <PriorityBarChart data={priData} width={priChartWidth} />
+                  </View>
+                </GHScrollView>
+              </PanGestureHandler>
+            </View>
 
-          <View style={styles.gridRow}>
-            <StatsSummaryCard
-              label={t('statsScreen.summary.totalSubtasks')}
-              value={stats.totalSub}
-              iconName="layers-outline"
-              description={t('statsScreen.descriptions.totalSubtasks')} 
-              style={styles.gridCard}
-            />
-            <StatsSummaryCard
-              label={t('statsScreen.summary.completedSubtasks')}
-              value={stats.subtaskCompletedCount}
-              percentage={stats.subtaskCompletionRate}
-              iconName="check-all"
-              description={t('statsScreen.descriptions.completedSubtasks')} 
-              style={styles.gridCard}
-            />
-          </View>
+            {/* Other Metrics Grid */}
+            <View style={styles.gridRow}>
+              <StatsSummaryCard
+                label={t('statsScreen.summary.streak')}
+                value={t('statsScreen.summary.day', { count: stats.currentStreak })}
+                iconName="fire"
+                style={styles.gridCard}
+              />
+              <StatsSummaryCard
+                label={t('statsScreen.summary.rescheduled')}
+                value={stats.rescheduledCount}
+                iconName="calendar-refresh"
+                style={styles.gridCard}
+              />
+            </View>
+            <View style={styles.gridRow}>
+              <StatsSummaryCard
+                label={t('statsScreen.summary.inTrash')}
+                value={stats.deletedCount}
+                iconName="trash-can"
+                style={styles.gridCard}
+              />
+              <StatsSummaryCard
+                label={t('statsScreen.summary.overdue')}
+                value={stats.overdueCount}
+                iconName="alert-circle"
+                style={styles.gridCard}
+              />
+            </View>
+            <View style={styles.gridRow}>
+              <StatsSummaryCard
+                label={t('statsScreen.summary.totalSubtasks')}
+                value={stats.totalSub}
+                iconName="layers-outline"
+                style={styles.gridCard}
+              />
+              <StatsSummaryCard
+                label={t('statsScreen.summary.completedSubtasks')}
+                value={stats.subtaskCompletedCount}
+                percentage={stats.subtaskCompletionRate}
+                iconName="check-all"
+                style={styles.gridCard}
+              />
+            </View>
 
-          <View style={styles.cardWrapper}>
-            <Text style={styles.chartTitle}>{t('statsScreen.charts.timeSlotTitle')}</Text>
-            <TimeSlotBarChart 
-            data={stats.tasksByTimeSlot}
-            style={styles.gridCard} />
-          </View>
+            {/* Time Slot Chart */}
+            <View style={styles.cardWrapper}>
+              <Text style={styles.chartTitle}>{t('statsScreen.charts.timeSlotTitle')}</Text>
+              <PanGestureHandler simultaneousHandlers={verticalRef}>
+                <GHScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  nestedScrollEnabled
+                  simultaneousHandlers={verticalRef}
+                  contentContainerStyle={{ width: minChartWidth }}
+                  style={{ flexGrow: 0 }}
+                >
+                  <View pointerEvents="none" style={{ width: minChartWidth }}>
+                    <TimeSlotBarChart data={stats.tasksByTimeSlot} style={styles.gridCard} />
+                  </View>
+                </GHScrollView>
+              </PanGestureHandler>
+            </View>
 
-        </ScrollView>
-      </View>
-    </GeneralTemplate>
+          </GHScrollView>
+        </View>
+      </GeneralTemplate>
+    </GestureHandlerRootView>
   );
 };
 
@@ -199,16 +231,10 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: 'transparent',
   },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 24,
-    backgroundColor: 'transparent',
   },
   summaryCard: {
     flex: 1,
@@ -233,7 +259,7 @@ const styles = StyleSheet.create({
   },
   gridCard: {
     flex: 1,
-    marginHorizontal: 4
+    marginHorizontal: 4,
   },
 });
 

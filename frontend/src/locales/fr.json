@@ -209,7 +209,8 @@
       "overdue": "En retard",
       "expiresToday": "Échéance aujourd'hui",
       "daysRemaining": "jours restants",
-      "noCategory": "Aucune catégorie"
+      "noCategory": "Aucune catégorie",
+      "selectCategory": "Sélectionner une catégorie"
     },
     "trash": {
       "title": "Corbeille",
@@ -301,5 +302,12 @@
         "description": "Vous n'avez pas encore créé de tâches ou il n’y a pas assez de données pour afficher des statistiques.",
         "error": "Impossible de charger les statistiques"
       }
+    },
+    "idioms": {
+      "es": "Espagnol",
+      "en": "Anglais",
+      "fr": "Français",
+      "de": "Allemand",
+      "zh": "Chinois"
     }
   }  

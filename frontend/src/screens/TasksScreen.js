@@ -86,7 +86,6 @@ const TasksScreen = ({ navigation, route }) => {
         `${BASE_URL}/api/priorities/by-user`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log('Prioridades:', data);
       const list = Array.isArray(data) ? data : [];
       setPriorities(list);
       if (list.length) setPriority(list[0]);
@@ -697,28 +696,32 @@ const handleMove = async (categoryId) => {
     {/* Modal para mover de categoría */}
     <CustomModal
       visible={moveModalVisible}
-      onClose={() => setMoveModalVisible(false)}
+      onCancel={() => setMoveModalVisible(false)}
+      showConfirm={false}
     >
-      <View style={{ padding: 20, maxHeight: '80%' }}>
-        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>
+      <View style={styles.modalContainer}>
+        <Text style={styles.modalTitle}>
           {t('tasks.selectCategory')}
         </Text>
-        <ScrollView>
-          <TouchableOpacity
-            onPress={() => handleMove(null)}
-            style={styles.modalOption}
-          >
-            <Text>{t('tasks.noCategory')}</Text>
-          </TouchableOpacity>
-          {allCategories.map(cat => (
+        <ScrollView style={styles.modalScroll} nestedScrollEnabled>
+          {/* Muestra máximo 6 */}
+          {allCategories.slice(0, 6).map(cat => (
             <TouchableOpacity
               key={cat.id}
               onPress={() => handleMove(cat.id)}
               style={styles.modalOption}
             >
-              <Text>{cat.name}</Text>
+              <Text style={styles.modalOptionText}>
+                {cat.name}
+              </Text>
             </TouchableOpacity>
           ))}
+          {/* Si hay más, indicamos que se puede hacer scroll: */}
+          {allCategories.length > 6 && (
+            <Text style={styles.modalMoreIndicator}>
+              {t('tasks.moreCategories')}
+            </Text>
+          )}
         </ScrollView>
       </View>
     </CustomModal>
@@ -904,6 +907,39 @@ const styles = {
     padding: 20,
     borderRadius: 8,
     borderLeftWidth: 10,
+  },
+   modalContainer: {
+    padding: 20,
+    maxHeight: 6 * 50 + 40,   // 6 items de 50px + algo de padding
+    width: '80%',
+    alignSelf: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 12,
+    color: 'rgba(12,37,39,1)'
+  },
+  modalScroll: {
+    // quita maxHeight porque lo fija el contenedor
+  },
+  modalOption: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderColor: '#DDD',
+  },
+  modalOptionText: {
+    textAlign: 'center',
+    fontWeight: '700',
+    fontSize: 16,
+    color: 'rgba(12,37,39,1)'
+  },
+  modalMoreIndicator: {
+    textAlign: 'center',
+    fontStyle: 'italic',
+    marginTop: 8,
+    color: '#666',
   },
 };
 

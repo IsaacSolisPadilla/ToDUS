@@ -28,10 +28,21 @@ public class PriorityController {
     }
 
     @PostMapping("/create")
-    public Priority createPriority(@RequestBody Priority newPriority) {
-        int totalPriorities = priorityRepository.findAll().size();
-        newPriority.setLevel(totalPriorities + 1);
-        return priorityService.save(newPriority);
+    public ResponseEntity<Priority> createPriority(
+            @RequestBody Priority newPriority,
+            @RequestHeader("Authorization") String token
+    ) {
+        // 1. Obtiene el usuario autenticado
+        User user = userService.getAuthenticatedUser(token);
+        // 2. Asigna el usuario a la nueva prioridad
+        newPriority.setUser(user);
+
+        // 3. Calcula el nivel sólo de sus propias prioridades
+        long count = priorityRepository.countByUser(user);
+        newPriority.setLevel((int) count + 1);
+
+        Priority saved = priorityService.save(newPriority);
+        return ResponseEntity.ok(saved);
     }
 
     @PutMapping("update/{id}")

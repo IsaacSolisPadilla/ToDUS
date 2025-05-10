@@ -210,7 +210,8 @@
     "overdue": "Overdue",
     "expiresToday": "Expires today",
     "daysRemaining": "days remaining",
-    "noCategory": "Without category"
+    "noCategory": "Without category",
+    "selectCategory": "Select a category"
   },
   "trash": {
     "title": "Trash",
@@ -302,7 +303,15 @@
       "description": "You haven’t created any tasks yet or there isn’t enough data to display statistics.",
       "error": "Unable to load statistics"
     }
+  },
+  "idioms": {
+    "es": "Spanish",
+    "en": "English",
+    "fr": "French",
+    "de": "German",
+    "zh": "Chinese"
   }
+  
       
   }
   

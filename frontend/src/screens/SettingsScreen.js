@@ -5,7 +5,6 @@ import {
   Switch, 
   StyleSheet, 
   Alert, 
-  ScrollView, 
   KeyboardAvoidingView, 
   Platform, 
   TouchableWithoutFeedback,
@@ -25,17 +24,17 @@ import { useTranslation } from 'react-i18next';
 import { Picker } from '@react-native-picker/picker';
 import LoadingOverlay from '../components/LoadingOverlay';
 import logo from '../../assets/icono.png';
+import { ScrollView } from 'react-native-gesture-handler';
 
-// Simulamos el enum de Java en un arreglo
 const COLORS = [
-  { name: 'BLUE', hex: '#0000FF' },
-  { name: 'YELLOW', hex: '#FFFF00' },
-  { name: 'PINK', hex: '#FFC0CB' },
-  { name: 'PURPLE', hex: '#800080' },
-  { name: 'RED', hex: '#FF0000' },
-  { name: 'ORANGE', hex: '#FFA500' },
-  { name: 'BLACK', hex: '#000000' },
-  { name: 'WHITE', hex: '#FFFFFF' },
+  { name: 'BLUE',   hex: '#AEC6CF' },
+  { name: 'YELLOW', hex: '#FDFD96' },
+  { name: 'PINK',   hex: '#FFD1DC' },
+  { name: 'PURPLE', hex: '#CBAACB' },
+  { name: 'RED',    hex: '#FF6961' },
+  { name: 'ORANGE', hex: '#FFD8B1' },
+  { name: 'BLACK',  hex: '#B4B4B4' },
+  { name: 'WHITE',  hex: '#FFFFFF' },
 ];
 
 const SettingsScreen = ({ navigation }) => {
@@ -77,7 +76,7 @@ const SettingsScreen = ({ navigation }) => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const cats = await Promise.all(resp.data.map(async c => {
-        const s = await AsyncStorage.getItem(`showCategoryCompleted_${c.id}`);
+        const s = await AsyncStorage.getItem(`showCategory_${c.id}`);
         return { ...c, show: s === 'true' };
       }));
       setCategorySettings(cats);
@@ -87,7 +86,7 @@ const SettingsScreen = ({ navigation }) => {
     }
   };
   const toggleCategoryOption = async (id, val) => {
-    await AsyncStorage.setItem(`showCategoryCompleted_${id}`, val.toString());
+    await AsyncStorage.setItem(`showCategory_${id}`, val.toString());
     setCategorySettings(cs =>
       cs.map(c => c.id === id ? { ...c, show: val } : c)
     );
@@ -253,262 +252,269 @@ const SettingsScreen = ({ navigation }) => {
     );
   }
 
-  return (
-    <GeneralTemplate>
-      <View style={{flex:1, width: screenWidth * 0.9}}>
-      <ScrollView 
-        contentContainerStyle={styles.container} 
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        <TouchableWithoutFeedback onPress={()=>Keyboard.dismiss()}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS==='ios'?'padding':'height'}
-            style={[GeneralStyles.keyboardAvoiding, { flex: 1 }]}
-          >
+return (
+  <GeneralTemplate>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          style={{ width: screenWidth * 0.9 }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            padding: 20,
+            justifyContent: 'flex-start'
+          }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={GeneralStyles.title}>{t('settings.title')}</Text>
+          <Text style={styles.subheader}>
+            {t('settings.subtitle')}
+          </Text>
 
-            <Text style={GeneralStyles.title}>{t('settings.title')}</Text>
-            <Text style={styles.subheader}>
-              {t('settings.subtitle')}
-            </Text>
+          {/* --- Retención de papelera --- */}
+          <View style={styles.optionGroup}>
+            <Text style={styles.optionLabel}>{t('settings.trashRetentionLabel')}</Text>
+            <TextInput
+              style={styles.numberInput}
+              value={trashRetentionDays}
+              onChangeText={setTrashRetentionDays}
+              keyboardType="number-pad"
+              onEndEditing={() => saveTrashRetention(trashRetentionDays)}
+              returnKeyType="done"
+              inputAccessoryViewID={accessoryID}
+            />
+            <InputAccessoryView nativeID={accessoryID}>
+              <TouchableOpacity onPress={Keyboard.dismiss} style={styles.doneBtn}>
+                <Text style={styles.doneTxt}>Done</Text>
+              </TouchableOpacity>
+            </InputAccessoryView>
+          </View>
 
-            {/* --- Retención de papelera --- */}
-            <View style={styles.optionGroup}>
-              <Text style={styles.optionLabel}>{t('settings.trashRetentionLabel')}</Text>
-              <TextInput
-                style={styles.numberInput}
-                value={trashRetentionDays}
-                onChangeText={setTrashRetentionDays}
-                keyboardType="number-pad"
-                onEndEditing={()=>saveTrashRetention(trashRetentionDays)}
-                returnKeyType="done"
-                inputAccessoryViewID={accessoryID}
-              />
-              <InputAccessoryView nativeID={accessoryID}>
-                <TouchableOpacity onPress={()=>Keyboard.dismiss()} style={styles.doneBtn}>
-                  <Text style={styles.doneTxt}>Done</Text>
-                </TouchableOpacity>
-              </InputAccessoryView>
-            </View>
-
-            {/* --- Mostrar categorías --- */}
-            <Text style={[GeneralStyles.title, { marginTop: 30 }]}>
+          {/* --- Mostrar categorías --- */}
+          <Text style={[GeneralStyles.title, { marginTop: 30 }]}>
             {t('settings.showCategories')}
-            </Text>
-            <View style={styles.optionsContainer}>
-              {categorySettings.map(cat => (
-                <View key={cat.id} style={styles.optionRow}>
-                  <Text style={styles.optionLabel}>{cat.name}</Text>
-                  <Switch
-                    value={cat.show}
-                    onValueChange={v=>toggleCategoryOption(cat.id,v)}
-                    thumbColor={'#084F52'}
-                    trackColor={{ false: '#ccc', true: '#16CDD6' }}
-                  />
-                </View>
-              ))}
-            </View>
-
-            {/* --- Gestión de Prioridades --- */}
-            <Text style={GeneralStyles.title}>{t('settings.prioritiesManagement')}</Text>
-            <View style={styles.prioritiesSection}>
-              {prioritiesList.map(p => (
-                <Swipeable
-                  key={p.id}
-                  ref={ref=> swipeableRefs.current[p.id]=ref}
-                  renderLeftActions={()=>(
-                    <View style={GeneralStyles.leftAction}><Text style={styles.actionText}>{t('settings.editPriority')}</Text></View>
-                  )}
-                  renderRightActions={()=>(
-                    <View style={GeneralStyles.rightAction}><Text style={styles.actionText}>{t('settings.deletePriority')}</Text></View>
-                  )}
-                  onSwipeableOpen={dir=>{
-                    swipeableRefs.current[p.id]?.close();
-                    if(dir==='left'){
-                      setEditingPriority(p);
-                      setNewPriorityName(p.name);
-                      setNewPriorityColor(p.colorHex);
-                    } else {
-                      deletePriority(p.id);
-                    }
-                  }}
-                >
-                  <View style={styles.priorityRow}>
-                    <View style={[styles.priorityColorBox, { backgroundColor: p.colorHex }]} />
-                    <Text style={styles.priorityName}>{p.name}</Text>
-                  </View>
-                </Swipeable>
-              ))}
-
-              <View style={styles.newPriorityContainer}>
-                <TextInput
-                  placeholder={t('settings.namePriority')}
-                  style={styles.newPriorityInput}
-                  value={newPriorityName}
-                  onChangeText={setNewPriorityName}
+          </Text>
+          <View style={styles.optionsContainer}>
+            {categorySettings.map(cat => (
+              <View key={cat.id} style={styles.optionRow}>
+                <Text style={styles.optionLabel}>{cat.name}</Text>
+                <Switch
+                  value={cat.show}
+                  onValueChange={v => toggleCategoryOption(cat.id, v)}
+                  thumbColor={'#084F52'}
+                  trackColor={{ false: '#ccc', true: '#16CDD6' }}
                 />
-                <View style={styles.colorsContainer}>
-                  {COLORS.map(c=>(
-                    <TouchableOpacity
-                      key={c.name}
-                      style={[
-                        styles.colorCircle,
-                        { backgroundColor: c.hex },
-                        newPriorityColor===c.hex && styles.colorSelected
-                      ]}
-                      onPress={()=>setNewPriorityColor(c.hex)}
-                    />
-                  ))}
-                </View>
-                <TouchableOpacity
-                  style={styles.savePriorityButton}
-                  onPress={editingPriority?updatePriority:createPriority}
-                >
-                  <Text style={styles.savePriorityButtonText}>
-                  {editingPriority
-                    ? t('settings.updatePriority')
-                    : t('settings.createPriority')}         
-                  </Text>
-                </TouchableOpacity>
-                {editingPriority && (
-                  <TouchableOpacity
-                    style={styles.cancelEditButton}
-                    onPress={()=>{
-                      setEditingPriority(null);
-                      setNewPriorityName('');
-                      setNewPriorityColor(COLORS[0].hex);
-                    }}
-                  >
-                    <Text style={styles.cancelEditButtonText}>Cancelar</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
-
-            {/* --- Reglas auto‑prioridad --- */}
-            <Text style={[GeneralStyles.title, { marginTop: 30 }]}>
-              {t('settings.autoPriorityRules')}
-            </Text>
-            {rules.map((r,i)=>(
-              <View key={i} style={styles.ruleRow}>
-                <Text style={styles.ruleText}>
-                  {t('settings.if')} "{prioritiesList.find(x=>x.id===r.fromId)?.name}" {t('settings.and')} ≤{r.days}d → "{prioritiesList.find(x=>x.id===r.toId)?.name}"
-                </Text>
-                <TouchableOpacity onPress={()=>deleteRule(i)}>
-                  <Text style={styles.deleteRule}>❌</Text>
-                </TouchableOpacity>
               </View>
             ))}
+          </View>
 
-            <View style={styles.ruleForm}>
-              <Text style={styles.optionLabel}>{t('settings.from')}</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {prioritiesList.map(p=>(
-                  <TouchableOpacity
-                    key={p.id}
-                    style={[
-                      styles.priorityBubble,
-                      fromId===p.id && styles.bubbleSelected
-                    ]}
-                    onPress={()=>setFromId(p.id)}
-                  >
-                    <Text style={{ color: p.colorHex }}>{p.name}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+          {/* --- Gestión de Prioridades --- */}
+          <Text style={GeneralStyles.title}>{t('settings.prioritiesManagement')}</Text>
+          <View style={styles.prioritiesSection}>
+            {prioritiesList.map(p => (
+              <Swipeable
+                key={p.id}
+                ref={ref => (swipeableRefs.current[p.id] = ref)}
+                renderLeftActions={() => (
+                  <View style={GeneralStyles.leftAction}>
+                    <Text style={styles.actionText}>{t('settings.editPriority')}</Text>
+                  </View>
+                )}
+                renderRightActions={() => (
+                  <View style={GeneralStyles.rightAction}>
+                    <Text style={styles.actionText}>{t('settings.deletePriority')}</Text>
+                  </View>
+                )}
+                onSwipeableOpen={dir => {
+                  swipeableRefs.current[p.id]?.close();
+                  if (dir === 'left') {
+                    setEditingPriority(p);
+                    setNewPriorityName(p.name);
+                    setNewPriorityColor(p.colorHex);
+                  } else {
+                    deletePriority(p.id);
+                  }
+                }}
+              >
+                <View style={styles.priorityRow}>
+                  <View style={[styles.priorityColorBox, { backgroundColor: p.colorHex }]} />
+                  <Text style={styles.priorityName}>{p.name}</Text>
+                </View>
+              </Swipeable>
+            ))}
 
-              <Text style={[styles.optionLabel, { marginTop: 8 }]}>{t('settings.days')} ≤</Text>
+            <View style={styles.newPriorityContainer}>
               <TextInput
-                style={[styles.numberInput, { marginBottom: 8 }]}
-                value={daysThreshold}
-                onChangeText={setDaysThreshold}
-                keyboardType="number-pad"
-                returnKeyType="done"
-                inputAccessoryViewID={accessoryID}
+                placeholder={t('settings.namePriority')}
+                style={styles.newPriorityInput}
+                value={newPriorityName}
+                onChangeText={setNewPriorityName}
               />
-
-              <Text style={styles.optionLabel}>{t('settings.to')}:</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {prioritiesList.map(p=>(
+              <View style={styles.colorsContainer}>
+                {COLORS.map(c => (
                   <TouchableOpacity
-                    key={p.id}
+                    key={c.name}
                     style={[
-                      styles.priorityBubble,
-                      toId===p.id && styles.bubbleSelected
+                      styles.colorCircle,
+                      { backgroundColor: c.hex },
+                      newPriorityColor === c.hex && styles.colorSelected
                     ]}
-                    onPress={()=>setToId(p.id)}
-                  >
-                    <Text style={{ color: p.colorHex }}>{p.name}</Text>
-                  </TouchableOpacity>
+                    onPress={() => setNewPriorityColor(c.hex)}
+                  />
                 ))}
-              </ScrollView>
+              </View>
+              <TouchableOpacity
+                style={styles.savePriorityButton}
+                onPress={editingPriority ? updatePriority : createPriority}
+              >
+                <Text style={styles.savePriorityButtonText}>
+                  {editingPriority
+                    ? t('settings.updatePriority')
+                    : t('settings.createPriority')}
+                </Text>
+              </TouchableOpacity>
+              {editingPriority && (
+                <TouchableOpacity
+                  style={styles.cancelEditButton}
+                  onPress={() => {
+                    setEditingPriority(null);
+                    setNewPriorityName('');
+                    setNewPriorityColor(COLORS[0].hex);
+                  }}
+                >
+                  <Text style={styles.cancelEditButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
 
-              <TouchableOpacity style={styles.addRuleBtn} onPress={addRule}>
-                <Text style={styles.addRuleTxt}>{t('settings.addRule')}</Text>
+          {/* --- Reglas auto-prioridad --- */}
+          <Text style={[GeneralStyles.title, { marginTop: 30 }]}>
+            {t('settings.autoPriorityRules')}
+          </Text>
+          {rules.map((r, i) => (
+            <View key={i} style={styles.ruleRow}>
+              <Text style={styles.ruleText}>
+                {t('settings.if')} "{prioritiesList.find(x => x.id === r.fromId)?.name}"{' '}
+                {t('settings.and')} ≤{r.days}d → "{prioritiesList.find(x => x.id === r.toId)?.name}"
+              </Text>
+              <TouchableOpacity onPress={() => deleteRule(i)}>
+                <Text style={styles.deleteRule}>❌</Text>
               </TouchableOpacity>
             </View>
+          ))}
 
-            {/* --- Notificaciones --- */}
-            <Text style={[GeneralStyles.title, { marginTop: 30 }]}>{t('settings.notifications')}</Text>
-            <View style={styles.optionGroup}>
-              <View style={styles.optionRow}>
-                <Text style={styles.optionLabel}>{t('settings.notificationsLabel1')}</Text>
-                <Switch
-                  value={notifyOnPriorityChange}
-                  onValueChange={setNotifyOnPriorityChange}
-                  thumbColor="#084F52"
-                  trackColor={{ false:'#ccc', true:'#16CDD6' }}
-                />
-              </View>
+          <View style={styles.ruleForm}>
+            <Text style={styles.optionLabel}>{t('settings.from')}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {prioritiesList.map(p => (
+                <TouchableOpacity
+                  key={p.id}
+                  style={[
+                    styles.priorityBubble,
+                    fromId === p.id && styles.bubbleSelected
+                  ]}
+                  onPress={() => setFromId(p.id)}
+                >
+                  <Text style={{ color: p.colorHex }}>{p.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <Text style={[styles.optionLabel, { marginTop: 8 }]}>{t('settings.days')} ≤</Text>
+            <TextInput
+              style={[styles.numberInput, { marginBottom: 8 }]}
+              value={daysThreshold}
+              onChangeText={setDaysThreshold}
+              keyboardType="number-pad"
+              returnKeyType="done"
+              inputAccessoryViewID={accessoryID}
+            />
+
+            <Text style={styles.optionLabel}>{t('settings.to')}:</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {prioritiesList.map(p => (
+                <TouchableOpacity
+                  key={p.id}
+                  style={[
+                    styles.priorityBubble,
+                    toId === p.id && styles.bubbleSelected
+                  ]}
+                  onPress={() => setToId(p.id)}
+                >
+                  <Text style={{ color: p.colorHex }}>{p.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <TouchableOpacity style={styles.addRuleBtn} onPress={addRule}>
+              <Text style={styles.addRuleTxt}>{t('settings.addRule')}</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* --- Notificaciones --- */}
+          <Text style={[GeneralStyles.title, { marginTop: 30 }]}>{t('settings.notifications')}</Text>
+          <View style={styles.optionGroup}>
+            <View style={styles.optionRow}>
+              <Text style={styles.optionLabel}>{t('settings.notificationsLabel1')}</Text>
+              <Switch
+                value={notifyOnPriorityChange}
+                onValueChange={setNotifyOnPriorityChange}
+                thumbColor="#084F52"
+                trackColor={{ false: '#ccc', true: '#16CDD6' }}
+              />
+            </View>
+            <View style={styles.optionRow}>
+              <Text style={styles.optionLabel}>{t('settings.notificationsLabel2')}</Text>
+              <Switch
+                value={notifyDueReminders}
+                onValueChange={setNotifyDueReminders}
+                thumbColor="#084F52"
+                trackColor={{ false: '#ccc', true: '#16CDD6' }}
+              />
+            </View>
+            {notifyDueReminders && (
               <View style={styles.optionRow}>
                 <Text style={styles.optionLabel}>{t('settings.notificationsLabel2')}</Text>
-                <Switch
-                  value={notifyDueReminders}
-                  onValueChange={setNotifyDueReminders}
-                  thumbColor="#084F52"
-                  trackColor={{ false:'#ccc', true:'#16CDD6' }}
+                <TextInput
+                  style={[styles.numberInput, { width: 60 }]}
+                  keyboardType="number-pad"
+                  value={dueReminderDays}
+                  onChangeText={setDueReminderDays}
+                  onEndEditing={saveNotificationSettings}
+                  returnKeyType="done"
                 />
               </View>
-              {notifyDueReminders && (
-                <View style={styles.optionRow}>
-                  <Text style={styles.optionLabel}>{t('settings.notificationsLabel2')}</Text>
-                  <TextInput
-                    style={[styles.numberInput,{width:60}]}
-                    keyboardType="number-pad"
-                    value={dueReminderDays}
-                    onChangeText={setDueReminderDays}
-                    onEndEditing={saveNotificationSettings}
-                    returnKeyType="done"
-                  />
-                </View>
-              )}
-              <TouchableOpacity style={styles.saveNotifButton} onPress={saveNotificationSettings}>
-                <Text style={styles.saveNotifButtonText}>{t('settings.saveNotifications')}</Text>
-              </TouchableOpacity>
-            </View>
+            )}
+            <TouchableOpacity style={styles.saveNotifButton} onPress={saveNotificationSettings}>
+              <Text style={styles.saveNotifButtonText}>{t('settings.saveNotifications')}</Text>
+            </TouchableOpacity>
+          </View>
 
-            <Text style={[GeneralStyles.title, { marginTop: 30 }]}>{t('settings.language')}</Text>
-            <View style={[styles.optionGroup, { paddingVertical: 8 }]}>            
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={lang}
-                  onValueChange={value => changeLanguage(value)}
-                  mode="dropdown"
-                >
-                  <Picker.Item label="Español" value="es" />
-                  <Picker.Item label="English" value="en" />
-                  <Picker.Item label="Français" value="fr" />
-                  <Picker.Item label="Deutsch" value="de" />
-                  <Picker.Item label="中文" value="zh" />
-                </Picker>
-              </View>
+          <Text style={[GeneralStyles.title, { marginTop: 30 }]}>{t('settings.language')}</Text>
+          <View style={[styles.optionGroup, { paddingVertical: 8 }]}>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={lang}
+                onValueChange={value => changeLanguage(value)}
+                mode="dropdown"
+              >
+                <Picker.Item label={t('idioms.es')} value="es" />
+                <Picker.Item label={t('idioms.en')} value="en" />
+                <Picker.Item label={t('idioms.fr')} value="fr" />
+                <Picker.Item label={t('idioms.de')} value="de" />
+                <Picker.Item label={t('idioms.zh')} value="zh" />
+              </Picker>
             </View>
-
-          </KeyboardAvoidingView>
-        </TouchableWithoutFeedback>
-      </ScrollView>
-      </View>
-    </GeneralTemplate>
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
+  </GeneralTemplate>
   );
 };
 
@@ -536,13 +542,15 @@ const styles = StyleSheet.create({
     marginBottom: 8
   },
   numberInput: {
-    width: 80,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 10,
+    fontSize: 16,
+    color: '#084F52',
+    width: 80,
     textAlign: 'center',
-    backgroundColor: 'white'
+    marginBottom: 10,
   },
   optionsContainer: {
     paddingBottom: 30

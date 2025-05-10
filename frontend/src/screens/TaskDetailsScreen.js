@@ -266,6 +266,8 @@ const TaskDetailScreen = ({ route, navigation }) => {
                 value={description}
                 onChangeText={setDescription}
                 editable={true}
+                multiline={true}
+                maxLines={5}
               />
 
               <Button title={t('taskDetail.buttonSave')} onPress={handleGoBack} />

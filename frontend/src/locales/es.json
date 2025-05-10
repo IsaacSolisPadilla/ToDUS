@@ -209,7 +209,8 @@
     "overdue": "Vencida",
     "expiresToday": "Vence hoy",
     "daysRemaining": "días restantes",
-    "noCategory": "Sin categoría"
+    "noCategory": "Sin categoría",
+    "selectCategory": "Seleccionar categoría"
   },
   "trash": {
     "title": "Papelera",
@@ -249,22 +250,35 @@
       "confirm": "Confirmar",
       "cancel": "Cancelar"
     },
-    "about":{
-      "title": "Acerca de la aplicación",
+   "about": {
+      "title": "Acerca de TodUS",
       "description_title": "Descripción",
-      "description_text": "TodUS es una aplicación móvil diseñada para ayudarte a organizar tus tareas y subtareas de manera eficiente. Gracias a su sistema de categorías, podrás clasificar y gestionar todas tus actividades según tus necesidades.",
+      "description_text": "TodUS es una app móvil para organizar tareas y subtareas con total flexibilidad. Utiliza categorías personalizables, recordatorios y automatizaciones para que no tengas que estar pendiente de todo.",
       "features_title": "Características",
       "feature_create": "Crear, editar y eliminar tareas y subtareas",
       "feature_categories": "Organización por categorías personalizables",
-      "feature_trash": "Papelera de tareas para recuperación de elementos eliminados",
-      "feature_auth": "Registro e inicio de sesión de usuario",
+      "feature_trash": "Papelera de recuperación de elementos eliminados",
+      "feature_auth": "Registro e inicio de sesión seguros",
       "feature_profile": "Gestión de perfil y cambios de contraseña",
+      "settings_title": "Ajustes",
+      "settings_text": "Automatiza tareas recurrentes, activa notificaciones para diferentes eventos y cambia el idioma (¡hasta 5, destacando alemán y chino!).",
+      "statistics_title": "Estadísticas",
+      "statistics_text": "Visualiza tu productividad con métricas de tareas completadas, tiempos medios y gráficos de progreso.",
       "version_title": "Versión",
       "version_text": "1.0.0",
       "author_title": "Autor",
-      "author_text": "Proyecto de Fin de Grado - Isaac Solís Padilla",
+      "author_text": "Proyecto de Fin de Grado – Isaac Solís Padilla",
       "contact_title": "Contacto",
-      "contact_email": "isaacsolpad@gmail.com"
+      "contact_email": "isaacsolpad@gmail.com",
+      "future_title": "Futuros trabajos",
+      "future_list": [
+        "Mejorar la experiencia de usuario (UI/UX)",
+        "Sistema de organización colaborativa: crea equipos y asigna tareas a varios usuarios",
+        "Ampliar la sección de estadísticas y ajustes",
+        "Añadir más idiomas y localizaciones",
+        "Integración con calendarios externos (Google, Outlook)",
+        "Modo oscuro y personalización de tema"
+      ]
     },
     "statsScreen": {
       "title": "Estadísticas",
@@ -301,5 +315,12 @@
         "description": "Aún no has creado tareas o no hay datos suficientes para mostrar estadísticas.",
         "error": "No se pudieron cargar las estadísticas"
       }
+    },
+    "idioms": {
+      "es": "Español",
+      "en": "Inglés",
+      "fr": "Francés",
+      "de": "Alemán",
+      "zh": "Chino"
     }
 }

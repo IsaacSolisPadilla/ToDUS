@@ -9,6 +9,7 @@ const CustomModal = ({
   children, 
   onConfirm, 
   onCancel, 
+  showConfirm = true, // Prop para mostrar u ocultar el botón "Confirmar"
   showCancel = true, // Prop para mostrar u ocultar el botón "Cancelar"
   modalWidth = '80%' // Prop para personalizar el ancho del modal
   
@@ -26,10 +27,11 @@ const CustomModal = ({
 
           {/* Botón Confirmar y, opcionalmente, el botón Cancelar */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.confirmButton} onPress={onConfirm}>
-              <Text style={styles.buttonText}>{t('modal.confirm')}</Text>
-            </TouchableOpacity>
-
+            {showConfirm && (
+              <TouchableOpacity style={styles.confirmButton} onPress={onConfirm}>
+                <Text style={styles.buttonText}>{t('modal.confirm')}</Text>
+              </TouchableOpacity>
+            )}
             {showCancel && (
               <TouchableOpacity style={styles.closeButton} onPress={onCancel}>
                 <Text style={styles.buttonText}>{t('modal.cancel')}</Text>

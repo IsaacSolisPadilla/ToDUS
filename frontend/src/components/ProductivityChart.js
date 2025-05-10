@@ -21,7 +21,6 @@ const ProductivityChart = ({ data, width }) => {
   const values = slice.map(d => d.count);
 
   return (
-    <View style={styles.container}>
       <BarChart
         data={{ labels, datasets: [{ data: values }] }}
         width={width || screenWidth - 32}
@@ -46,17 +45,10 @@ const ProductivityChart = ({ data, width }) => {
         }}
         style={styles.chart}
       />
-    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'rgba(12,37,39,1)',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
-  },
   title: {
     fontSize: 16,
     fontWeight: '600',

@@ -174,6 +174,8 @@ const CategoryScreen = ({ route, navigation }) => {
             placeholder={t('category.placeholder.description')}
             value={description}
             onChangeText={setDescription}
+            multiline={true}
+            maxLines={5}
           />
 
           {/* Orden */}

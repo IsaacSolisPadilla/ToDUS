@@ -209,7 +209,8 @@
       "overdue": "Überfällig",
       "expiresToday": "Läuft heute ab",
       "daysRemaining": "verbleibende Tage",
-      "noCategory": "Keine Kategorie"
+      "noCategory": "Keine Kategorie",
+      "selectCategory": "Kategorie auswählen"
     },
     "trash": {
       "title": "Papierkorb",
@@ -301,5 +302,12 @@
         "description": "Du hast noch keine Aufgaben erstellt oder es gibt nicht genügend Daten, um Statistiken anzuzeigen.",
         "error": "Statistiken konnten nicht geladen werden"
       }
+    },
+    "idioms": {
+      "es": "Spanisch",
+      "en": "Englisch",
+      "fr": "Französisch",
+      "de": "Deutsch",
+      "zh": "Chinesisch"
     }
   }  
