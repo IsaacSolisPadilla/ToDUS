@@ -25,7 +25,8 @@
       "english": "Englisch",
       "editPriority": "Bearbeiten",
       "deletePriority": "Löschen",
-      "cannotDeletePriority": "Priorität kann nicht gelöscht werden, da sie verwendet wird"
+      "cannotDeletePriority": "Priorität kann nicht gelöscht werden, da sie verwendet wird",
+      "loading": "Lade ..."
     },
     "categories": {
       "title": "Deine Kategorien",

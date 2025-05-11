@@ -25,7 +25,8 @@
       "english": "Inglés",
       "editPriority": "Editar",
       "deletePriority": "Eliminar",
-      "cannotDeletePriority": "No se puede eliminar la prioridad porque está en uso"
+      "cannotDeletePriority": "No se puede eliminar la prioridad porque está en uso",
+      "loading": "Cargando..."
     },
     "categories": {
     "title": "Tus Categorías",

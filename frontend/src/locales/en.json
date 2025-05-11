@@ -25,7 +25,8 @@
       "english": "English",
       "editPriority": "Edit",
       "deletePriority": "Delete",
-      "cannotDeletePriority": "Cannot delete the priority because it is in use"
+      "cannotDeletePriority": "Cannot delete the priority because it is in use",
+      "loading": "Loading..."
     },
     "categories": {
     "title": "Your Categories",

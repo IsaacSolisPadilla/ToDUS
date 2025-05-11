@@ -25,7 +25,8 @@
       "english": "英语",
       "editPriority": "编辑",
       "deletePriority": "删除",
-      "cannotDeletePriority": "无法删除优先级，因为它正在使用中"
+      "cannotDeletePriority": "无法删除优先级，因为它正在使用中",
+      "loading": "加载中..."
     },
     "categories": {
       "title": "您的分类",
