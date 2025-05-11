@@ -58,7 +58,7 @@ const StatsScreen = () => {
     fetchStats();
   }, []);
 
-  if (loading) {
+  if (loading || !stats) {
     return (
       <LoadingOverlay
         visible
@@ -94,20 +94,22 @@ const StatsScreen = () => {
 
             {/* Summary Metrics */}
             <View style={styles.summaryRow}>
-              <StatsSummaryCard
-                label={t('statsScreen.summary.total')}
-                value={stats.totalTasks}
-                iconName="layers"
-                style={styles.summaryCard}
-              />
-              <StatsSummaryCard
-                label={t('statsScreen.summary.completed')}
-                value={stats.completedTasks}
-                percentage={stats.completionRate}
-                iconName="check-circle"
-                style={styles.summaryCard}
-              />
-            </View>
+            <StatsSummaryCard
+              label={t('statsScreen.summary.total')}
+              value={stats.totalTasks}
+              iconName="layers"
+              description={t('statsScreen.descriptions.total')}
+              style={styles.summaryCard}
+            />
+            <StatsSummaryCard
+              label={t('statsScreen.summary.completed')}
+              value={stats.completedTasks}
+              percentage={stats.completionRate}
+              iconName="check-circle"
+              description={t('statsScreen.descriptions.completed')}
+              style={styles.summaryCard}
+            />
+          </View>
 
             {/* Productivity Chart */}
             <View style={styles.cardWrapper}>
@@ -156,49 +158,66 @@ const StatsScreen = () => {
             </View>
 
             {/* Other Metrics Grid */}
-            <View style={styles.gridRow}>
-              <StatsSummaryCard
-                label={t('statsScreen.summary.streak')}
-                value={t('statsScreen.summary.day', { count: stats.currentStreak })}
-                iconName="fire"
-                style={styles.gridCard}
-              />
-              <StatsSummaryCard
-                label={t('statsScreen.summary.rescheduled')}
-                value={stats.rescheduledCount}
-                iconName="calendar-refresh"
-                style={styles.gridCard}
-              />
-            </View>
-            <View style={styles.gridRow}>
-              <StatsSummaryCard
-                label={t('statsScreen.summary.inTrash')}
-                value={stats.deletedCount}
-                iconName="trash-can"
-                style={styles.gridCard}
-              />
-              <StatsSummaryCard
-                label={t('statsScreen.summary.overdue')}
-                value={stats.overdueCount}
-                iconName="alert-circle"
-                style={styles.gridCard}
-              />
-            </View>
-            <View style={styles.gridRow}>
-              <StatsSummaryCard
-                label={t('statsScreen.summary.totalSubtasks')}
-                value={stats.totalSub}
-                iconName="layers-outline"
-                style={styles.gridCard}
-              />
-              <StatsSummaryCard
-                label={t('statsScreen.summary.completedSubtasks')}
-                value={stats.subtaskCompletedCount}
-                percentage={stats.subtaskCompletionRate}
-                iconName="check-all"
-                style={styles.gridCard}
-              />
-            </View>
+             <View style={styles.gridRow}>
+          <StatsSummaryCard
+            label={t('statsScreen.summary.total')}
+            value={stats.totalTasks}
+            iconName="layers"
+            description={t('statsScreen.descriptions.total')}
+            style={styles.summaryCard}
+          />
+          <StatsSummaryCard
+            label={t('statsScreen.summary.streak')}
+            value={t('statsScreen.summary.day', { count: stats.currentStreak })}
+            iconName="fire"
+            description={t('statsScreen.descriptions.streak')} 
+            style={styles.gridCard}
+          />
+          </View>
+          <View style={styles.gridRow}>
+            <StatsSummaryCard
+              label={t('statsScreen.summary.rescheduled')}
+              value={stats.rescheduledCount}
+              iconName="calendar-refresh"
+              description={t('statsScreen.descriptions.rescheduled')} 
+              style={styles.gridCard}
+            />
+            <StatsSummaryCard
+              label={t('statsScreen.summary.inTrash')}
+              value={stats.deletedCount}
+              iconName="trash-can"
+              description={t('statsScreen.descriptions.inTrash')} 
+              style={styles.gridCard}
+            />
+          </View>
+          <View style={styles.gridRow}>
+            <StatsSummaryCard
+              label={t('statsScreen.summary.overdue')}
+              value={stats.overdueCount}
+              iconName="alert-circle"
+              description={t('statsScreen.descriptions.overdue')} 
+              style={styles.gridCard}
+            />
+            
+          </View>
+
+          <View style={styles.gridRow}>
+            <StatsSummaryCard
+              label={t('statsScreen.summary.totalSubtasks')}
+              value={stats.totalSub}
+              iconName="layers-outline"
+              description={t('statsScreen.descriptions.totalSubtasks')} 
+              style={styles.gridCard}
+            />
+            <StatsSummaryCard
+              label={t('statsScreen.summary.completedSubtasks')}
+              value={stats.subtaskCompletedCount}
+              percentage={stats.subtaskCompletionRate}
+              iconName="check-all"
+              description={t('statsScreen.descriptions.completedSubtasks')} 
+              style={styles.gridCard}
+            />
+          </View>
 
             {/* Time Slot Chart */}
             <View style={styles.cardWrapper}>
