@@ -3,13 +3,13 @@ package com.todus.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum Color {
-    BLUE("#AEC6CF"),
-    YELLOW("#FDFD96"),
-    PINK("#FFD1DC"),
-    PURPLE("#CBAACB"),
-    RED("#FF6961"),
-    ORANGE("#FFD8B1"),
-    BLACK("#B4B4B4"),
+    BLUE("#557F8F"),
+    YELLOW("#EDED04"),
+    PINK("#FF174E"),
+    PURPLE("#8A548A"),
+    RED("#D30A00"),
+    ORANGE("#FF8104"),
+    BLACK("#000000"),
     WHITE("#FFFFFF");
 
     private final String hex;

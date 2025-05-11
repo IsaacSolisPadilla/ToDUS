@@ -27,13 +27,13 @@ import logo from '../../assets/icono.png';
 import { ScrollView } from 'react-native-gesture-handler';
 
 const COLORS = [
-  { name: 'BLUE',   hex: '#AEC6CF' },
-  { name: 'YELLOW', hex: '#FDFD96' },
-  { name: 'PINK',   hex: '#FFD1DC' },
-  { name: 'PURPLE', hex: '#CBAACB' },
-  { name: 'RED',    hex: '#FF6961' },
-  { name: 'ORANGE', hex: '#FFD8B1' },
-  { name: 'BLACK',  hex: '#B4B4B4' },
+  { name: 'BLUE',   hex: '#557F8F' },
+  { name: 'YELLOW', hex: '#EDED04' },
+  { name: 'PINK',   hex: '#FF174E' },
+  { name: 'PURPLE', hex: '#8A548A' },
+  { name: 'RED',    hex: '#D30A00' },
+  { name: 'ORANGE', hex: '#FF8104' },
+  { name: 'BLACK',  hex: '#000000' },
   { name: 'WHITE',  hex: '#FFFFFF' },
 ];
 
